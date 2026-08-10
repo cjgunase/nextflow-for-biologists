@@ -1,0 +1,28 @@
+# Preface {.unnumbered}
+
+This tutorial grew from a real workflow-portability exercise on the DLDCC HPC
+cluster at Baylor College of Medicine. The useful parts were not only the
+successful commands. The difficult parts—an incompatible Java garbage
+collector, a full home-directory quota, a broken package solve, container PATH
+differences and non-identical BAM headers—exposed the engineering ideas that a
+beginner most needs to understand.
+
+The book therefore preserves failures as teaching material. An error message
+is not evidence that you are unsuited to computational work. It is an
+observation about a system. The goal is to learn how to turn that observation
+into a small, testable hypothesis.
+
+## Companion project
+
+The commands and evidence are grounded in version `v0.1.0` of the
+[NGS Workflow Portability Lab](https://github.com/cjgunase/ngs-workflow-portability-lab/tree/v0.1.0).
+Linking the book to a tagged release prevents the underlying example from
+silently changing while someone is following the tutorial.
+
+## A note about HPC systems
+
+Cluster names, module names, partitions, accounts and storage paths are local
+policy. DLDCC-specific commands are labeled as examples. Readers should ask
+their own administrators for the equivalent settings rather than copying site
+configuration blindly.
+

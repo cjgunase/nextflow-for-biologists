@@ -1,0 +1,6 @@
+# Turn commands into strict Bash
+
+This chapter combines validated commands into a script and explains
+`set -euo pipefail` one option at a time. Checksums and biological summary
+statistics are used to confirm that automation preserved the baseline result.
+

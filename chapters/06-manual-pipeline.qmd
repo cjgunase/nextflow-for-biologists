@@ -1,0 +1,6 @@
+# Establish a trusted manual pipeline
+
+This chapter runs raw QC, paired trimming, post-trim QC, alignment, sorting,
+indexing and BAM validation one operation at a time. The manual result becomes
+the baseline against which automation is judged.
+

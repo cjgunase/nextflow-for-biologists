@@ -1,0 +1,7 @@
+# Next steps
+
+After completing the book, readers will be directed toward Nextflow training,
+nf-core conventions, larger test suites, workflow modules, continuous
+integration and domain-appropriate aligners. These are presented as future
+skills rather than accomplishments of the teaching pipeline.
+

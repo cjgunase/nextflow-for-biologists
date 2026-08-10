@@ -1,0 +1,6 @@
+# Your first Nextflow process
+
+This chapter builds a minimal DSL2 workflow, examines `.command.sh`,
+`.command.run`, `.command.log` and `.exitcode`, then ports raw FastQC as the
+first real process.
+

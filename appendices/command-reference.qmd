@@ -1,0 +1,6 @@
+# Command reference
+
+This appendix will collect the small set of shell, Git, Conda, Singularity,
+Nextflow and SLURM commands introduced in the lessons. It is a memory aid, not a
+replacement for understanding the commands in context.
+

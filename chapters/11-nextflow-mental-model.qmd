@@ -1,0 +1,6 @@
+# Nextflow mental model
+
+This chapter introduces processes, channels, values, paths, task working
+directories, dataflow and `publishDir` without yet constructing the complete
+workflow.
+

@@ -1,0 +1,6 @@
+# Container mental model
+
+This chapter distinguishes an image, a running container, a registry, an image
+tag and an immutable digest. It also explains what containers do—and do not—do
+for reproducibility.
+

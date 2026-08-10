@@ -1,0 +1,60 @@
+---
+title: "From FASTQ to Nextflow"
+subtitle: "Reproducible bioinformatics for complete beginners"
+description: "Learn Conda, containers, Nextflow DSL2, Singularity and SLURM by building and validating a small paired-end NGS workflow."
+---
+
+You can understand modern bioinformatics workflow engineering without already
+being a programmer. This book starts with ordinary sequencing files and shell
+commands, then develops one small analysis into a reproducible Nextflow
+workflow that can run locally or through an HPC scheduler.
+
+```{mermaid}
+flowchart LR
+    A["Paired FASTQ files"] --> B["Raw FastQC"]
+    B --> C["Trim Galore"]
+    C --> D["Post-trim FastQC"]
+    C --> E["Bowtie2 + SAMtools sort"]
+    E --> F["BAM validation"]
+```
+
+## What you will build
+
+By the end, you will have followed the reasoning behind:
+
+- a pinned Conda environment;
+- a manually validated NGS workflow;
+- a strict Bash implementation;
+- a Docker/OCI container image;
+- Singularity execution on an HPC system;
+- a five-process Nextflow DSL2 workflow;
+- local and SLURM execution profiles;
+- failure tests, caching and output comparisons; and
+- a versioned, evidence-backed release.
+
+## Who this book is for
+
+This book is written for biologists who can use a web browser but may not yet
+know what a shell, software channel, container image, workflow channel or job
+scheduler is. Every new term is introduced before it is relied upon.
+
+::: {.callout-important title="Scientific scope"}
+The example uses deterministic synthetic paired-end reads derived from human
+GRCh38 chromosome 22. It contains no patient data. It is a teaching and
+reproducibility artifact—not a clinical pipeline, a WGBS pipeline or a
+production-scale biological analysis.
+:::
+
+## How to use the book
+
+Read the chapters in order the first time. Each practical chapter contains:
+
+1. a biological objective;
+2. an engineering objective;
+3. a mental model;
+4. small copyable commands;
+5. expected output;
+6. a verification checkpoint;
+7. common failures and their causes; and
+8. a short exercise.
+

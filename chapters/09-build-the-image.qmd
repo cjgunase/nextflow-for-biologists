@@ -1,0 +1,6 @@
+# Build the project image
+
+This chapter reads the Dockerfile from top to bottom, builds the OCI image with
+GitHub Actions and records evidence about its contents. Special attention is
+given to layers, executable paths and pinned packages.
+

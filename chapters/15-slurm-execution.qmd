@@ -1,0 +1,6 @@
+# Submit tasks through SLURM
+
+This chapter examines the SLURM executor, resource requests and generated
+`#SBATCH` directives. It verifies that each of the five processes ran as a
+scheduled job inside the intended container.
+

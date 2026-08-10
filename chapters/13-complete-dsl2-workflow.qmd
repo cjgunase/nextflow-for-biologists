@@ -1,0 +1,6 @@
+# Complete the DSL2 workflow
+
+This chapter adds paired trimming, post-trim QC, alignment and BAM validation.
+Each input/output declaration is related back to the corresponding manual
+files so readers can see how a shell pipeline becomes a dataflow graph.
+

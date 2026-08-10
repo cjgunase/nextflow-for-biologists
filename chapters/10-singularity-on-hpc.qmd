@@ -1,0 +1,6 @@
+# Run the image with Singularity
+
+This chapter pulls the OCI image into a SIF file and runs tools with
+`singularity exec --cleanenv`. It uses the real PATH and `ps` failures to show
+how container-runtime assumptions can differ between Docker and HPC execution.
+

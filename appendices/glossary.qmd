@@ -1,0 +1,22 @@
+# Glossary
+
+**Channel**  
+A Nextflow dataflow object that carries values between workflow components.
+
+**Conda environment**  
+An isolated collection of software packages and their dependencies.
+
+**Container image**  
+An immutable package of files and metadata used to create a container runtime.
+
+**Executor**  
+The Nextflow component that determines how tasks are launched, such as locally
+or through SLURM.
+
+**Process**  
+A Nextflow definition describing a repeatable unit of work, its inputs, outputs
+and command script.
+
+**SLURM**  
+A workload manager that schedules jobs and allocates shared cluster resources.
+

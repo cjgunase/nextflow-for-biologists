@@ -1,0 +1,6 @@
+# What reproducibility really means
+
+This chapter compares Conda and container outputs. It explains why whole BAM
+hashes differed because provenance headers recorded different executable paths,
+while headerless alignment records, flagstat and idxstats remained identical.
+

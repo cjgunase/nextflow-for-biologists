@@ -1,0 +1,9 @@
+# Troubleshooting
+
+The final appendix will organize the real failures from the companion project
+by symptom, diagnostic observation, root cause, fix and durable lesson.
+
+Initial cases include Java G1 initialization failure, home-directory quota
+exhaustion, Conda dependency solving, missing container PATH entries, missing
+`ps`, invalid SAMtools options and misleading whole-file BAM hashes.
+

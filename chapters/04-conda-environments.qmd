@@ -1,0 +1,6 @@
+# Conda environments
+
+This chapter explains packages, dependencies, environments, channels, channel
+priority and version pinning. It then builds the tool environment and uses
+version commands to prove which executables are active.
+

@@ -1,0 +1,6 @@
+# Profiles and software runtimes
+
+This chapter defines Conda-local, Singularity-local and SLURM-Singularity
+profiles. It explains the separation between workflow logic, software runtime
+and execution platform.
+

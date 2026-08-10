@@ -1,0 +1,6 @@
+# A deterministic test fixture
+
+This chapter downloads GRCh38 chromosome 22, generates deterministic synthetic
+paired reads and records SHA-256 checksums. It explains why small, non-sensitive
+test data are essential for rapid development and public reproducibility.
+

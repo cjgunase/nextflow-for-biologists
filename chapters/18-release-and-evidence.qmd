@@ -1,0 +1,6 @@
+# Release an evidence-backed project
+
+This chapter cleans the repository, creates a semantic version tag and connects
+each engineering claim to a reviewable artifact. It also teaches readers how to
+describe limitations without weakening the work.
+

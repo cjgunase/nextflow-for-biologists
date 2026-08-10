@@ -1,0 +1,6 @@
+# Failure tests and resume caching
+
+This chapter deliberately supplies a missing input pattern, checks the nonzero
+exit code and interprets the error. It then uses `-resume` and a trace file to
+prove that all five completed tasks were restored from cache.
+

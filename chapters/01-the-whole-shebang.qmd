@@ -1,0 +1,71 @@
+# The whole shebang
+
+::: {.chapter-goals}
+**By the end of this chapter, you will be able to:** distinguish a bioinformatics
+tool from a workflow; explain the roles of Conda, containers, Nextflow,
+Singularity and SLURM; and describe how they fit together without treating them
+as interchangeable technologies.
+:::
+
+## Begin with the biological work
+
+A sequencing workflow takes biological measurements stored in files and
+transforms them into other files that can be checked and interpreted. Each
+program normally performs one limited operation. FastQC summarizes read
+quality; Trim Galore removes unwanted sequence and low-quality ends; Bowtie2
+aligns reads to a reference; and SAMtools manipulates and checks alignment
+files.
+
+The programs are the analytical tools. The infrastructure around them makes
+the analysis repeatable.
+
+```{mermaid}
+flowchart TB
+    Q["Biological question"] --> I["Input files"]
+    I --> T["Bioinformatics tools"]
+    T --> W["Nextflow coordinates the work"]
+    C["Conda or a container supplies software"] --> W
+    W --> X["Local computer or SLURM executor"]
+    X --> O["Checked output files"]
+```
+
+## Six technologies, six different jobs
+
+**Conda** resolves and installs compatible software packages into an isolated
+environment. It answers: *Which tool versions and libraries are available?*
+
+**Docker/OCI** describes and builds a portable filesystem image containing the
+tools and their dependencies. It answers: *What complete software environment
+should travel with the workflow?*
+
+**Singularity**—also called Apptainer in newer installations—runs container
+images in an HPC-friendly way. It answers: *How can this cluster execute the
+container without a Docker daemon?*
+
+**Nextflow** models dependencies between tasks and moves files and metadata
+between them. It answers: *What should run next, with which inputs, and can a
+previous result be reused?*
+
+**SLURM** is a scheduler. It assigns requested CPUs, memory and time on shared
+compute nodes. It answers: *Where and when should this task execute?*
+
+**Git** records changes to text files. GitHub stores and presents the history,
+while GitHub Actions can run automated jobs after a change is pushed.
+
+::: {.callout-warning title="A common beginner mistake"}
+Conda, Docker, Nextflow and SLURM do not replace one another. A Nextflow task
+may receive its software from Conda or a container, then be submitted to SLURM.
+Each layer solves a different problem.
+:::
+
+## Check your understanding
+
+For each question, name the main layer responsible:
+
+1. A task needs SAMtools 1.19.2.
+2. Five analyses are waiting for an available compute node.
+3. Trimming must finish before alignment starts.
+4. A collaborator must receive the same system libraries.
+
+Answers: Conda or the container; SLURM; Nextflow; the container image.
+

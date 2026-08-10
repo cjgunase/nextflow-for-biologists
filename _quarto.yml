@@ -1,0 +1,71 @@
+project:
+  type: book
+
+book:
+  title: "From FASTQ to Nextflow"
+  subtitle: "Reproducible bioinformatics for complete beginners"
+  author: "Chathura J. Gunasekara"
+  date: last-modified
+  repo-url: https://github.com/cjgunase/nextflow-for-biologists
+  repo-actions: [edit, issue]
+  site-url: https://cjgunase.github.io/nextflow-for-biologists/
+  chapters:
+    - index.qmd
+    - preface.qmd
+    - part: "Part I — Build the mental model"
+      chapters:
+        - chapters/01-the-whole-shebang.qmd
+        - chapters/02-terminal-and-hpc.qmd
+        - chapters/03-files-paths-and-git.qmd
+    - part: "Part II — Build a trusted manual workflow"
+      chapters:
+        - chapters/04-conda-environments.qmd
+        - chapters/05-test-data.qmd
+        - chapters/06-manual-pipeline.qmd
+        - chapters/07-strict-bash.qmd
+    - part: "Part III — Make the software portable"
+      chapters:
+        - chapters/08-container-mental-model.qmd
+        - chapters/09-build-the-image.qmd
+        - chapters/10-singularity-on-hpc.qmd
+    - part: "Part IV — Port the workflow to Nextflow"
+      chapters:
+        - chapters/11-nextflow-mental-model.qmd
+        - chapters/12-first-nextflow-process.qmd
+        - chapters/13-complete-dsl2-workflow.qmd
+        - chapters/14-profiles-and-runtimes.qmd
+    - part: "Part V — Execute and prove it"
+      chapters:
+        - chapters/15-slurm-execution.qmd
+        - chapters/16-testing-and-resume.qmd
+        - chapters/17-reproducibility.qmd
+        - chapters/18-release-and-evidence.qmd
+    - part: "Appendices"
+      chapters:
+        - appendices/glossary.qmd
+        - appendices/troubleshooting.qmd
+        - appendices/command-reference.qmd
+        - appendices/next-steps.qmd
+  page-footer:
+    left: "From FASTQ to Nextflow"
+    right: "A reproducible learning resource"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    code-line-numbers: false
+    link-external-newwindow: true
+    number-sections: true
+    callout-appearance: simple
+  pdf:
+    documentclass: scrreprt
+    keep-tex: false
+
+execute:
+  freeze: auto
+
