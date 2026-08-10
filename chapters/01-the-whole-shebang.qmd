@@ -1,71 +1,492 @@
 # The whole shebang
 
 ::: {.chapter-goals}
-**By the end of this chapter, you will be able to:** distinguish a bioinformatics
-tool from a workflow; explain the roles of Conda, containers, Nextflow,
-Singularity and SLURM; and describe how they fit together without treating them
-as interchangeable technologies.
+**By the end of this chapter, you will be able to:**
+
+- distinguish a bioinformatics tool from a script and a workflow;
+- explain the separate jobs of modules, Conda, containers, Nextflow and SLURM;
+- distinguish Docker/OCI image building from Singularity/Apptainer execution;
+- explain where Git, GitHub and CI/CD fit into scientific software development;
+- trace one sequencing sample through the complete engineering stack; and
+- recognize claims that a reproducible workflow can—and cannot—support.
 :::
 
-## Begin with the biological work
+## Why a biologist should care
 
-A sequencing workflow takes biological measurements stored in files and
-transforms them into other files that can be checked and interpreted. Each
-program normally performs one limited operation. FastQC summarizes read
-quality; Trim Galore removes unwanted sequence and low-quality ends; Bowtie2
-aligns reads to a reference; and SAMtools manipulates and checks alignment
-files.
+Imagine that you receive paired-end sequencing reads and answer a biological
+question with four programs. You record the commands in a notebook. Six months
+later, one program has changed, a library is missing and the commands run in the
+wrong order on a new computer. A collaborator cannot reproduce the result. On
+an HPC cluster, the same commands compete for memory or accidentally run on the
+login node.
 
-The programs are the analytical tools. The infrastructure around them makes
-the analysis repeatable.
+The biological logic may have been correct. The engineering around it was not
+strong enough to preserve and communicate that logic.
 
-```{mermaid}
-flowchart TB
-    Q["Biological question"] --> I["Input files"]
-    I --> T["Bioinformatics tools"]
-    T --> W["Nextflow coordinates the work"]
-    C["Conda or a container supplies software"] --> W
-    W --> X["Local computer or SLURM executor"]
-    X --> O["Checked output files"]
+Modern bioinformatics therefore has two inseparable responsibilities:
+
+1. **Analytical responsibility:** choose methods that are appropriate for the
+   biological question and interpret their outputs correctly.
+2. **Engineering responsibility:** make the inputs, software, execution,
+   decisions and outputs traceable, testable and repeatable.
+
+This book concentrates on the second responsibility without pretending it can
+replace the first. A beautifully engineered workflow can still run an
+inappropriate aligner. A biologically appropriate analysis can still be
+unreproducible if its software and execution are undocumented. Industry teams
+need both kinds of judgment.
+
+## Engineering objective
+
+Before installing or coding anything, we need a map of the system. You should
+be able to point to each layer and answer:
+
+- What problem does this layer solve?
+- What information enters and leaves it?
+- Which other layer does it depend on?
+- What evidence tells us that it behaved as intended?
+
+If these layers are blurred together, troubleshooting becomes guesswork. For
+example, changing a Conda package cannot fix a SLURM account error, and changing
+a Nextflow channel cannot repair a corrupt FASTQ file.
+
+## Start with files and transformations
+
+Most command-line bioinformatics programs behave like transformations:
+
+```text
+input files + parameters + software → output files + logs
 ```
 
-## Six technologies, six different jobs
+In our teaching project:
 
-**Conda** resolves and installs compatible software packages into an isolated
-environment. It answers: *Which tool versions and libraries are available?*
+- **FastQC** reads FASTQ files and writes quality reports.
+- **Trim Galore** reads paired FASTQ files and writes trimmed paired FASTQ
+  files plus reports.
+- **Bowtie2** reads trimmed FASTQ files and a reference index, then writes SAM
+  alignment records.
+- **SAMtools** sorts, indexes and validates the alignments in BAM format.
 
-**Docker/OCI** describes and builds a portable filesystem image containing the
-tools and their dependencies. It answers: *What complete software environment
-should travel with the workflow?*
+Each program is a **tool**. A tool normally performs one focused operation.
+Connecting the tools creates a **pipeline**.
 
-**Singularity**—also called Apptainer in newer installations—runs container
-images in an HPC-friendly way. It answers: *How can this cluster execute the
-container without a Docker daemon?*
+```{mermaid}
+%%| fig-cap: "The analytical path used throughout the book. Trimming creates two branches: post-trim quality control and alignment."
+flowchart LR
+    R["Paired FASTQ"] --> Q1["Raw FastQC"]
+    R --> T["Trim Galore"]
+    T --> Q2["Post-trim FastQC"]
+    T --> A["Bowtie2"]
+    X["Reference index"] --> A
+    A --> S["SAMtools sort"]
+    S --> V["BAM validation"]
+```
 
-**Nextflow** models dependencies between tasks and moves files and metadata
-between them. It answers: *What should run next, with which inputs, and can a
-previous result be reused?*
+Notice that this is not simply a list. Raw FastQC and trimming can begin from
+the same input. Post-trim FastQC and alignment must wait for trimming. Alignment
+also needs the reference index. These dependencies form a directed graph.
 
-**SLURM** is a scheduler. It assigns requested CPUs, memory and time on shared
-compute nodes. It answers: *Where and when should this task execute?*
+## Tool, command, script, pipeline and workflow
 
-**Git** records changes to text files. GitHub stores and presents the history,
-while GitHub Actions can run automated jobs after a change is pushed.
+These words are related but not interchangeable.
 
-::: {.callout-warning title="A common beginner mistake"}
-Conda, Docker, Nextflow and SLURM do not replace one another. A Nextflow task
-may receive its software from Conda or a container, then be submitted to SLURM.
-Each layer solves a different problem.
+| Term | Meaning in this book | Example |
+|---|---|---|
+| **Tool** | A program that performs a focused operation | `samtools` |
+| **Command** | One request to run a program with particular arguments | `samtools quickcheck sample.bam` |
+| **Script** | A saved text file containing commands and control logic | `run_manual.sh` |
+| **Pipeline** | The connected analytical steps from input to result | FASTQ → trim → align → BAM |
+| **Workflow** | An executable model of tasks, dependencies, inputs, outputs and resources | `main.nf` |
+| **Workflow run** | One execution of a workflow with specific inputs, settings and software | the five-task chr22 run |
+
+A Bash script can implement a pipeline. A workflow engine adds explicit task
+contracts, dependency scheduling, isolated work directories, caching,
+resource requests and alternative execution backends. That does not make Bash
+obsolete: every Nextflow process in this book ultimately runs shell commands.
+
+## The complete stack
+
+Our analytical graph sits inside a larger engineering system.
+
+```{mermaid}
+%%| fig-cap: "The layers are complementary. Nextflow coordinates commands supplied by an environment or image and launches tasks through an executor."
+flowchart TB
+    BQ["Biological question"] --> DATA["Input data + metadata"]
+    DATA --> WF["Nextflow workflow logic"]
+    SW["Software layer<br/>Conda environment or OCI image"] --> WF
+    CFG["Parameters + configuration"] --> WF
+    WF --> EX["Executor<br/>local or SLURM"]
+    EX --> RT["Task runtime<br/>host, Conda or Singularity"]
+    RT --> OUT["Outputs + logs + reports"]
+    OUT --> QC["Technical and biological review"]
+    GIT["Git + GitHub<br/>history and collaboration"] -. records .-> WF
+    GIT -. records .-> CFG
+    CI["CI/CD automation"] -. checks and publishes .-> GIT
+```
+
+The arrows do not mean that Git executes FastQC or that SLURM installs
+SAMtools. Each layer has a narrower responsibility.
+
+## The host operating system
+
+The **host** is the computer or compute node on which a process ultimately
+runs. It supplies the kernel, processors, memory, filesystems and security
+controls. On a laptop you may administer much of the host. On an institutional
+cluster, platform administrators control it.
+
+This matters because neither Conda nor a container creates CPUs or memory.
+Containers also share the host kernel; they are not complete virtual machines.
+Architecture and operating-system compatibility still matter.
+
+**Question answered by the host:** *What machine resources and operating-system
+services exist?*
+
+## Cluster modules
+
+An HPC **module system** lets administrators offer multiple versions of
+cluster-provided software. Loading a module commonly modifies environment
+variables such as `PATH`, which controls where the shell searches for
+executables.
+
+Examples might include Java, Singularity or a compiler. Module names and
+versions are local to the cluster.
+
+**Question answered by modules:** *Which administrator-provided software should
+this shell session see?*
+
+Modules are not Conda environments. A module may expose the Java needed to
+start Nextflow while a Conda environment supplies FastQC and SAMtools. Because
+both can modify `PATH`, they can also conflict. Later we will inspect the active
+layers rather than assuming which executable is being used.
+
+## Conda environments and channels
+
+**Conda** is a package and environment manager. A Conda environment is an
+isolated directory containing selected programs and their dependencies. For
+example, SAMtools depends on libraries for compressed genomic file formats.
+Conda attempts to choose a compatible set.
+
+A **channel** is a package repository. It is a source from which Conda obtains
+package metadata and package files. Bioconda distributes many bioinformatics
+packages; conda-forge distributes a broad range of supporting software and
+libraries. Channel order and priority affect which builds the solver may
+select.
+
+**Question answered by Conda:** *Which package versions and compatible
+libraries are installed in this environment?*
+
+Conda improves control over software, but an environment specification alone
+does not freeze the host kernel, scheduler, external reference data or every
+future package build. Reproducibility has multiple layers.
+
+## OCI images, Docker and containers
+
+An **OCI image** is a packaged, read-only filesystem plus metadata describing
+how software should run. OCI refers to open container standards. **Docker** is
+one widely used platform for building and running OCI-compatible images.
+
+A **container** is a running process created from an image. The distinction is
+similar to a class recipe versus one instantiated object, or a cake recipe
+versus one baked cake—although every analogy has limits.
+
+An image can contain the Conda-resolved tools, their libraries and selected
+operating-system files. A registry such as GitHub Container Registry stores and
+distributes images.
+
+| Concept | Mutable while building/running? | Role |
+|---|---:|---|
+| Dockerfile | Yes, it is source text | Recipe for building an image |
+| Image | Normally treated as immutable | Packaged filesystem and metadata |
+| Tag | Can be moved to another image | Human-friendly name such as `v0.1.0` |
+| Digest | Identifies exact image content | Immutable content address |
+| Container | Has a writable runtime layer | A process running from an image |
+| Registry | Stores and distributes images | GHCR, Docker Hub or another service |
+
+**Question answered by an image:** *What packaged userspace and tools should
+travel with this task?*
+
+::: {.callout-warning title="A tag is not an immutable identity"}
+The label `latest` can point to different image content tomorrow. A digest
+identifies exact content. Friendly tags are useful for humans; digests are
+stronger evidence for an exact runtime.
 :::
 
-## Check your understanding
+## Singularity and Apptainer on HPC
 
-For each question, name the main layer responsible:
+Docker normally relies on a long-running privileged service called a daemon.
+Multi-user HPC centers commonly do not allow users to run that service. They
+often provide **Singularity** or **Apptainer**, which can execute container
+images using an HPC-oriented security and filesystem model.
 
-1. A task needs SAMtools 1.19.2.
-2. Five analyses are waiting for an available compute node.
-3. Trimming must finish before alignment starts.
-4. A collaborator must receive the same system libraries.
+Singularity can pull an OCI image and create a **SIF**—a Singularity Image
+Format file. Nextflow can then execute individual tasks inside that SIF while
+SLURM assigns the compute node.
 
-Answers: Conda or the container; SLURM; Nextflow; the container image.
+Docker and Singularity therefore are not two words for the same operation in
+our project:
 
+- GitHub Actions uses a Docker-oriented build process to create the OCI image.
+- DLDCC uses Singularity to run the resulting image as a SIF.
+
+**Question answered by Singularity:** *How should this HPC task enter and run
+the packaged container environment?*
+
+## Nextflow: dependency and task orchestration
+
+**Nextflow** is a workflow engine. We describe processes with input and output
+contracts. Channels carry values—such as sample identifiers and file paths—to
+processes. When all required inputs are available, Nextflow creates a task.
+
+Nextflow can:
+
+- stage task inputs into an isolated work directory;
+- launch ready tasks without waiting unnecessarily for unrelated tasks;
+- request CPUs, memory and time;
+- run a task with Conda or inside a container;
+- submit tasks locally, to SLURM or to other executors;
+- record logs, traces, timelines and reports; and
+- reuse a matching successful task with `-resume`.
+
+Nextflow does not decide whether Bowtie2 is biologically appropriate. It also
+does not replace Bowtie2: it coordinates the command that runs Bowtie2.
+
+**Question answered by Nextflow:** *Which task is ready, what are its inputs and
+outputs, what resources/runtime does it require, and can prior work be reused?*
+
+## Executors and SLURM
+
+An **executor** is the Nextflow component that decides how tasks are launched.
+With the local executor, tasks run on the current machine. With the SLURM
+executor, Nextflow writes job wrappers and submits them to the cluster
+scheduler.
+
+**SLURM** is a workload manager. It places jobs on shared compute resources
+according to requested CPUs, memory, time, partition, account and site policy.
+It tracks queued, running, completed and failed jobs.
+
+SLURM does not understand that trimming must precede alignment. Nextflow knows
+the data dependency and submits the alignment task only when its inputs exist.
+Nextflow does not decide which physical node is free. SLURM does.
+
+**Question answered by the executor and scheduler:** *How, where and when
+should this ready task run?*
+
+## Git and GitHub: traceable change and collaboration
+
+**Git** records snapshots of selected files and the relationships between those
+snapshots. It lets a team inspect what changed, why it changed and which exact
+revision was used. Branches allow work to be reviewed before it becomes part of
+the main history. Tags can name releases.
+
+**GitHub** hosts Git repositories and adds collaboration services such as
+issues, pull requests, reviews, releases and automation.
+
+Git should track source and small evidence artifacts:
+
+- Nextflow and Bash source;
+- environment specifications;
+- Dockerfiles;
+- configuration without secrets;
+- tests and documentation; and
+- small reports needed to support claims.
+
+Git is generally a poor home for large FASTQ, BAM, index, cache and container
+files. Sensitive data must never be placed in a public repository.
+
+**Question answered by Git:** *Which source revision and documented decisions
+produced this project state?*
+
+## CI/CD: automated feedback and delivery
+
+**Continuous integration (CI)** means automatically integrating and checking
+small changes frequently. A CI workflow may lint files, render documentation,
+run a small test and verify that a container contains required tools.
+
+**Continuous delivery** means keeping a tested artifact ready to release or
+publishing it through a controlled process. **Continuous deployment** goes
+further: a passing change is automatically deployed to its target environment.
+
+In our work:
+
+- GitHub Actions building and smoke-checking an image is CI plus artifact
+  delivery.
+- GitHub Actions publishing this Quarto book to GitHub Pages is automated
+  deployment of documentation.
+- Running a research pipeline on new samples is not automatically “CI/CD.” It
+  is a workflow execution and may require separate authorization, review and
+  data controls.
+
+Automation supplies evidence; it does not create scientific truth. A green
+check means the configured checks passed—not that every biological or clinical
+requirement has been validated.
+
+**Question answered by CI/CD:** *Which checks and publication actions should
+happen automatically when source changes or a release is created?*
+
+## Trace one sample through the stack
+
+Consider the sample identifier `sim_chr22`.
+
+1. Two FASTQ files and sample metadata describe the input.
+2. Git identifies the exact workflow, configuration, environment and container
+   recipe revision.
+3. Nextflow creates the raw-QC and trimming tasks because both can consume the
+   original read pair.
+4. The selected profile tells Nextflow to use the local or SLURM executor and a
+   Conda environment or Singularity image.
+5. On DLDCC, Nextflow submits a job wrapper to SLURM.
+6. SLURM assigns a compute node with the requested resources.
+7. Singularity starts the task inside the project SIF and makes required host
+   paths visible through bind mounts.
+8. FastQC or Trim Galore runs with the inputs staged by Nextflow.
+9. The task writes output and logs in its isolated work directory.
+10. Nextflow records task status, publishes selected results and enables cache
+    reuse.
+11. Technical checks confirm that files exist, are readable and have expected
+    summaries.
+12. A qualified analyst still decides whether the results are biologically
+    meaningful for the intended use.
+
+No single technology performs all twelve responsibilities.
+
+## Three kinds of reproducibility
+
+The word *reproducible* is often used too broadly. In this book we separate:
+
+1. **Computational repeatability:** rerunning the same inputs, code, parameters
+   and runtime produces acceptably equivalent outputs.
+2. **Computational reproducibility:** another person can reconstruct the
+   analysis from recorded source, software, data provenance and instructions.
+3. **Scientific reproducibility:** independent evidence supports the same
+   scientific conclusion.
+
+This project primarily demonstrates the first two on a small synthetic test
+fixture. It does not demonstrate clinical validation or independent scientific
+replication.
+
+::: {.callout-important title="Engineering evidence has a scope"}
+A successful Nextflow run proves that configured tasks completed. A valid BAM
+proves that the file passes selected structural checks. A container digest
+identifies image content. None of these facts alone proves that a method is
+appropriate for diagnosis, that a biological conclusion is correct or that the
+workflow is production-ready.
+:::
+
+## Common misconceptions
+
+### “Conda and Docker do the same thing”
+
+Both help control software, but at different boundaries. Conda manages packages
+inside an environment. An OCI image packages a broader userspace and metadata.
+We will use Conda to resolve tools and then package that environment in an
+image.
+
+### “Nextflow runs the cluster”
+
+Nextflow models and submits work. SLURM manages shared cluster resources. The
+Nextflow SLURM executor connects the two.
+
+### “The container includes my input data”
+
+Our image contains software, not the large analysis inputs. At runtime, files
+are normally mounted or staged into the container.
+
+### “If CI is green, the pipeline is validated”
+
+CI reports only the checks we encoded. Validation requires defined intended
+use, requirements, acceptance criteria, evidence and—where applicable—formal
+quality or regulatory processes.
+
+### “GitHub is Git”
+
+Git is the version-control system. GitHub is a hosting and collaboration
+platform built around Git repositories. Git works without GitHub.
+
+## Chapter artifact: your architecture map
+
+Without looking back, complete the final column.
+
+| Layer | Primary responsibility | Your one-sentence explanation |
+|---|---|---|
+| Bioinformatics tool | Perform one analytical operation | |
+| Module system | Expose administrator-provided cluster software | |
+| Conda | Resolve and install package environments | |
+| OCI image | Package software and userspace | |
+| Singularity | Execute the packaged environment on HPC | |
+| Nextflow | Coordinate tasks and data dependencies | |
+| SLURM | Schedule jobs and allocate cluster resources | |
+| Git/GitHub | Record, share and review source changes | |
+| CI/CD | Automatically check and deliver defined artifacts | |
+
+Save this table in your learning notes. At the end of the book, revise each
+sentence using the evidence you created.
+
+## Verification checkpoint
+
+Match each scenario to its **primary** layer. Some scenarios involve several
+layers; choose the one that owns the stated decision.
+
+1. SAMtools 1.19.2 and its libraries must be installed together.
+2. Trimming must finish before alignment begins.
+3. Five ready tasks are waiting for available compute nodes.
+4. An HPC task must enter the project SIF before running FastQC.
+5. A reviewer wants to inspect the exact source change that introduced a new
+   parameter.
+6. A pushed pull request should automatically render the documentation and run
+   a smoke test.
+7. A collaborator wants the exact image content rather than whatever `latest`
+   means today.
+8. An analyst must decide whether Bowtie2 is appropriate for bisulfite-treated
+   reads.
+
+::: {.callout-tip collapse="true" title="Show the answers"}
+1. Conda/package environment.
+2. Nextflow workflow dependency.
+3. SLURM scheduler.
+4. Singularity/Apptainer runtime.
+5. Git history and GitHub review.
+6. CI automation.
+7. OCI image digest.
+8. Biological/methodological judgment—not the workflow engine.
+:::
+
+You are ready to continue when you can explain *why* each answer is different,
+not merely recite the product names.
+
+## Try it yourself
+
+Draw the stack for one analysis you already know. It can be an R script, a
+microscopy workflow or a sequencing analysis. Identify:
+
+- input data;
+- analytical tools;
+- software environment;
+- ordering/dependencies;
+- execution location;
+- outputs and logs;
+- version-control evidence; and
+- acceptance criteria.
+
+If a layer is absent, write “not yet controlled” rather than inventing it. That
+gap is useful information.
+
+## What to remember
+
+- Biological validity and engineering reproducibility support one another but
+  are not the same claim.
+- A tool performs an operation; a workflow engine coordinates operations and
+  their dependencies.
+- Modules, Conda, containers, Nextflow and SLURM solve different problems and
+  can be used together.
+- Docker/OCI builds and distributes the image; Singularity/Apptainer executes
+  that packaged environment on our HPC system.
+- Git records source history; GitHub supports collaboration; CI/CD automates
+  explicitly defined checks and delivery.
+- Every green check, checksum and report has a limited meaning. Good engineers
+  state that meaning accurately.
+
+## Next chapter
+
+Chapter 2 turns this architecture map into a verified workstation inventory.
+You will check what is installed, distinguish required local tools from
+cluster-provided tools and record the starting state before modifying it.

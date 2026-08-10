@@ -22,3 +22,14 @@ code {
   font-size: 0.92em;
 }
 
+pre.text,
+pre.text code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+table.table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
