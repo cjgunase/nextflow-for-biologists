@@ -30,9 +30,12 @@ quarto render
 Generated output is written to `_book/` and is not committed to the source
 branch.
 
+The default build produces the public HTML book. A PDF edition can be added as
+a separate release artifact later, after its TeX dependencies and page layout
+have been tested independently.
+
 ## Scope
 
 The book teaches workflow-engineering concepts through a small paired-end NGS
 QC and alignment example. It does not claim clinical validation, production
 scale or methylation-aware alignment.
-

@@ -62,10 +62,6 @@ format:
     link-external-newwindow: true
     number-sections: true
     callout-appearance: simple
-  pdf:
-    documentclass: scrreprt
-    keep-tex: false
 
 execute:
   freeze: auto
-
