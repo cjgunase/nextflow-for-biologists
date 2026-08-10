@@ -1,0 +1,326 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "From FASTQ to Nextflow",
+    "section": "",
+    "text": "0.1 What you will build\nYou can understand modern bioinformatics workflow engineering without already being a programmer. This book starts with ordinary sequencing files and shell commands, then develops one small analysis into a reproducible Nextflow workflow that can run locally or through an HPC scheduler.\nBy the end, you will have followed the reasoning behind:",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#what-you-will-build",
+    "href": "index.html#what-you-will-build",
+    "title": "From FASTQ to Nextflow",
+    "section": "",
+    "text": "a pinned Conda environment;\na manually validated NGS workflow;\na strict Bash implementation;\na Docker/OCI container image;\nSingularity execution on an HPC system;\na five-process Nextflow DSL2 workflow;\nlocal and SLURM execution profiles;\nfailure tests, caching and output comparisons; and\na versioned, evidence-backed release.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#who-this-book-is-for",
+    "href": "index.html#who-this-book-is-for",
+    "title": "From FASTQ to Nextflow",
+    "section": "0.2 Who this book is for",
+    "text": "0.2 Who this book is for\nThis book is written for biologists who can use a web browser but may not yet know what a shell, software channel, container image, workflow channel or job scheduler is. Every new term is introduced before it is relied upon.\n\n\n\n\n\n\nImportantScientific scope\n\n\n\nThe example uses deterministic synthetic paired-end reads derived from human GRCh38 chromosome 22. It contains no patient data. It is a teaching and reproducibility artifact—not a clinical pipeline, a WGBS pipeline or a production-scale biological analysis.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use-the-book",
+    "href": "index.html#how-to-use-the-book",
+    "title": "From FASTQ to Nextflow",
+    "section": "0.3 How to use the book",
+    "text": "0.3 How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+    ]
+  },
+  {
+    "objectID": "preface.html",
+    "href": "preface.html",
+    "title": "Preface",
+    "section": "",
+    "text": "Companion project\nThis tutorial grew from a real workflow-portability exercise on the DLDCC HPC cluster at Baylor College of Medicine. The useful parts were not only the successful commands. The difficult parts—an incompatible Java garbage collector, a full home-directory quota, a broken package solve, container PATH differences and non-identical BAM headers—exposed the engineering ideas that a beginner most needs to understand.\nThe book therefore preserves failures as teaching material. An error message is not evidence that you are unsuited to computational work. It is an observation about a system. The goal is to learn how to turn that observation into a small, testable hypothesis.\nThe commands and evidence are grounded in version v0.1.0 of the NGS Workflow Portability Lab. Linking the book to a tagged release prevents the underlying example from silently changing while someone is following the tutorial.",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "preface.html#a-note-about-hpc-systems",
+    "href": "preface.html#a-note-about-hpc-systems",
+    "title": "Preface",
+    "section": "A note about HPC systems",
+    "text": "A note about HPC systems\nCluster names, module names, partitions, accounts and storage paths are local policy. DLDCC-specific commands are labeled as examples. Readers should ask their own administrators for the equivalent settings rather than copying site configuration blindly.",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html",
+    "href": "chapters/01-the-whole-shebang.html",
+    "title": "2  The whole shebang",
+    "section": "",
+    "text": "2.1 Begin with the biological work\nA sequencing workflow takes biological measurements stored in files and transforms them into other files that can be checked and interpreted. Each program normally performs one limited operation. FastQC summarizes read quality; Trim Galore removes unwanted sequence and low-quality ends; Bowtie2 aligns reads to a reference; and SAMtools manipulates and checks alignment files.\nThe programs are the analytical tools. The infrastructure around them makes the analysis repeatable.\nflowchart TB\n    Q[\"Biological question\"] --&gt; I[\"Input files\"]\n    I --&gt; T[\"Bioinformatics tools\"]\n    T --&gt; W[\"Nextflow coordinates the work\"]\n    C[\"Conda or a container supplies software\"] --&gt; W\n    W --&gt; X[\"Local computer or SLURM executor\"]\n    X --&gt; O[\"Checked output files\"]",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#six-technologies-six-different-jobs",
+    "href": "chapters/01-the-whole-shebang.html#six-technologies-six-different-jobs",
+    "title": "2  The whole shebang",
+    "section": "2.2 Six technologies, six different jobs",
+    "text": "2.2 Six technologies, six different jobs\nConda resolves and installs compatible software packages into an isolated environment. It answers: Which tool versions and libraries are available?\nDocker/OCI describes and builds a portable filesystem image containing the tools and their dependencies. It answers: What complete software environment should travel with the workflow?\nSingularity—also called Apptainer in newer installations—runs container images in an HPC-friendly way. It answers: How can this cluster execute the container without a Docker daemon?\nNextflow models dependencies between tasks and moves files and metadata between them. It answers: What should run next, with which inputs, and can a previous result be reused?\nSLURM is a scheduler. It assigns requested CPUs, memory and time on shared compute nodes. It answers: Where and when should this task execute?\nGit records changes to text files. GitHub stores and presents the history, while GitHub Actions can run automated jobs after a change is pushed.\n\n\n\n\n\n\nWarningA common beginner mistake\n\n\n\nConda, Docker, Nextflow and SLURM do not replace one another. A Nextflow task may receive its software from Conda or a container, then be submitted to SLURM. Each layer solves a different problem.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#check-your-understanding",
+    "href": "chapters/01-the-whole-shebang.html#check-your-understanding",
+    "title": "2  The whole shebang",
+    "section": "2.3 Check your understanding",
+    "text": "2.3 Check your understanding\nFor each question, name the main layer responsible:\n\nA task needs SAMtools 1.19.2.\nFive analyses are waiting for an available compute node.\nTrimming must finish before alignment starts.\nA collaborator must receive the same system libraries.\n\nAnswers: Conda or the container; SLURM; Nextflow; the container image.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-and-hpc.html",
+    "href": "chapters/02-terminal-and-hpc.html",
+    "title": "3  The terminal and an HPC cluster",
+    "section": "",
+    "text": "This chapter introduces prompts, commands, login versus compute nodes, software modules, storage locations and job schedulers. It explains why heavy analyses should not be run on a shared login node and why module purge changes the cluster-provided software layer without deactivating a Conda environment.\n\n\n\n\n\n\nNoteComing in the guided build\n\n\n\nThe complete lesson will use annotated DLDCC examples while clearly marking which paths, module names, accounts and partitions are site-specific.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal and an HPC cluster</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-files-paths-and-git.html",
+    "href": "chapters/03-files-paths-and-git.html",
+    "title": "4  Files, paths and Git",
+    "section": "",
+    "text": "This chapter develops the minimum command-line vocabulary needed for the rest of the book: working directories, absolute and relative paths, files versus directories, standard output, exit codes, checksums, Git commits and tags.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Files, paths and Git</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-conda-environments.html",
+    "href": "chapters/04-conda-environments.html",
+    "title": "5  Conda environments",
+    "section": "",
+    "text": "This chapter explains packages, dependencies, environments, channels, channel priority and version pinning. It then builds the tool environment and uses version commands to prove which executables are active.",
+    "crumbs": [
+      "Part II — Build a trusted manual workflow",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Conda environments</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-test-data.html",
+    "href": "chapters/05-test-data.html",
+    "title": "6  A deterministic test fixture",
+    "section": "",
+    "text": "This chapter downloads GRCh38 chromosome 22, generates deterministic synthetic paired reads and records SHA-256 checksums. It explains why small, non-sensitive test data are essential for rapid development and public reproducibility.",
+    "crumbs": [
+      "Part II — Build a trusted manual workflow",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>A deterministic test fixture</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-manual-pipeline.html",
+    "href": "chapters/06-manual-pipeline.html",
+    "title": "7  Establish a trusted manual pipeline",
+    "section": "",
+    "text": "This chapter runs raw QC, paired trimming, post-trim QC, alignment, sorting, indexing and BAM validation one operation at a time. The manual result becomes the baseline against which automation is judged.",
+    "crumbs": [
+      "Part II — Build a trusted manual workflow",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Establish a trusted manual pipeline</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/07-strict-bash.html",
+    "href": "chapters/07-strict-bash.html",
+    "title": "8  Turn commands into strict Bash",
+    "section": "",
+    "text": "This chapter combines validated commands into a script and explains set -euo pipefail one option at a time. Checksums and biological summary statistics are used to confirm that automation preserved the baseline result.",
+    "crumbs": [
+      "Part II — Build a trusted manual workflow",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Turn commands into strict Bash</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/08-container-mental-model.html",
+    "href": "chapters/08-container-mental-model.html",
+    "title": "9  Container mental model",
+    "section": "",
+    "text": "This chapter distinguishes an image, a running container, a registry, an image tag and an immutable digest. It also explains what containers do—and do not—do for reproducibility.",
+    "crumbs": [
+      "Part III — Make the software portable",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Container mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/09-build-the-image.html",
+    "href": "chapters/09-build-the-image.html",
+    "title": "10  Build the project image",
+    "section": "",
+    "text": "This chapter reads the Dockerfile from top to bottom, builds the OCI image with GitHub Actions and records evidence about its contents. Special attention is given to layers, executable paths and pinned packages.",
+    "crumbs": [
+      "Part III — Make the software portable",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Build the project image</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/10-singularity-on-hpc.html",
+    "href": "chapters/10-singularity-on-hpc.html",
+    "title": "11  Run the image with Singularity",
+    "section": "",
+    "text": "This chapter pulls the OCI image into a SIF file and runs tools with singularity exec --cleanenv. It uses the real PATH and ps failures to show how container-runtime assumptions can differ between Docker and HPC execution.",
+    "crumbs": [
+      "Part III — Make the software portable",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Run the image with Singularity</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html",
+    "href": "chapters/11-nextflow-mental-model.html",
+    "title": "12  Nextflow mental model",
+    "section": "",
+    "text": "This chapter introduces processes, channels, values, paths, task working directories, dataflow and publishDir without yet constructing the complete workflow.",
+    "crumbs": [
+      "Part IV — Port the workflow to Nextflow",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html",
+    "href": "chapters/12-first-nextflow-process.html",
+    "title": "13  Your first Nextflow process",
+    "section": "",
+    "text": "This chapter builds a minimal DSL2 workflow, examines .command.sh, .command.run, .command.log and .exitcode, then ports raw FastQC as the first real process.",
+    "crumbs": [
+      "Part IV — Port the workflow to Nextflow",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html",
+    "href": "chapters/13-complete-dsl2-workflow.html",
+    "title": "14  Complete the DSL2 workflow",
+    "section": "",
+    "text": "This chapter adds paired trimming, post-trim QC, alignment and BAM validation. Each input/output declaration is related back to the corresponding manual files so readers can see how a shell pipeline becomes a dataflow graph.",
+    "crumbs": [
+      "Part IV — Port the workflow to Nextflow",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html",
+    "href": "chapters/14-profiles-and-runtimes.html",
+    "title": "15  Profiles and software runtimes",
+    "section": "",
+    "text": "This chapter defines Conda-local, Singularity-local and SLURM-Singularity profiles. It explains the separation between workflow logic, software runtime and execution platform.",
+    "crumbs": [
+      "Part IV — Port the workflow to Nextflow",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html",
+    "href": "chapters/15-slurm-execution.html",
+    "title": "16  Submit tasks through SLURM",
+    "section": "",
+    "text": "This chapter examines the SLURM executor, resource requests and generated #SBATCH directives. It verifies that each of the five processes ran as a scheduled job inside the intended container.",
+    "crumbs": [
+      "Part V — Execute and prove it",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html",
+    "href": "chapters/16-testing-and-resume.html",
+    "title": "17  Failure tests and resume caching",
+    "section": "",
+    "text": "This chapter deliberately supplies a missing input pattern, checks the nonzero exit code and interprets the error. It then uses -resume and a trace file to prove that all five completed tasks were restored from cache.",
+    "crumbs": [
+      "Part V — Execute and prove it",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/17-reproducibility.html",
+    "href": "chapters/17-reproducibility.html",
+    "title": "18  What reproducibility really means",
+    "section": "",
+    "text": "This chapter compares Conda and container outputs. It explains why whole BAM hashes differed because provenance headers recorded different executable paths, while headerless alignment records, flagstat and idxstats remained identical.",
+    "crumbs": [
+      "Part V — Execute and prove it",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>What reproducibility really means</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/18-release-and-evidence.html",
+    "href": "chapters/18-release-and-evidence.html",
+    "title": "19  Release an evidence-backed project",
+    "section": "",
+    "text": "This chapter cleans the repository, creates a semantic version tag and connects each engineering claim to a reviewable artifact. It also teaches readers how to describe limitations without weakening the work.",
+    "crumbs": [
+      "Part V — Execute and prove it",
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Release an evidence-backed project</span>"
+    ]
+  },
+  {
+    "objectID": "appendices/glossary.html",
+    "href": "appendices/glossary.html",
+    "title": "20  Glossary",
+    "section": "",
+    "text": "Channel\nA Nextflow dataflow object that carries values between workflow components.\nConda environment\nAn isolated collection of software packages and their dependencies.\nContainer image\nAn immutable package of files and metadata used to create a container runtime.\nExecutor\nThe Nextflow component that determines how tasks are launched, such as locally or through SLURM.\nProcess\nA Nextflow definition describing a repeatable unit of work, its inputs, outputs and command script.\nSLURM\nA workload manager that schedules jobs and allocates shared cluster resources.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Glossary</span>"
+    ]
+  },
+  {
+    "objectID": "appendices/troubleshooting.html",
+    "href": "appendices/troubleshooting.html",
+    "title": "21  Troubleshooting",
+    "section": "",
+    "text": "The final appendix will organize the real failures from the companion project by symptom, diagnostic observation, root cause, fix and durable lesson.\nInitial cases include Java G1 initialization failure, home-directory quota exhaustion, Conda dependency solving, missing container PATH entries, missing ps, invalid SAMtools options and misleading whole-file BAM hashes.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Troubleshooting</span>"
+    ]
+  },
+  {
+    "objectID": "appendices/command-reference.html",
+    "href": "appendices/command-reference.html",
+    "title": "22  Command reference",
+    "section": "",
+    "text": "This appendix will collect the small set of shell, Git, Conda, Singularity, Nextflow and SLURM commands introduced in the lessons. It is a memory aid, not a replacement for understanding the commands in context.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Command reference</span>"
+    ]
+  },
+  {
+    "objectID": "appendices/next-steps.html",
+    "href": "appendices/next-steps.html",
+    "title": "23  Next steps",
+    "section": "",
+    "text": "After completing the book, readers will be directed toward Nextflow training, nf-core conventions, larger test suites, workflow modules, continuous integration and domain-appropriate aligners. These are presented as future skills rather than accomplishments of the teaching pipeline.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Next steps</span>"
+    ]
+  }
+]
