@@ -340,9 +340,35 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#begin-with-the-biological-work" id="toc-begin-with-the-biological-work" class="nav-link active" data-scroll-target="#begin-with-the-biological-work"><span class="header-section-number">2.1</span> Begin with the biological work</a></li>
-  <li><a href="#six-technologies-six-different-jobs" id="toc-six-technologies-six-different-jobs" class="nav-link" data-scroll-target="#six-technologies-six-different-jobs"><span class="header-section-number">2.2</span> Six technologies, six different jobs</a></li>
-  <li><a href="#check-your-understanding" id="toc-check-your-understanding" class="nav-link" data-scroll-target="#check-your-understanding"><span class="header-section-number">2.3</span> Check your understanding</a></li>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">2.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">2.2</span> Engineering objective</a></li>
+  <li><a href="#start-with-files-and-transformations" id="toc-start-with-files-and-transformations" class="nav-link" data-scroll-target="#start-with-files-and-transformations"><span class="header-section-number">2.3</span> Start with files and transformations</a></li>
+  <li><a href="#tool-command-script-pipeline-and-workflow" id="toc-tool-command-script-pipeline-and-workflow" class="nav-link" data-scroll-target="#tool-command-script-pipeline-and-workflow"><span class="header-section-number">2.4</span> Tool, command, script, pipeline and workflow</a></li>
+  <li><a href="#the-complete-stack" id="toc-the-complete-stack" class="nav-link" data-scroll-target="#the-complete-stack"><span class="header-section-number">2.5</span> The complete stack</a></li>
+  <li><a href="#the-host-operating-system" id="toc-the-host-operating-system" class="nav-link" data-scroll-target="#the-host-operating-system"><span class="header-section-number">2.6</span> The host operating system</a></li>
+  <li><a href="#cluster-modules" id="toc-cluster-modules" class="nav-link" data-scroll-target="#cluster-modules"><span class="header-section-number">2.7</span> Cluster modules</a></li>
+  <li><a href="#conda-environments-and-channels" id="toc-conda-environments-and-channels" class="nav-link" data-scroll-target="#conda-environments-and-channels"><span class="header-section-number">2.8</span> Conda environments and channels</a></li>
+  <li><a href="#oci-images-docker-and-containers" id="toc-oci-images-docker-and-containers" class="nav-link" data-scroll-target="#oci-images-docker-and-containers"><span class="header-section-number">2.9</span> OCI images, Docker and containers</a></li>
+  <li><a href="#singularity-and-apptainer-on-hpc" id="toc-singularity-and-apptainer-on-hpc" class="nav-link" data-scroll-target="#singularity-and-apptainer-on-hpc"><span class="header-section-number">2.10</span> Singularity and Apptainer on HPC</a></li>
+  <li><a href="#nextflow-dependency-and-task-orchestration" id="toc-nextflow-dependency-and-task-orchestration" class="nav-link" data-scroll-target="#nextflow-dependency-and-task-orchestration"><span class="header-section-number">2.11</span> Nextflow: dependency and task orchestration</a></li>
+  <li><a href="#executors-and-slurm" id="toc-executors-and-slurm" class="nav-link" data-scroll-target="#executors-and-slurm"><span class="header-section-number">2.12</span> Executors and SLURM</a></li>
+  <li><a href="#git-and-github-traceable-change-and-collaboration" id="toc-git-and-github-traceable-change-and-collaboration" class="nav-link" data-scroll-target="#git-and-github-traceable-change-and-collaboration"><span class="header-section-number">2.13</span> Git and GitHub: traceable change and collaboration</a></li>
+  <li><a href="#cicd-automated-feedback-and-delivery" id="toc-cicd-automated-feedback-and-delivery" class="nav-link" data-scroll-target="#cicd-automated-feedback-and-delivery"><span class="header-section-number">2.14</span> CI/CD: automated feedback and delivery</a></li>
+  <li><a href="#trace-one-sample-through-the-stack" id="toc-trace-one-sample-through-the-stack" class="nav-link" data-scroll-target="#trace-one-sample-through-the-stack"><span class="header-section-number">2.15</span> Trace one sample through the stack</a></li>
+  <li><a href="#three-kinds-of-reproducibility" id="toc-three-kinds-of-reproducibility" class="nav-link" data-scroll-target="#three-kinds-of-reproducibility"><span class="header-section-number">2.16</span> Three kinds of reproducibility</a></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions"><span class="header-section-number">2.17</span> Common misconceptions</a>
+  <ul class="collapse">
+  <li><a href="#conda-and-docker-do-the-same-thing" id="toc-conda-and-docker-do-the-same-thing" class="nav-link" data-scroll-target="#conda-and-docker-do-the-same-thing"><span class="header-section-number">2.17.1</span> “Conda and Docker do the same thing”</a></li>
+  <li><a href="#nextflow-runs-the-cluster" id="toc-nextflow-runs-the-cluster" class="nav-link" data-scroll-target="#nextflow-runs-the-cluster"><span class="header-section-number">2.17.2</span> “Nextflow runs the cluster”</a></li>
+  <li><a href="#the-container-includes-my-input-data" id="toc-the-container-includes-my-input-data" class="nav-link" data-scroll-target="#the-container-includes-my-input-data"><span class="header-section-number">2.17.3</span> “The container includes my input data”</a></li>
+  <li><a href="#if-ci-is-green-the-pipeline-is-validated" id="toc-if-ci-is-green-the-pipeline-is-validated" class="nav-link" data-scroll-target="#if-ci-is-green-the-pipeline-is-validated"><span class="header-section-number">2.17.4</span> “If CI is green, the pipeline is validated”</a></li>
+  <li><a href="#github-is-git" id="toc-github-is-git" class="nav-link" data-scroll-target="#github-is-git"><span class="header-section-number">2.17.5</span> “GitHub is Git”</a></li>
+  </ul></li>
+  <li><a href="#chapter-artifact-your-architecture-map" id="toc-chapter-artifact-your-architecture-map" class="nav-link" data-scroll-target="#chapter-artifact-your-architecture-map"><span class="header-section-number">2.18</span> Chapter artifact: your architecture map</a></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">2.19</span> Verification checkpoint</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">2.20</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">2.21</span> What to remember</a></li>
+  <li><a href="#next-chapter" id="toc-next-chapter" class="nav-link" data-scroll-target="#next-chapter"><span class="header-section-number">2.22</span> Next chapter</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/01-the-whole-shebang.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -369,63 +395,494 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="chapter-goals">
-<p><strong>By the end of this chapter, you will be able to:</strong> distinguish a bioinformatics tool from a workflow; explain the roles of Conda, containers, Nextflow, Singularity and SLURM; and describe how they fit together without treating them as interchangeable technologies.</p>
+<p><strong>By the end of this chapter, you will be able to:</strong></p>
+<ul>
+<li>distinguish a bioinformatics tool from a script and a workflow;</li>
+<li>explain the separate jobs of modules, Conda, containers, Nextflow and SLURM;</li>
+<li>distinguish Docker/OCI image building from Singularity/Apptainer execution;</li>
+<li>explain where Git, GitHub and CI/CD fit into scientific software development;</li>
+<li>trace one sequencing sample through the complete engineering stack; and</li>
+<li>recognize claims that a reproducible workflow can—and cannot—support.</li>
+</ul>
 </div>
-<section id="begin-with-the-biological-work" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="begin-with-the-biological-work"><span class="header-section-number">2.1</span> Begin with the biological work</h2>
-<p>A sequencing workflow takes biological measurements stored in files and transforms them into other files that can be checked and interpreted. Each program normally performs one limited operation. FastQC summarizes read quality; Trim Galore removes unwanted sequence and low-quality ends; Bowtie2 aligns reads to a reference; and SAMtools manipulates and checks alignment files.</p>
-<p>The programs are the analytical tools. The infrastructure around them makes the analysis repeatable.</p>
+<section id="why-a-biologist-should-care" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">2.1</span> Why a biologist should care</h2>
+<p>Imagine that you receive paired-end sequencing reads and answer a biological question with four programs. You record the commands in a notebook. Six months later, one program has changed, a library is missing and the commands run in the wrong order on a new computer. A collaborator cannot reproduce the result. On an HPC cluster, the same commands compete for memory or accidentally run on the login node.</p>
+<p>The biological logic may have been correct. The engineering around it was not strong enough to preserve and communicate that logic.</p>
+<p>Modern bioinformatics therefore has two inseparable responsibilities:</p>
+<ol type="1">
+<li><strong>Analytical responsibility:</strong> choose methods that are appropriate for the biological question and interpret their outputs correctly.</li>
+<li><strong>Engineering responsibility:</strong> make the inputs, software, execution, decisions and outputs traceable, testable and repeatable.</li>
+</ol>
+<p>This book concentrates on the second responsibility without pretending it can replace the first. A beautifully engineered workflow can still run an inappropriate aligner. A biologically appropriate analysis can still be unreproducible if its software and execution are undocumented. Industry teams need both kinds of judgment.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">2.2</span> Engineering objective</h2>
+<p>Before installing or coding anything, we need a map of the system. You should be able to point to each layer and answer:</p>
+<ul>
+<li>What problem does this layer solve?</li>
+<li>What information enters and leaves it?</li>
+<li>Which other layer does it depend on?</li>
+<li>What evidence tells us that it behaved as intended?</li>
+</ul>
+<p>If these layers are blurred together, troubleshooting becomes guesswork. For example, changing a Conda package cannot fix a SLURM account error, and changing a Nextflow channel cannot repair a corrupt FASTQ file.</p>
+</section>
+<section id="start-with-files-and-transformations" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="start-with-files-and-transformations"><span class="header-section-number">2.3</span> Start with files and transformations</h2>
+<p>Most command-line bioinformatics programs behave like transformations:</p>
+<pre class="text"><code>input files + parameters + software → output files + logs</code></pre>
+<p>In our teaching project:</p>
+<ul>
+<li><strong>FastQC</strong> reads FASTQ files and writes quality reports.</li>
+<li><strong>Trim Galore</strong> reads paired FASTQ files and writes trimmed paired FASTQ files plus reports.</li>
+<li><strong>Bowtie2</strong> reads trimmed FASTQ files and a reference index, then writes SAM alignment records.</li>
+<li><strong>SAMtools</strong> sorts, indexes and validates the alignments in BAM format.</li>
+</ul>
+<p>Each program is a <strong>tool</strong>. A tool normally performs one focused operation. Connecting the tools creates a <strong>pipeline</strong>.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    R["Paired FASTQ"] --&gt; Q1["Raw FastQC"]
+    R --&gt; T["Trim Galore"]
+    T --&gt; Q2["Post-trim FastQC"]
+    T --&gt; A["Bowtie2"]
+    X["Reference index"] --&gt; A
+    A --&gt; S["SAMtools sort"]
+    S --&gt; V["BAM validation"]
+</pre>
+</div>
+<p></p><figcaption> The analytical path used throughout the book. Trimming creates two branches: post-trim quality control and alignment.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>Notice that this is not simply a list. Raw FastQC and trimming can begin from the same input. Post-trim FastQC and alignment must wait for trimming. Alignment also needs the reference index. These dependencies form a directed graph.</p>
+</section>
+<section id="tool-command-script-pipeline-and-workflow" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="tool-command-script-pipeline-and-workflow"><span class="header-section-number">2.4</span> Tool, command, script, pipeline and workflow</h2>
+<p>These words are related but not interchangeable.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning in this book</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Tool</strong></td>
+<td>A program that performs a focused operation</td>
+<td><code>samtools</code></td>
+</tr>
+<tr class="even">
+<td><strong>Command</strong></td>
+<td>One request to run a program with particular arguments</td>
+<td><code>samtools quickcheck sample.bam</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Script</strong></td>
+<td>A saved text file containing commands and control logic</td>
+<td><code>run_manual.sh</code></td>
+</tr>
+<tr class="even">
+<td><strong>Pipeline</strong></td>
+<td>The connected analytical steps from input to result</td>
+<td>FASTQ → trim → align → BAM</td>
+</tr>
+<tr class="odd">
+<td><strong>Workflow</strong></td>
+<td>An executable model of tasks, dependencies, inputs, outputs and resources</td>
+<td><code>main.nf</code></td>
+</tr>
+<tr class="even">
+<td><strong>Workflow run</strong></td>
+<td>One execution of a workflow with specific inputs, settings and software</td>
+<td>the five-task chr22 run</td>
+</tr>
+</tbody>
+</table>
+<p>A Bash script can implement a pipeline. A workflow engine adds explicit task contracts, dependency scheduling, isolated work directories, caching, resource requests and alternative execution backends. That does not make Bash obsolete: every Nextflow process in this book ultimately runs shell commands.</p>
+</section>
+<section id="the-complete-stack" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="the-complete-stack"><span class="header-section-number">2.5</span> The complete stack</h2>
+<p>Our analytical graph sits inside a larger engineering system.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart TB
-    Q["Biological question"] --&gt; I["Input files"]
-    I --&gt; T["Bioinformatics tools"]
-    T --&gt; W["Nextflow coordinates the work"]
-    C["Conda or a container supplies software"] --&gt; W
-    W --&gt; X["Local computer or SLURM executor"]
-    X --&gt; O["Checked output files"]
+    BQ["Biological question"] --&gt; DATA["Input data + metadata"]
+    DATA --&gt; WF["Nextflow workflow logic"]
+    SW["Software layer&lt;br/&gt;Conda environment or OCI image"] --&gt; WF
+    CFG["Parameters + configuration"] --&gt; WF
+    WF --&gt; EX["Executor&lt;br/&gt;local or SLURM"]
+    EX --&gt; RT["Task runtime&lt;br/&gt;host, Conda or Singularity"]
+    RT --&gt; OUT["Outputs + logs + reports"]
+    OUT --&gt; QC["Technical and biological review"]
+    GIT["Git + GitHub&lt;br/&gt;history and collaboration"] -. records .-&gt; WF
+    GIT -. records .-&gt; CFG
+    CI["CI/CD automation"] -. checks and publishes .-&gt; GIT
 </pre>
 </div>
-<p></p></figure><p></p>
+<p></p><figcaption> The layers are complementary. Nextflow coordinates commands supplied by an environment or image and launches tasks through an executor.</figcaption> </figure><p></p>
 </div>
 </div>
 </div>
+<p>The arrows do not mean that Git executes FastQC or that SLURM installs SAMtools. Each layer has a narrower responsibility.</p>
 </section>
-<section id="six-technologies-six-different-jobs" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="six-technologies-six-different-jobs"><span class="header-section-number">2.2</span> Six technologies, six different jobs</h2>
-<p><strong>Conda</strong> resolves and installs compatible software packages into an isolated environment. It answers: <em>Which tool versions and libraries are available?</em></p>
-<p><strong>Docker/OCI</strong> describes and builds a portable filesystem image containing the tools and their dependencies. It answers: <em>What complete software environment should travel with the workflow?</em></p>
-<p><strong>Singularity</strong>—also called Apptainer in newer installations—runs container images in an HPC-friendly way. It answers: <em>How can this cluster execute the container without a Docker daemon?</em></p>
-<p><strong>Nextflow</strong> models dependencies between tasks and moves files and metadata between them. It answers: <em>What should run next, with which inputs, and can a previous result be reused?</em></p>
-<p><strong>SLURM</strong> is a scheduler. It assigns requested CPUs, memory and time on shared compute nodes. It answers: <em>Where and when should this task execute?</em></p>
-<p><strong>Git</strong> records changes to text files. GitHub stores and presents the history, while GitHub Actions can run automated jobs after a change is pushed.</p>
-<div class="callout callout-style-simple callout-warning callout-titled" title="A common beginner mistake">
+<section id="the-host-operating-system" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="the-host-operating-system"><span class="header-section-number">2.6</span> The host operating system</h2>
+<p>The <strong>host</strong> is the computer or compute node on which a process ultimately runs. It supplies the kernel, processors, memory, filesystems and security controls. On a laptop you may administer much of the host. On an institutional cluster, platform administrators control it.</p>
+<p>This matters because neither Conda nor a container creates CPUs or memory. Containers also share the host kernel; they are not complete virtual machines. Architecture and operating-system compatibility still matter.</p>
+<p><strong>Question answered by the host:</strong> <em>What machine resources and operating-system services exist?</em></p>
+</section>
+<section id="cluster-modules" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="cluster-modules"><span class="header-section-number">2.7</span> Cluster modules</h2>
+<p>An HPC <strong>module system</strong> lets administrators offer multiple versions of cluster-provided software. Loading a module commonly modifies environment variables such as <code>PATH</code>, which controls where the shell searches for executables.</p>
+<p>Examples might include Java, Singularity or a compiler. Module names and versions are local to the cluster.</p>
+<p><strong>Question answered by modules:</strong> <em>Which administrator-provided software should this shell session see?</em></p>
+<p>Modules are not Conda environments. A module may expose the Java needed to start Nextflow while a Conda environment supplies FastQC and SAMtools. Because both can modify <code>PATH</code>, they can also conflict. Later we will inspect the active layers rather than assuming which executable is being used.</p>
+</section>
+<section id="conda-environments-and-channels" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="conda-environments-and-channels"><span class="header-section-number">2.8</span> Conda environments and channels</h2>
+<p><strong>Conda</strong> is a package and environment manager. A Conda environment is an isolated directory containing selected programs and their dependencies. For example, SAMtools depends on libraries for compressed genomic file formats. Conda attempts to choose a compatible set.</p>
+<p>A <strong>channel</strong> is a package repository. It is a source from which Conda obtains package metadata and package files. Bioconda distributes many bioinformatics packages; conda-forge distributes a broad range of supporting software and libraries. Channel order and priority affect which builds the solver may select.</p>
+<p><strong>Question answered by Conda:</strong> <em>Which package versions and compatible libraries are installed in this environment?</em></p>
+<p>Conda improves control over software, but an environment specification alone does not freeze the host kernel, scheduler, external reference data or every future package build. Reproducibility has multiple layers.</p>
+</section>
+<section id="oci-images-docker-and-containers" class="level2" data-number="2.9">
+<h2 data-number="2.9" class="anchored" data-anchor-id="oci-images-docker-and-containers"><span class="header-section-number">2.9</span> OCI images, Docker and containers</h2>
+<p>An <strong>OCI image</strong> is a packaged, read-only filesystem plus metadata describing how software should run. OCI refers to open container standards. <strong>Docker</strong> is one widely used platform for building and running OCI-compatible images.</p>
+<p>A <strong>container</strong> is a running process created from an image. The distinction is similar to a class recipe versus one instantiated object, or a cake recipe versus one baked cake—although every analogy has limits.</p>
+<p>An image can contain the Conda-resolved tools, their libraries and selected operating-system files. A registry such as GitHub Container Registry stores and distributes images.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th style="text-align: right;">Mutable while building/running?</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Dockerfile</td>
+<td style="text-align: right;">Yes, it is source text</td>
+<td>Recipe for building an image</td>
+</tr>
+<tr class="even">
+<td>Image</td>
+<td style="text-align: right;">Normally treated as immutable</td>
+<td>Packaged filesystem and metadata</td>
+</tr>
+<tr class="odd">
+<td>Tag</td>
+<td style="text-align: right;">Can be moved to another image</td>
+<td>Human-friendly name such as <code>v0.1.0</code></td>
+</tr>
+<tr class="even">
+<td>Digest</td>
+<td style="text-align: right;">Identifies exact image content</td>
+<td>Immutable content address</td>
+</tr>
+<tr class="odd">
+<td>Container</td>
+<td style="text-align: right;">Has a writable runtime layer</td>
+<td>A process running from an image</td>
+</tr>
+<tr class="even">
+<td>Registry</td>
+<td style="text-align: right;">Stores and distributes images</td>
+<td>GHCR, Docker Hub or another service</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Question answered by an image:</strong> <em>What packaged userspace and tools should travel with this task?</em></p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="A tag is not an immutable identity">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>A common beginner mistake
+<span class="screen-reader-only">Warning</span>A tag is not an immutable identity
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Conda, Docker, Nextflow and SLURM do not replace one another. A Nextflow task may receive its software from Conda or a container, then be submitted to SLURM. Each layer solves a different problem.</p>
+<p>The label <code>latest</code> can point to different image content tomorrow. A digest identifies exact content. Friendly tags are useful for humans; digests are stronger evidence for an exact runtime.</p>
 </div>
 </div>
 </section>
-<section id="check-your-understanding" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="check-your-understanding"><span class="header-section-number">2.3</span> Check your understanding</h2>
-<p>For each question, name the main layer responsible:</p>
+<section id="singularity-and-apptainer-on-hpc" class="level2" data-number="2.10">
+<h2 data-number="2.10" class="anchored" data-anchor-id="singularity-and-apptainer-on-hpc"><span class="header-section-number">2.10</span> Singularity and Apptainer on HPC</h2>
+<p>Docker normally relies on a long-running privileged service called a daemon. Multi-user HPC centers commonly do not allow users to run that service. They often provide <strong>Singularity</strong> or <strong>Apptainer</strong>, which can execute container images using an HPC-oriented security and filesystem model.</p>
+<p>Singularity can pull an OCI image and create a <strong>SIF</strong>—a Singularity Image Format file. Nextflow can then execute individual tasks inside that SIF while SLURM assigns the compute node.</p>
+<p>Docker and Singularity therefore are not two words for the same operation in our project:</p>
+<ul>
+<li>GitHub Actions uses a Docker-oriented build process to create the OCI image.</li>
+<li>DLDCC uses Singularity to run the resulting image as a SIF.</li>
+</ul>
+<p><strong>Question answered by Singularity:</strong> <em>How should this HPC task enter and run the packaged container environment?</em></p>
+</section>
+<section id="nextflow-dependency-and-task-orchestration" class="level2" data-number="2.11">
+<h2 data-number="2.11" class="anchored" data-anchor-id="nextflow-dependency-and-task-orchestration"><span class="header-section-number">2.11</span> Nextflow: dependency and task orchestration</h2>
+<p><strong>Nextflow</strong> is a workflow engine. We describe processes with input and output contracts. Channels carry values—such as sample identifiers and file paths—to processes. When all required inputs are available, Nextflow creates a task.</p>
+<p>Nextflow can:</p>
+<ul>
+<li>stage task inputs into an isolated work directory;</li>
+<li>launch ready tasks without waiting unnecessarily for unrelated tasks;</li>
+<li>request CPUs, memory and time;</li>
+<li>run a task with Conda or inside a container;</li>
+<li>submit tasks locally, to SLURM or to other executors;</li>
+<li>record logs, traces, timelines and reports; and</li>
+<li>reuse a matching successful task with <code>-resume</code>.</li>
+</ul>
+<p>Nextflow does not decide whether Bowtie2 is biologically appropriate. It also does not replace Bowtie2: it coordinates the command that runs Bowtie2.</p>
+<p><strong>Question answered by Nextflow:</strong> <em>Which task is ready, what are its inputs and outputs, what resources/runtime does it require, and can prior work be reused?</em></p>
+</section>
+<section id="executors-and-slurm" class="level2" data-number="2.12">
+<h2 data-number="2.12" class="anchored" data-anchor-id="executors-and-slurm"><span class="header-section-number">2.12</span> Executors and SLURM</h2>
+<p>An <strong>executor</strong> is the Nextflow component that decides how tasks are launched. With the local executor, tasks run on the current machine. With the SLURM executor, Nextflow writes job wrappers and submits them to the cluster scheduler.</p>
+<p><strong>SLURM</strong> is a workload manager. It places jobs on shared compute resources according to requested CPUs, memory, time, partition, account and site policy. It tracks queued, running, completed and failed jobs.</p>
+<p>SLURM does not understand that trimming must precede alignment. Nextflow knows the data dependency and submits the alignment task only when its inputs exist. Nextflow does not decide which physical node is free. SLURM does.</p>
+<p><strong>Question answered by the executor and scheduler:</strong> <em>How, where and when should this ready task run?</em></p>
+</section>
+<section id="git-and-github-traceable-change-and-collaboration" class="level2" data-number="2.13">
+<h2 data-number="2.13" class="anchored" data-anchor-id="git-and-github-traceable-change-and-collaboration"><span class="header-section-number">2.13</span> Git and GitHub: traceable change and collaboration</h2>
+<p><strong>Git</strong> records snapshots of selected files and the relationships between those snapshots. It lets a team inspect what changed, why it changed and which exact revision was used. Branches allow work to be reviewed before it becomes part of the main history. Tags can name releases.</p>
+<p><strong>GitHub</strong> hosts Git repositories and adds collaboration services such as issues, pull requests, reviews, releases and automation.</p>
+<p>Git should track source and small evidence artifacts:</p>
+<ul>
+<li>Nextflow and Bash source;</li>
+<li>environment specifications;</li>
+<li>Dockerfiles;</li>
+<li>configuration without secrets;</li>
+<li>tests and documentation; and</li>
+<li>small reports needed to support claims.</li>
+</ul>
+<p>Git is generally a poor home for large FASTQ, BAM, index, cache and container files. Sensitive data must never be placed in a public repository.</p>
+<p><strong>Question answered by Git:</strong> <em>Which source revision and documented decisions produced this project state?</em></p>
+</section>
+<section id="cicd-automated-feedback-and-delivery" class="level2" data-number="2.14">
+<h2 data-number="2.14" class="anchored" data-anchor-id="cicd-automated-feedback-and-delivery"><span class="header-section-number">2.14</span> CI/CD: automated feedback and delivery</h2>
+<p><strong>Continuous integration (CI)</strong> means automatically integrating and checking small changes frequently. A CI workflow may lint files, render documentation, run a small test and verify that a container contains required tools.</p>
+<p><strong>Continuous delivery</strong> means keeping a tested artifact ready to release or publishing it through a controlled process. <strong>Continuous deployment</strong> goes further: a passing change is automatically deployed to its target environment.</p>
+<p>In our work:</p>
+<ul>
+<li>GitHub Actions building and smoke-checking an image is CI plus artifact delivery.</li>
+<li>GitHub Actions publishing this Quarto book to GitHub Pages is automated deployment of documentation.</li>
+<li>Running a research pipeline on new samples is not automatically “CI/CD.” It is a workflow execution and may require separate authorization, review and data controls.</li>
+</ul>
+<p>Automation supplies evidence; it does not create scientific truth. A green check means the configured checks passed—not that every biological or clinical requirement has been validated.</p>
+<p><strong>Question answered by CI/CD:</strong> <em>Which checks and publication actions should happen automatically when source changes or a release is created?</em></p>
+</section>
+<section id="trace-one-sample-through-the-stack" class="level2" data-number="2.15">
+<h2 data-number="2.15" class="anchored" data-anchor-id="trace-one-sample-through-the-stack"><span class="header-section-number">2.15</span> Trace one sample through the stack</h2>
+<p>Consider the sample identifier <code>sim_chr22</code>.</p>
 <ol type="1">
-<li>A task needs SAMtools 1.19.2.</li>
-<li>Five analyses are waiting for an available compute node.</li>
-<li>Trimming must finish before alignment starts.</li>
-<li>A collaborator must receive the same system libraries.</li>
+<li>Two FASTQ files and sample metadata describe the input.</li>
+<li>Git identifies the exact workflow, configuration, environment and container recipe revision.</li>
+<li>Nextflow creates the raw-QC and trimming tasks because both can consume the original read pair.</li>
+<li>The selected profile tells Nextflow to use the local or SLURM executor and a Conda environment or Singularity image.</li>
+<li>On DLDCC, Nextflow submits a job wrapper to SLURM.</li>
+<li>SLURM assigns a compute node with the requested resources.</li>
+<li>Singularity starts the task inside the project SIF and makes required host paths visible through bind mounts.</li>
+<li>FastQC or Trim Galore runs with the inputs staged by Nextflow.</li>
+<li>The task writes output and logs in its isolated work directory.</li>
+<li>Nextflow records task status, publishes selected results and enables cache reuse.</li>
+<li>Technical checks confirm that files exist, are readable and have expected summaries.</li>
+<li>A qualified analyst still decides whether the results are biologically meaningful for the intended use.</li>
 </ol>
-<p>Answers: Conda or the container; SLURM; Nextflow; the container image.</p>
+<p>No single technology performs all twelve responsibilities.</p>
+</section>
+<section id="three-kinds-of-reproducibility" class="level2" data-number="2.16">
+<h2 data-number="2.16" class="anchored" data-anchor-id="three-kinds-of-reproducibility"><span class="header-section-number">2.16</span> Three kinds of reproducibility</h2>
+<p>The word <em>reproducible</em> is often used too broadly. In this book we separate:</p>
+<ol type="1">
+<li><strong>Computational repeatability:</strong> rerunning the same inputs, code, parameters and runtime produces acceptably equivalent outputs.</li>
+<li><strong>Computational reproducibility:</strong> another person can reconstruct the analysis from recorded source, software, data provenance and instructions.</li>
+<li><strong>Scientific reproducibility:</strong> independent evidence supports the same scientific conclusion.</li>
+</ol>
+<p>This project primarily demonstrates the first two on a small synthetic test fixture. It does not demonstrate clinical validation or independent scientific replication.</p>
+<div class="callout callout-style-simple callout-important callout-titled" title="Engineering evidence has a scope">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Engineering evidence has a scope
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A successful Nextflow run proves that configured tasks completed. A valid BAM proves that the file passes selected structural checks. A container digest identifies image content. None of these facts alone proves that a method is appropriate for diagnosis, that a biological conclusion is correct or that the workflow is production-ready.</p>
+</div>
+</div>
+</section>
+<section id="common-misconceptions" class="level2" data-number="2.17">
+<h2 data-number="2.17" class="anchored" data-anchor-id="common-misconceptions"><span class="header-section-number">2.17</span> Common misconceptions</h2>
+<section id="conda-and-docker-do-the-same-thing" class="level3" data-number="2.17.1">
+<h3 data-number="2.17.1" class="anchored" data-anchor-id="conda-and-docker-do-the-same-thing"><span class="header-section-number">2.17.1</span> “Conda and Docker do the same thing”</h3>
+<p>Both help control software, but at different boundaries. Conda manages packages inside an environment. An OCI image packages a broader userspace and metadata. We will use Conda to resolve tools and then package that environment in an image.</p>
+</section>
+<section id="nextflow-runs-the-cluster" class="level3" data-number="2.17.2">
+<h3 data-number="2.17.2" class="anchored" data-anchor-id="nextflow-runs-the-cluster"><span class="header-section-number">2.17.2</span> “Nextflow runs the cluster”</h3>
+<p>Nextflow models and submits work. SLURM manages shared cluster resources. The Nextflow SLURM executor connects the two.</p>
+</section>
+<section id="the-container-includes-my-input-data" class="level3" data-number="2.17.3">
+<h3 data-number="2.17.3" class="anchored" data-anchor-id="the-container-includes-my-input-data"><span class="header-section-number">2.17.3</span> “The container includes my input data”</h3>
+<p>Our image contains software, not the large analysis inputs. At runtime, files are normally mounted or staged into the container.</p>
+</section>
+<section id="if-ci-is-green-the-pipeline-is-validated" class="level3" data-number="2.17.4">
+<h3 data-number="2.17.4" class="anchored" data-anchor-id="if-ci-is-green-the-pipeline-is-validated"><span class="header-section-number">2.17.4</span> “If CI is green, the pipeline is validated”</h3>
+<p>CI reports only the checks we encoded. Validation requires defined intended use, requirements, acceptance criteria, evidence and—where applicable—formal quality or regulatory processes.</p>
+</section>
+<section id="github-is-git" class="level3" data-number="2.17.5">
+<h3 data-number="2.17.5" class="anchored" data-anchor-id="github-is-git"><span class="header-section-number">2.17.5</span> “GitHub is Git”</h3>
+<p>Git is the version-control system. GitHub is a hosting and collaboration platform built around Git repositories. Git works without GitHub.</p>
+</section>
+</section>
+<section id="chapter-artifact-your-architecture-map" class="level2" data-number="2.18">
+<h2 data-number="2.18" class="anchored" data-anchor-id="chapter-artifact-your-architecture-map"><span class="header-section-number">2.18</span> Chapter artifact: your architecture map</h2>
+<p>Without looking back, complete the final column.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Primary responsibility</th>
+<th>Your one-sentence explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bioinformatics tool</td>
+<td>Perform one analytical operation</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Module system</td>
+<td>Expose administrator-provided cluster software</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Conda</td>
+<td>Resolve and install package environments</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>OCI image</td>
+<td>Package software and userspace</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Singularity</td>
+<td>Execute the packaged environment on HPC</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Nextflow</td>
+<td>Coordinate tasks and data dependencies</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>SLURM</td>
+<td>Schedule jobs and allocate cluster resources</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Git/GitHub</td>
+<td>Record, share and review source changes</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>CI/CD</td>
+<td>Automatically check and deliver defined artifacts</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Save this table in your learning notes. At the end of the book, revise each sentence using the evidence you created.</p>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="2.19">
+<h2 data-number="2.19" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">2.19</span> Verification checkpoint</h2>
+<p>Match each scenario to its <strong>primary</strong> layer. Some scenarios involve several layers; choose the one that owns the stated decision.</p>
+<ol type="1">
+<li>SAMtools 1.19.2 and its libraries must be installed together.</li>
+<li>Trimming must finish before alignment begins.</li>
+<li>Five ready tasks are waiting for available compute nodes.</li>
+<li>An HPC task must enter the project SIF before running FastQC.</li>
+<li>A reviewer wants to inspect the exact source change that introduced a new parameter.</li>
+<li>A pushed pull request should automatically render the documentation and run a smoke test.</li>
+<li>A collaborator wants the exact image content rather than whatever <code>latest</code> means today.</li>
+<li>An analyst must decide whether Bowtie2 is appropriate for bisulfite-treated reads.</li>
+</ol>
+<div class="callout callout-style-simple callout-tip callout-titled" title="Show the answers">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Show the answers
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Conda/package environment.</li>
+<li>Nextflow workflow dependency.</li>
+<li>SLURM scheduler.</li>
+<li>Singularity/Apptainer runtime.</li>
+<li>Git history and GitHub review.</li>
+<li>CI automation.</li>
+<li>OCI image digest.</li>
+<li>Biological/methodological judgment—not the workflow engine.</li>
+</ol>
+</div>
+</div>
+</div>
+<p>You are ready to continue when you can explain <em>why</em> each answer is different, not merely recite the product names.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="2.20">
+<h2 data-number="2.20" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">2.20</span> Try it yourself</h2>
+<p>Draw the stack for one analysis you already know. It can be an R script, a microscopy workflow or a sequencing analysis. Identify:</p>
+<ul>
+<li>input data;</li>
+<li>analytical tools;</li>
+<li>software environment;</li>
+<li>ordering/dependencies;</li>
+<li>execution location;</li>
+<li>outputs and logs;</li>
+<li>version-control evidence; and</li>
+<li>acceptance criteria.</li>
+</ul>
+<p>If a layer is absent, write “not yet controlled” rather than inventing it. That gap is useful information.</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="2.21">
+<h2 data-number="2.21" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">2.21</span> What to remember</h2>
+<ul>
+<li>Biological validity and engineering reproducibility support one another but are not the same claim.</li>
+<li>A tool performs an operation; a workflow engine coordinates operations and their dependencies.</li>
+<li>Modules, Conda, containers, Nextflow and SLURM solve different problems and can be used together.</li>
+<li>Docker/OCI builds and distributes the image; Singularity/Apptainer executes that packaged environment on our HPC system.</li>
+<li>Git records source history; GitHub supports collaboration; CI/CD automates explicitly defined checks and delivery.</li>
+<li>Every green check, checksum and report has a limited meaning. Good engineers state that meaning accurately.</li>
+</ul>
+</section>
+<section id="next-chapter" class="level2" data-number="2.22">
+<h2 data-number="2.22" class="anchored" data-anchor-id="next-chapter"><span class="header-section-number">2.22</span> Next chapter</h2>
+<p>Chapter 2 turns this architecture map into a verified workstation inventory. You will check what is installed, distinguish required local tools from cluster-provided tools and record the starting state before modifying it.</p>
 
 
 </section>

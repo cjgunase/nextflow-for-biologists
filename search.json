@@ -64,29 +64,249 @@
     "href": "chapters/01-the-whole-shebang.html",
     "title": "2  The whole shebang",
     "section": "",
-    "text": "2.1 Begin with the biological work\nA sequencing workflow takes biological measurements stored in files and transforms them into other files that can be checked and interpreted. Each program normally performs one limited operation. FastQC summarizes read quality; Trim Galore removes unwanted sequence and low-quality ends; Bowtie2 aligns reads to a reference; and SAMtools manipulates and checks alignment files.\nThe programs are the analytical tools. The infrastructure around them makes the analysis repeatable.\nflowchart TB\n    Q[\"Biological question\"] --&gt; I[\"Input files\"]\n    I --&gt; T[\"Bioinformatics tools\"]\n    T --&gt; W[\"Nextflow coordinates the work\"]\n    C[\"Conda or a container supplies software\"] --&gt; W\n    W --&gt; X[\"Local computer or SLURM executor\"]\n    X --&gt; O[\"Checked output files\"]",
+    "text": "2.1 Why a biologist should care\nImagine that you receive paired-end sequencing reads and answer a biological question with four programs. You record the commands in a notebook. Six months later, one program has changed, a library is missing and the commands run in the wrong order on a new computer. A collaborator cannot reproduce the result. On an HPC cluster, the same commands compete for memory or accidentally run on the login node.\nThe biological logic may have been correct. The engineering around it was not strong enough to preserve and communicate that logic.\nModern bioinformatics therefore has two inseparable responsibilities:\nThis book concentrates on the second responsibility without pretending it can replace the first. A beautifully engineered workflow can still run an inappropriate aligner. A biologically appropriate analysis can still be unreproducible if its software and execution are undocumented. Industry teams need both kinds of judgment.",
     "crumbs": [
       "Part I — Build the mental model",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
-    "objectID": "chapters/01-the-whole-shebang.html#six-technologies-six-different-jobs",
-    "href": "chapters/01-the-whole-shebang.html#six-technologies-six-different-jobs",
+    "objectID": "chapters/01-the-whole-shebang.html#why-a-biologist-should-care",
+    "href": "chapters/01-the-whole-shebang.html#why-a-biologist-should-care",
     "title": "2  The whole shebang",
-    "section": "2.2 Six technologies, six different jobs",
-    "text": "2.2 Six technologies, six different jobs\nConda resolves and installs compatible software packages into an isolated environment. It answers: Which tool versions and libraries are available?\nDocker/OCI describes and builds a portable filesystem image containing the tools and their dependencies. It answers: What complete software environment should travel with the workflow?\nSingularity—also called Apptainer in newer installations—runs container images in an HPC-friendly way. It answers: How can this cluster execute the container without a Docker daemon?\nNextflow models dependencies between tasks and moves files and metadata between them. It answers: What should run next, with which inputs, and can a previous result be reused?\nSLURM is a scheduler. It assigns requested CPUs, memory and time on shared compute nodes. It answers: Where and when should this task execute?\nGit records changes to text files. GitHub stores and presents the history, while GitHub Actions can run automated jobs after a change is pushed.\n\n\n\n\n\n\nWarningA common beginner mistake\n\n\n\nConda, Docker, Nextflow and SLURM do not replace one another. A Nextflow task may receive its software from Conda or a container, then be submitted to SLURM. Each layer solves a different problem.",
+    "section": "",
+    "text": "Analytical responsibility: choose methods that are appropriate for the biological question and interpret their outputs correctly.\nEngineering responsibility: make the inputs, software, execution, decisions and outputs traceable, testable and repeatable.",
     "crumbs": [
       "Part I — Build the mental model",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
-    "objectID": "chapters/01-the-whole-shebang.html#check-your-understanding",
-    "href": "chapters/01-the-whole-shebang.html#check-your-understanding",
+    "objectID": "chapters/01-the-whole-shebang.html#engineering-objective",
+    "href": "chapters/01-the-whole-shebang.html#engineering-objective",
     "title": "2  The whole shebang",
-    "section": "2.3 Check your understanding",
-    "text": "2.3 Check your understanding\nFor each question, name the main layer responsible:\n\nA task needs SAMtools 1.19.2.\nFive analyses are waiting for an available compute node.\nTrimming must finish before alignment starts.\nA collaborator must receive the same system libraries.\n\nAnswers: Conda or the container; SLURM; Nextflow; the container image.",
+    "section": "2.2 Engineering objective",
+    "text": "2.2 Engineering objective\nBefore installing or coding anything, we need a map of the system. You should be able to point to each layer and answer:\n\nWhat problem does this layer solve?\nWhat information enters and leaves it?\nWhich other layer does it depend on?\nWhat evidence tells us that it behaved as intended?\n\nIf these layers are blurred together, troubleshooting becomes guesswork. For example, changing a Conda package cannot fix a SLURM account error, and changing a Nextflow channel cannot repair a corrupt FASTQ file.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#start-with-files-and-transformations",
+    "href": "chapters/01-the-whole-shebang.html#start-with-files-and-transformations",
+    "title": "2  The whole shebang",
+    "section": "2.3 Start with files and transformations",
+    "text": "2.3 Start with files and transformations\nMost command-line bioinformatics programs behave like transformations:\ninput files + parameters + software → output files + logs\nIn our teaching project:\n\nFastQC reads FASTQ files and writes quality reports.\nTrim Galore reads paired FASTQ files and writes trimmed paired FASTQ files plus reports.\nBowtie2 reads trimmed FASTQ files and a reference index, then writes SAM alignment records.\nSAMtools sorts, indexes and validates the alignments in BAM format.\n\nEach program is a tool. A tool normally performs one focused operation. Connecting the tools creates a pipeline.\n\n\n\n\n\nflowchart LR\n    R[\"Paired FASTQ\"] --&gt; Q1[\"Raw FastQC\"]\n    R --&gt; T[\"Trim Galore\"]\n    T --&gt; Q2[\"Post-trim FastQC\"]\n    T --&gt; A[\"Bowtie2\"]\n    X[\"Reference index\"] --&gt; A\n    A --&gt; S[\"SAMtools sort\"]\n    S --&gt; V[\"BAM validation\"]\n\n\n The analytical path used throughout the book. Trimming creates two branches: post-trim quality control and alignment. \n\n\n\nNotice that this is not simply a list. Raw FastQC and trimming can begin from the same input. Post-trim FastQC and alignment must wait for trimming. Alignment also needs the reference index. These dependencies form a directed graph.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#tool-command-script-pipeline-and-workflow",
+    "href": "chapters/01-the-whole-shebang.html#tool-command-script-pipeline-and-workflow",
+    "title": "2  The whole shebang",
+    "section": "2.4 Tool, command, script, pipeline and workflow",
+    "text": "2.4 Tool, command, script, pipeline and workflow\nThese words are related but not interchangeable.\n\n\n\n\n\n\n\n\nTerm\nMeaning in this book\nExample\n\n\n\n\nTool\nA program that performs a focused operation\nsamtools\n\n\nCommand\nOne request to run a program with particular arguments\nsamtools quickcheck sample.bam\n\n\nScript\nA saved text file containing commands and control logic\nrun_manual.sh\n\n\nPipeline\nThe connected analytical steps from input to result\nFASTQ → trim → align → BAM\n\n\nWorkflow\nAn executable model of tasks, dependencies, inputs, outputs and resources\nmain.nf\n\n\nWorkflow run\nOne execution of a workflow with specific inputs, settings and software\nthe five-task chr22 run\n\n\n\nA Bash script can implement a pipeline. A workflow engine adds explicit task contracts, dependency scheduling, isolated work directories, caching, resource requests and alternative execution backends. That does not make Bash obsolete: every Nextflow process in this book ultimately runs shell commands.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#the-complete-stack",
+    "href": "chapters/01-the-whole-shebang.html#the-complete-stack",
+    "title": "2  The whole shebang",
+    "section": "2.5 The complete stack",
+    "text": "2.5 The complete stack\nOur analytical graph sits inside a larger engineering system.\n\n\n\n\n\nflowchart TB\n    BQ[\"Biological question\"] --&gt; DATA[\"Input data + metadata\"]\n    DATA --&gt; WF[\"Nextflow workflow logic\"]\n    SW[\"Software layer&lt;br/&gt;Conda environment or OCI image\"] --&gt; WF\n    CFG[\"Parameters + configuration\"] --&gt; WF\n    WF --&gt; EX[\"Executor&lt;br/&gt;local or SLURM\"]\n    EX --&gt; RT[\"Task runtime&lt;br/&gt;host, Conda or Singularity\"]\n    RT --&gt; OUT[\"Outputs + logs + reports\"]\n    OUT --&gt; QC[\"Technical and biological review\"]\n    GIT[\"Git + GitHub&lt;br/&gt;history and collaboration\"] -. records .-&gt; WF\n    GIT -. records .-&gt; CFG\n    CI[\"CI/CD automation\"] -. checks and publishes .-&gt; GIT\n\n\n The layers are complementary. Nextflow coordinates commands supplied by an environment or image and launches tasks through an executor. \n\n\n\nThe arrows do not mean that Git executes FastQC or that SLURM installs SAMtools. Each layer has a narrower responsibility.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#the-host-operating-system",
+    "href": "chapters/01-the-whole-shebang.html#the-host-operating-system",
+    "title": "2  The whole shebang",
+    "section": "2.6 The host operating system",
+    "text": "2.6 The host operating system\nThe host is the computer or compute node on which a process ultimately runs. It supplies the kernel, processors, memory, filesystems and security controls. On a laptop you may administer much of the host. On an institutional cluster, platform administrators control it.\nThis matters because neither Conda nor a container creates CPUs or memory. Containers also share the host kernel; they are not complete virtual machines. Architecture and operating-system compatibility still matter.\nQuestion answered by the host: What machine resources and operating-system services exist?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#cluster-modules",
+    "href": "chapters/01-the-whole-shebang.html#cluster-modules",
+    "title": "2  The whole shebang",
+    "section": "2.7 Cluster modules",
+    "text": "2.7 Cluster modules\nAn HPC module system lets administrators offer multiple versions of cluster-provided software. Loading a module commonly modifies environment variables such as PATH, which controls where the shell searches for executables.\nExamples might include Java, Singularity or a compiler. Module names and versions are local to the cluster.\nQuestion answered by modules: Which administrator-provided software should this shell session see?\nModules are not Conda environments. A module may expose the Java needed to start Nextflow while a Conda environment supplies FastQC and SAMtools. Because both can modify PATH, they can also conflict. Later we will inspect the active layers rather than assuming which executable is being used.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#conda-environments-and-channels",
+    "href": "chapters/01-the-whole-shebang.html#conda-environments-and-channels",
+    "title": "2  The whole shebang",
+    "section": "2.8 Conda environments and channels",
+    "text": "2.8 Conda environments and channels\nConda is a package and environment manager. A Conda environment is an isolated directory containing selected programs and their dependencies. For example, SAMtools depends on libraries for compressed genomic file formats. Conda attempts to choose a compatible set.\nA channel is a package repository. It is a source from which Conda obtains package metadata and package files. Bioconda distributes many bioinformatics packages; conda-forge distributes a broad range of supporting software and libraries. Channel order and priority affect which builds the solver may select.\nQuestion answered by Conda: Which package versions and compatible libraries are installed in this environment?\nConda improves control over software, but an environment specification alone does not freeze the host kernel, scheduler, external reference data or every future package build. Reproducibility has multiple layers.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#oci-images-docker-and-containers",
+    "href": "chapters/01-the-whole-shebang.html#oci-images-docker-and-containers",
+    "title": "2  The whole shebang",
+    "section": "2.9 OCI images, Docker and containers",
+    "text": "2.9 OCI images, Docker and containers\nAn OCI image is a packaged, read-only filesystem plus metadata describing how software should run. OCI refers to open container standards. Docker is one widely used platform for building and running OCI-compatible images.\nA container is a running process created from an image. The distinction is similar to a class recipe versus one instantiated object, or a cake recipe versus one baked cake—although every analogy has limits.\nAn image can contain the Conda-resolved tools, their libraries and selected operating-system files. A registry such as GitHub Container Registry stores and distributes images.\n\n\n\n\n\n\n\n\nConcept\nMutable while building/running?\nRole\n\n\n\n\nDockerfile\nYes, it is source text\nRecipe for building an image\n\n\nImage\nNormally treated as immutable\nPackaged filesystem and metadata\n\n\nTag\nCan be moved to another image\nHuman-friendly name such as v0.1.0\n\n\nDigest\nIdentifies exact image content\nImmutable content address\n\n\nContainer\nHas a writable runtime layer\nA process running from an image\n\n\nRegistry\nStores and distributes images\nGHCR, Docker Hub or another service\n\n\n\nQuestion answered by an image: What packaged userspace and tools should travel with this task?\n\n\n\n\n\n\nWarningA tag is not an immutable identity\n\n\n\nThe label latest can point to different image content tomorrow. A digest identifies exact content. Friendly tags are useful for humans; digests are stronger evidence for an exact runtime.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#singularity-and-apptainer-on-hpc",
+    "href": "chapters/01-the-whole-shebang.html#singularity-and-apptainer-on-hpc",
+    "title": "2  The whole shebang",
+    "section": "2.10 Singularity and Apptainer on HPC",
+    "text": "2.10 Singularity and Apptainer on HPC\nDocker normally relies on a long-running privileged service called a daemon. Multi-user HPC centers commonly do not allow users to run that service. They often provide Singularity or Apptainer, which can execute container images using an HPC-oriented security and filesystem model.\nSingularity can pull an OCI image and create a SIF—a Singularity Image Format file. Nextflow can then execute individual tasks inside that SIF while SLURM assigns the compute node.\nDocker and Singularity therefore are not two words for the same operation in our project:\n\nGitHub Actions uses a Docker-oriented build process to create the OCI image.\nDLDCC uses Singularity to run the resulting image as a SIF.\n\nQuestion answered by Singularity: How should this HPC task enter and run the packaged container environment?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#nextflow-dependency-and-task-orchestration",
+    "href": "chapters/01-the-whole-shebang.html#nextflow-dependency-and-task-orchestration",
+    "title": "2  The whole shebang",
+    "section": "2.11 Nextflow: dependency and task orchestration",
+    "text": "2.11 Nextflow: dependency and task orchestration\nNextflow is a workflow engine. We describe processes with input and output contracts. Channels carry values—such as sample identifiers and file paths—to processes. When all required inputs are available, Nextflow creates a task.\nNextflow can:\n\nstage task inputs into an isolated work directory;\nlaunch ready tasks without waiting unnecessarily for unrelated tasks;\nrequest CPUs, memory and time;\nrun a task with Conda or inside a container;\nsubmit tasks locally, to SLURM or to other executors;\nrecord logs, traces, timelines and reports; and\nreuse a matching successful task with -resume.\n\nNextflow does not decide whether Bowtie2 is biologically appropriate. It also does not replace Bowtie2: it coordinates the command that runs Bowtie2.\nQuestion answered by Nextflow: Which task is ready, what are its inputs and outputs, what resources/runtime does it require, and can prior work be reused?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#executors-and-slurm",
+    "href": "chapters/01-the-whole-shebang.html#executors-and-slurm",
+    "title": "2  The whole shebang",
+    "section": "2.12 Executors and SLURM",
+    "text": "2.12 Executors and SLURM\nAn executor is the Nextflow component that decides how tasks are launched. With the local executor, tasks run on the current machine. With the SLURM executor, Nextflow writes job wrappers and submits them to the cluster scheduler.\nSLURM is a workload manager. It places jobs on shared compute resources according to requested CPUs, memory, time, partition, account and site policy. It tracks queued, running, completed and failed jobs.\nSLURM does not understand that trimming must precede alignment. Nextflow knows the data dependency and submits the alignment task only when its inputs exist. Nextflow does not decide which physical node is free. SLURM does.\nQuestion answered by the executor and scheduler: How, where and when should this ready task run?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#git-and-github-traceable-change-and-collaboration",
+    "href": "chapters/01-the-whole-shebang.html#git-and-github-traceable-change-and-collaboration",
+    "title": "2  The whole shebang",
+    "section": "2.13 Git and GitHub: traceable change and collaboration",
+    "text": "2.13 Git and GitHub: traceable change and collaboration\nGit records snapshots of selected files and the relationships between those snapshots. It lets a team inspect what changed, why it changed and which exact revision was used. Branches allow work to be reviewed before it becomes part of the main history. Tags can name releases.\nGitHub hosts Git repositories and adds collaboration services such as issues, pull requests, reviews, releases and automation.\nGit should track source and small evidence artifacts:\n\nNextflow and Bash source;\nenvironment specifications;\nDockerfiles;\nconfiguration without secrets;\ntests and documentation; and\nsmall reports needed to support claims.\n\nGit is generally a poor home for large FASTQ, BAM, index, cache and container files. Sensitive data must never be placed in a public repository.\nQuestion answered by Git: Which source revision and documented decisions produced this project state?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#cicd-automated-feedback-and-delivery",
+    "href": "chapters/01-the-whole-shebang.html#cicd-automated-feedback-and-delivery",
+    "title": "2  The whole shebang",
+    "section": "2.14 CI/CD: automated feedback and delivery",
+    "text": "2.14 CI/CD: automated feedback and delivery\nContinuous integration (CI) means automatically integrating and checking small changes frequently. A CI workflow may lint files, render documentation, run a small test and verify that a container contains required tools.\nContinuous delivery means keeping a tested artifact ready to release or publishing it through a controlled process. Continuous deployment goes further: a passing change is automatically deployed to its target environment.\nIn our work:\n\nGitHub Actions building and smoke-checking an image is CI plus artifact delivery.\nGitHub Actions publishing this Quarto book to GitHub Pages is automated deployment of documentation.\nRunning a research pipeline on new samples is not automatically “CI/CD.” It is a workflow execution and may require separate authorization, review and data controls.\n\nAutomation supplies evidence; it does not create scientific truth. A green check means the configured checks passed—not that every biological or clinical requirement has been validated.\nQuestion answered by CI/CD: Which checks and publication actions should happen automatically when source changes or a release is created?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#trace-one-sample-through-the-stack",
+    "href": "chapters/01-the-whole-shebang.html#trace-one-sample-through-the-stack",
+    "title": "2  The whole shebang",
+    "section": "2.15 Trace one sample through the stack",
+    "text": "2.15 Trace one sample through the stack\nConsider the sample identifier sim_chr22.\n\nTwo FASTQ files and sample metadata describe the input.\nGit identifies the exact workflow, configuration, environment and container recipe revision.\nNextflow creates the raw-QC and trimming tasks because both can consume the original read pair.\nThe selected profile tells Nextflow to use the local or SLURM executor and a Conda environment or Singularity image.\nOn DLDCC, Nextflow submits a job wrapper to SLURM.\nSLURM assigns a compute node with the requested resources.\nSingularity starts the task inside the project SIF and makes required host paths visible through bind mounts.\nFastQC or Trim Galore runs with the inputs staged by Nextflow.\nThe task writes output and logs in its isolated work directory.\nNextflow records task status, publishes selected results and enables cache reuse.\nTechnical checks confirm that files exist, are readable and have expected summaries.\nA qualified analyst still decides whether the results are biologically meaningful for the intended use.\n\nNo single technology performs all twelve responsibilities.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#three-kinds-of-reproducibility",
+    "href": "chapters/01-the-whole-shebang.html#three-kinds-of-reproducibility",
+    "title": "2  The whole shebang",
+    "section": "2.16 Three kinds of reproducibility",
+    "text": "2.16 Three kinds of reproducibility\nThe word reproducible is often used too broadly. In this book we separate:\n\nComputational repeatability: rerunning the same inputs, code, parameters and runtime produces acceptably equivalent outputs.\nComputational reproducibility: another person can reconstruct the analysis from recorded source, software, data provenance and instructions.\nScientific reproducibility: independent evidence supports the same scientific conclusion.\n\nThis project primarily demonstrates the first two on a small synthetic test fixture. It does not demonstrate clinical validation or independent scientific replication.\n\n\n\n\n\n\nImportantEngineering evidence has a scope\n\n\n\nA successful Nextflow run proves that configured tasks completed. A valid BAM proves that the file passes selected structural checks. A container digest identifies image content. None of these facts alone proves that a method is appropriate for diagnosis, that a biological conclusion is correct or that the workflow is production-ready.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#common-misconceptions",
+    "href": "chapters/01-the-whole-shebang.html#common-misconceptions",
+    "title": "2  The whole shebang",
+    "section": "2.17 Common misconceptions",
+    "text": "2.17 Common misconceptions\n\n2.17.1 “Conda and Docker do the same thing”\nBoth help control software, but at different boundaries. Conda manages packages inside an environment. An OCI image packages a broader userspace and metadata. We will use Conda to resolve tools and then package that environment in an image.\n\n\n2.17.2 “Nextflow runs the cluster”\nNextflow models and submits work. SLURM manages shared cluster resources. The Nextflow SLURM executor connects the two.\n\n\n2.17.3 “The container includes my input data”\nOur image contains software, not the large analysis inputs. At runtime, files are normally mounted or staged into the container.\n\n\n2.17.4 “If CI is green, the pipeline is validated”\nCI reports only the checks we encoded. Validation requires defined intended use, requirements, acceptance criteria, evidence and—where applicable—formal quality or regulatory processes.\n\n\n2.17.5 “GitHub is Git”\nGit is the version-control system. GitHub is a hosting and collaboration platform built around Git repositories. Git works without GitHub.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#chapter-artifact-your-architecture-map",
+    "href": "chapters/01-the-whole-shebang.html#chapter-artifact-your-architecture-map",
+    "title": "2  The whole shebang",
+    "section": "2.18 Chapter artifact: your architecture map",
+    "text": "2.18 Chapter artifact: your architecture map\nWithout looking back, complete the final column.\n\n\n\nLayer\nPrimary responsibility\nYour one-sentence explanation\n\n\n\n\nBioinformatics tool\nPerform one analytical operation\n\n\n\nModule system\nExpose administrator-provided cluster software\n\n\n\nConda\nResolve and install package environments\n\n\n\nOCI image\nPackage software and userspace\n\n\n\nSingularity\nExecute the packaged environment on HPC\n\n\n\nNextflow\nCoordinate tasks and data dependencies\n\n\n\nSLURM\nSchedule jobs and allocate cluster resources\n\n\n\nGit/GitHub\nRecord, share and review source changes\n\n\n\nCI/CD\nAutomatically check and deliver defined artifacts\n\n\n\n\nSave this table in your learning notes. At the end of the book, revise each sentence using the evidence you created.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#verification-checkpoint",
+    "href": "chapters/01-the-whole-shebang.html#verification-checkpoint",
+    "title": "2  The whole shebang",
+    "section": "2.19 Verification checkpoint",
+    "text": "2.19 Verification checkpoint\nMatch each scenario to its primary layer. Some scenarios involve several layers; choose the one that owns the stated decision.\n\nSAMtools 1.19.2 and its libraries must be installed together.\nTrimming must finish before alignment begins.\nFive ready tasks are waiting for available compute nodes.\nAn HPC task must enter the project SIF before running FastQC.\nA reviewer wants to inspect the exact source change that introduced a new parameter.\nA pushed pull request should automatically render the documentation and run a smoke test.\nA collaborator wants the exact image content rather than whatever latest means today.\nAn analyst must decide whether Bowtie2 is appropriate for bisulfite-treated reads.\n\n\n\n\n\n\n\nTipShow the answers\n\n\n\n\n\n\nConda/package environment.\nNextflow workflow dependency.\nSLURM scheduler.\nSingularity/Apptainer runtime.\nGit history and GitHub review.\nCI automation.\nOCI image digest.\nBiological/methodological judgment—not the workflow engine.\n\n\n\n\nYou are ready to continue when you can explain why each answer is different, not merely recite the product names.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#try-it-yourself",
+    "href": "chapters/01-the-whole-shebang.html#try-it-yourself",
+    "title": "2  The whole shebang",
+    "section": "2.20 Try it yourself",
+    "text": "2.20 Try it yourself\nDraw the stack for one analysis you already know. It can be an R script, a microscopy workflow or a sequencing analysis. Identify:\n\ninput data;\nanalytical tools;\nsoftware environment;\nordering/dependencies;\nexecution location;\noutputs and logs;\nversion-control evidence; and\nacceptance criteria.\n\nIf a layer is absent, write “not yet controlled” rather than inventing it. That gap is useful information.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#what-to-remember",
+    "href": "chapters/01-the-whole-shebang.html#what-to-remember",
+    "title": "2  The whole shebang",
+    "section": "2.21 What to remember",
+    "text": "2.21 What to remember\n\nBiological validity and engineering reproducibility support one another but are not the same claim.\nA tool performs an operation; a workflow engine coordinates operations and their dependencies.\nModules, Conda, containers, Nextflow and SLURM solve different problems and can be used together.\nDocker/OCI builds and distributes the image; Singularity/Apptainer executes that packaged environment on our HPC system.\nGit records source history; GitHub supports collaboration; CI/CD automates explicitly defined checks and delivery.\nEvery green check, checksum and report has a limited meaning. Good engineers state that meaning accurately.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/01-the-whole-shebang.html#next-chapter",
+    "href": "chapters/01-the-whole-shebang.html#next-chapter",
+    "title": "2  The whole shebang",
+    "section": "2.22 Next chapter",
+    "text": "2.22 Next chapter\nChapter 2 turns this architecture map into a verified workstation inventory. You will check what is installed, distinguish required local tools from cluster-provided tools and record the starting state before modifying it.",
     "crumbs": [
       "Part I — Build the mental model",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
