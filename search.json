@@ -819,25 +819,289 @@
     ]
   },
   {
-    "objectID": "chapters/04-conda-environments.html",
-    "href": "chapters/04-conda-environments.html",
-    "title": "4  Conda environments",
+    "objectID": "chapters/04-hpc-mental-model.html",
+    "href": "chapters/04-hpc-mental-model.html",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
     "section": "",
-    "text": "This chapter explains packages, dependencies, environments, channels, channel priority and version pinning. It then builds the tool environment and uses version commands to prove which executables are active.",
+    "text": "4.1 Why a biologist should care\nA laptop usually has one user making immediate decisions. An HPC cluster is a shared system where many users compete for finite processors, memory, storage bandwidth and accelerators. The scheduler must decide where and when work runs.\nThat changes the meaning of familiar actions:\nAI can draft a batch script in seconds. It cannot know unwritten site policy, your allocation, your data governance requirements or the real resource profile of your sample unless you provide and verify that context.",
     "crumbs": [
-      "Part II — Build a trusted manual workflow",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Conda environments</span>"
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
     ]
   },
   {
-    "objectID": "chapters/05-test-data.html",
-    "href": "chapters/05-test-data.html",
-    "title": "5  A deterministic test fixture",
+    "objectID": "chapters/04-hpc-mental-model.html#why-a-biologist-should-care",
+    "href": "chapters/04-hpc-mental-model.html#why-a-biologist-should-care",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
     "section": "",
-    "text": "This chapter downloads GRCh38 chromosome 22, generates deterministic synthetic paired reads and records SHA-256 checksums. It explains why small, non-sensitive test data are essential for rapid development and public reproducibility.",
+    "text": "starting a program is not the same as submitting a job;\nrequesting 32 CPUs does not make single-threaded software use 32 CPUs;\na job marked COMPLETED may still have produced invalid biological output;\na file can be on a large filesystem while the user’s quota is exhausted;\nsoftware can exist on the cluster but remain invisible until a module is loaded; and\nactivating Conda does not reserve any compute resources.",
     "crumbs": [
-      "Part II — Build a trusted manual workflow",
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>A deterministic test fixture</span>"
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#engineering-objective",
+    "href": "chapters/04-hpc-mental-model.html#engineering-objective",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.2 Engineering objective",
+    "text": "4.2 Engineering objective\nThe goal is to build an execution model you can interrogate:\nyour terminal\n    │ SSH\n    ▼\nlogin node ── submits a resource request ──► scheduler\n    │                                         │\n    │ inspect/edit/light work                 │ grants allocation\n    │                                         ▼\nshared storage ◄──────────────────────── compute node\n  home / project / scratch                runs the task\nThe scheduler controls compute placement. The filesystem carries scripts, inputs, work directories, logs and outputs between the nodes.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#the-four-states-people-accidentally-collapse-into-one",
+    "href": "chapters/04-hpc-mental-model.html#the-four-states-people-accidentally-collapse-into-one",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.3 The four states people accidentally collapse into one",
+    "text": "4.3 The four states people accidentally collapse into one\nAn interview-quality explanation separates these states:\n\nSubmitted: the scheduler accepted a job description and assigned an ID.\nPending: the job is waiting for resources, priority, dependencies or a policy condition.\nRunning: commands are executing inside an allocation.\nCompleted: the scheduler received a zero process exit status.\n\nNone of those alone proves that the correct sample, reference, parameters or outputs were used. Scientific validation is a separate layer.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#before-you-type-identify-the-site-and-policy",
+    "href": "chapters/04-hpc-mental-model.html#before-you-type-identify-the-site-and-policy",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.4 Before you type: identify the site and policy",
+    "text": "4.4 Before you type: identify the site and policy\nNever assume that commands from another institution are valid locally. Find the site documentation or ask an administrator:\n\nWhat scheduler is used: SLURM, PBS, LSF or something else?\nWhat partitions or queues may your account use?\nWhich project or billing account should jobs charge?\nWhere should large inputs, caches, temporary work and final results live?\nAre login-node CPU, memory and time limits enforced?\nWhich container runtime is supported?\nHow are protected or regulated datasets governed?\n\nThis chapter uses SLURM syntax and DLDCC examples. The mental model is portable; the names main, waterland and java/jdk-18.0.1.1 are not.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#connect-through-ssh",
+    "href": "chapters/04-hpc-mental-model.html#connect-through-ssh",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.5 Connect through SSH",
+    "text": "4.5 Connect through SSH\nA typical connection has this shape:\nssh username@login.cluster.example.org\nSSH authenticates the user and creates a remote shell. It does not reserve a compute node. Verify the new context:\nhostname\nwhoami\npwd\nThe prompt may include a host name, but scripts should use explicit evidence such as hostname rather than parsing decorative prompt text.\n\n\n\n\n\n\nWarningDo not publish cluster access details\n\n\n\nA tutorial may show a generic login pattern. Do not commit private keys, passwords, one-time codes, internal host inventories or access tokens. Whether a hostname is public is an institutional decision.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#login-nodes-are-coordination-nodes",
+    "href": "chapters/04-hpc-mental-model.html#login-nodes-are-coordination-nodes",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.6 Login nodes are coordination nodes",
+    "text": "4.6 Login nodes are coordination nodes\nAppropriate login-node work usually includes:\n\nediting scripts and configuration;\ninspecting small text files and job logs;\nmanaging Git repositories;\nsubmitting, monitoring and cancelling jobs;\ntransferring modest files through approved methods; and\nperforming lightweight environment checks.\n\nCompute-intensive alignment, large compression jobs, broad recursive scans and workflow execution belong in an allocation. A login node is shared by many people; one uncontrolled process can degrade everyone’s session.\nThe line is set by local policy, not by a universal number of seconds or gigabytes.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#compute-nodes-and-allocations",
+    "href": "chapters/04-hpc-mental-model.html#compute-nodes-and-allocations",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.7 Compute nodes and allocations",
+    "text": "4.7 Compute nodes and allocations\nA compute node contributes resources such as:\n\nCPU cores or hardware threads;\nRAM;\nlocal temporary storage;\nGPUs or other accelerators; and\naccess to shared filesystems and high-speed networking.\n\nAn allocation is permission to use a specified resource bundle for a limited time. It can be interactive or batch-oriented.\nInteractive allocations are useful for small debugging sessions when the site permits them. A common SLURM pattern is:\nsrun \\\n  --partition=&lt;partition&gt; \\\n  --account=&lt;account&gt; \\\n  --cpus-per-task=2 \\\n  --mem=4G \\\n  --time=00:15:00 \\\n  --pty bash\nAngle-bracket values are placeholders. Site documentation may require salloc followed by srun, or prohibit interactive jobs in some partitions.\nBatch jobs are preferable for reproducible work because the request and command can live in a reviewed file.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#scheduler-vocabulary",
+    "href": "chapters/04-hpc-mental-model.html#scheduler-vocabulary",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.8 Scheduler vocabulary",
+    "text": "4.8 Scheduler vocabulary\n\n\n\n\n\n\n\n\nTerm\nMeaning\nCommon misunderstanding\n\n\n\n\nCluster\nThe complete shared computing system\nOne giant computer\n\n\nNode\nOne computer within the cluster\nOne CPU core\n\n\nPartition\nA scheduler grouping of nodes and policy\nA disk partition\n\n\nAccount\nProject/allocation charged for usage\nUnix login name\n\n\nQOS\nA policy class affecting limits or priority\nScientific quality score\n\n\nJob\nA submitted resource request plus commands\nGuaranteed successful analysis\n\n\nTask\nA unit of work within a job\nAlways one biological sample\n\n\nJob array\nRepeated job template indexed over items\nAutomatic workflow dependency graph\n\n\n\nSLURM’s official quick-start guide is the authoritative command reference. Your site documentation determines which options are permitted.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#inspect-the-cluster-without-submitting-work",
+    "href": "chapters/04-hpc-mental-model.html#inspect-the-cluster-without-submitting-work",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.9 Inspect the cluster without submitting work",
+    "text": "4.9 Inspect the cluster without submitting work\n\n4.9.1 Partitions and nodes with sinfo\nsinfo\nA compact site-specific view might be:\nsinfo -o '%P|%a|%l|%D|%c|%m'\nThe fields request partition, availability, time limit, node count, CPUs and memory. Output formats and configured values vary by SLURM version and site.\nRead the evidence as policy and capacity, not a promise that resources are immediately available.\n\n\n4.9.2 Your jobs with squeue\nsqueue --me\nIf the installed SLURM version lacks --me, use:\nsqueue -u \"$USER\"\nImportant state codes include:\n\nPD: pending;\nR: running;\nCG: completing; and\nsite- or version-dependent failure/hold states.\n\nFor a pending job, inspect the reason column before changing the request. A job waiting for resources is different from one held for an invalid account.\n\n\n4.9.3 Historical evidence with sacct\nsacct \\\n  --starttime today \\\n  --user \"$USER\" \\\n  --format=JobID,JobName,Partition,State,ExitCode,Elapsed,AllocCPUS,MaxRSS\nAccounting fields depend on site configuration. MaxRSS may be delayed or absent. A COMPLETED state and 0:0 exit code mean the scheduled process reported success; inspect application logs and outputs next.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#resource-requests-are-engineering-hypotheses",
+    "href": "chapters/04-hpc-mental-model.html#resource-requests-are-engineering-hypotheses",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.10 Resource requests are engineering hypotheses",
+    "text": "4.10 Resource requests are engineering hypotheses\n\n4.10.1 CPUs\nIn a typical single-program job:\n#SBATCH --cpus-per-task=4\nThis allocates four CPUs to one task. The application must also be configured to use four threads:\ntool --threads \"$SLURM_CPUS_PER_TASK\"\nIf the tool is single-threaded, most allocated CPUs remain idle. If the tool silently starts more threads than allocated, it can oversubscribe the node.\n\n\n4.10.2 Memory\nThese requests are not interchangeable:\n#SBATCH --mem=8G\nrequests memory for the job allocation on a node, whereas:\n#SBATCH --mem-per-cpu=2G\nscales memory with allocated CPUs. Exact semantics should be checked against site policy, especially for multi-node jobs.\nRequesting far too little causes out-of-memory failure. Requesting far too much can delay scheduling and waste charged capacity. Start from test data or prior accounting evidence, then revise with margin.\n\n\n4.10.3 Time\n#SBATCH --time=00:30:00\nThis is a maximum wall-clock duration, not predicted CPU time. A job that exceeds it is terminated. A grossly inflated time request may make backfilling harder and delay the job.\n\n\n4.10.4 Concurrency\nThese are different scaling dimensions:\n\nthreads: one process uses several CPUs;\nprocesses: several programs run at once;\nsamples: workflow tasks may execute concurrently;\nnodes: a distributed program spans computers.\n\nGiving every task all available CPUs can reduce total throughput when many samples could have run simultaneously. Industry interviews often probe this tradeoff.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#read-an-ai-generated-batch-script-critically",
+    "href": "chapters/04-hpc-mental-model.html#read-an-ai-generated-batch-script-critically",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.11 Read an AI-generated batch script critically",
+    "text": "4.11 Read an AI-generated batch script critically\nConsider this small template:\n#!/usr/bin/env bash\n#SBATCH --job-name=inventory-test\n#SBATCH --partition=&lt;partition&gt;\n#SBATCH --account=&lt;account&gt;\n#SBATCH --cpus-per-task=2\n#SBATCH --mem=2G\n#SBATCH --time=00:05:00\n#SBATCH --output=logs/%x-%j.out\n#SBATCH --error=logs/%x-%j.err\n\nset -euo pipefail\n\nprintf 'job_id=%s\\n' \"$SLURM_JOB_ID\"\nprintf 'node=%s\\n' \"$(hostname)\"\nprintf 'cpus=%s\\n' \"$SLURM_CPUS_PER_TASK\"\nBefore submission, the human reviewer must answer:\n\nDo the partition and account exist and permit this job?\nDoes logs/ exist before SLURM tries to open the output files?\nIs Bash available at the resolved interpreter path?\nAre two CPUs and 2 GB justified by the command?\nAre all required input paths visible from compute nodes?\nWill shell initialization, modules or Conda be established explicitly?\nCould any printed value expose sensitive information?\nWhat output proves that the intended program ran?\n\nCreate the log directory before submission:\nmkdir -p logs\nsbatch inventory-test.sh\nSubmission output such as Submitted batch job 123456 proves only scheduler acceptance.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#environment-modules-controlled-shell-transformations",
+    "href": "chapters/04-hpc-mental-model.html#environment-modules-controlled-shell-transformations",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.12 Environment Modules: controlled shell transformations",
+    "text": "4.12 Environment Modules: controlled shell transformations\nClusters may install several versions of Java, compilers and applications. The module system exposes a selected version by modifying environment variables. The Lmod user guide describes this behavior.\nCommon inspection commands are:\nmodule avail\nmodule list\nmodule show java/&lt;site-version&gt;\nCommon state changes are:\nmodule purge\nmodule load java/&lt;site-version&gt;\nmodule load singularity/&lt;site-version&gt;\nmodule purge unloads module-managed state. It does not uninstall software or delete files. module load does not copy the application into your home directory; it changes variables so the shell can find a site installation.\nMany module commands print to standard error even when successful. Capture both streams when creating evidence:\nmodule list &gt; loaded-modules.txt 2&gt;&1\n\n4.12.1 Prove what a module changed\nprintf '%s\\n' \"$PATH\" &gt; path-before-module.txt\ncommand -v java &gt; java-before-module.txt 2&gt;&1 || true\n\nmodule load java/&lt;site-version&gt;\n\nprintf '%s\\n' \"$PATH\" &gt; path-after-module.txt\ncommand -v java &gt; java-after-module.txt 2&gt;&1 || true\n\ndiff -u path-before-module.txt path-after-module.txt || true\ndiff -u java-before-module.txt java-after-module.txt || true\nThe final || true is appropriate here because diff returns 1 when files differ—the condition we are intentionally investigating.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#modules-and-conda-are-separate-mechanisms",
+    "href": "chapters/04-hpc-mental-model.html#modules-and-conda-are-separate-mechanisms",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.13 Modules and Conda are separate mechanisms",
+    "text": "4.13 Modules and Conda are separate mechanisms\nThis is the most important Chapter 4 distinction.\nmodule load java/... ──► edits PATH and related variables\n\nconda activate project ─► edits PATH and sets CONDA_PREFIX\n\nshell resolves `java` ──► first matching executable in current PATH wins\nmodule purge does not deactivate a Conda environment. conda deactivate does not unload a Java module. However, both operations can rearrange PATH, so the winning executable may change.\nInspect state rather than trusting the prompt:\nprintf 'CONDA_PREFIX=%s\\n' \"${CONDA_PREFIX:-NOT_ACTIVE}\"\nmodule list 2&gt;&1\ntype -a java\ncommand -v java\njava -version\nOrder matters. If a Conda environment contains Java and is activated after the module, Conda may win. If the module prepends its Java directory later, the module may win. A pipeline should make this choice explicit.\n\n\n\n\n\n\nImportantActivation is not allocation\n\n\n\nLoading a module or activating Conda changes the software environment in the current shell. Neither action requests CPU, memory or a compute node from SLURM.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#singularityapptainer-the-cluster-container-layer",
+    "href": "chapters/04-hpc-mental-model.html#singularityapptainer-the-cluster-container-layer",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.14 Singularity/Apptainer: the cluster container layer",
+    "text": "4.14 Singularity/Apptainer: the cluster container layer\nSites commonly provide either singularity or apptainer:\ncommand -v singularity\nsingularity --version\n\ncommand -v apptainer\napptainer --version\nThey are related HPC-oriented container runtimes, but names, versions and site configuration differ. Do not alias one name to the other without understanding the installation.\nSingularityCE is designed for shared systems and normally preserves the user’s identity inside the container. Its SIF format packages a container as a single file. The official SingularityCE user guide explains its privilege and runtime model.\nA container packages user-space software. It does not package the host kernel, SLURM allocation, filesystem permissions or data-governance policy. Chapter 19 develops this boundary in depth.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#storage-is-a-resource-not-just-a-path",
+    "href": "chapters/04-hpc-mental-model.html#storage-is-a-resource-not-just-a-path",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.15 Storage is a resource, not just a path",
+    "text": "4.15 Storage is a resource, not just a path\nTypical storage classes have different purposes:\n\n\n\n\n\n\n\n\nStorage\nTypical use\nTypical risk\n\n\n\n\nHome\nSmall configuration, scripts, keys\nTight quota; backed up but not high-throughput\n\n\nProject\nShared inputs, references, durable results\nGroup quota; can become globally full\n\n\nScratch\nTemporary workflow work and large intermediates\nPurged; not backed up\n\n\nNode-local temporary\nShort-lived task-local I/O\nDisappears when job ends; must stage outputs back\n\n\n\nThese are common patterns, not promises. Verify your site.\n\n4.15.1 Capacity versus quota\ndf reports filesystem capacity:\ndf -h \"$HOME\"\ndf -h /path/to/project\ndu estimates space used by visible files under a path:\ndu -sh \"$HOME/.nextflow\" 2&gt;/dev/null || true\ndu -sh /path/to/project/work 2&gt;/dev/null || true\nquota may report a user or group limit:\nquota -s\nA filesystem can show hundreds of gigabytes free while your personal quota is zero. Conversely, your quota can allow growth while the shared filesystem is nearly full. Inode exhaustion can also prevent new files even when byte capacity remains.\n\n\n4.15.2 Match data lifetime to storage lifetime\n\nKeep Git-tracked code and small configuration in durable storage.\nPut reusable reference data in an approved shared location.\nPut Nextflow work directories and large caches where performance, quota and cleanup policy allow.\nPublish final evidence out of scratch before purge deadlines.\nNever use scratch as the only copy of irreplaceable data.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#dldcc-case-study-real-evidence-site-specific-values",
+    "href": "chapters/04-hpc-mental-model.html#dldcc-case-study-real-evidence-site-specific-values",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.16 DLDCC case study: real evidence, site-specific values",
+    "text": "4.16 DLDCC case study: real evidence, site-specific values\nThe companion project was validated on the DLDCC cluster at Baylor College of Medicine in August 2026. The following values are a historical snapshot, not portable defaults:\npartition: main\naccount: waterland\ncontainer runtime: SingularityCE 4.0.3\nJava module: java/jdk-18.0.1.1\nThe workflow later succeeded through SLURM with five separate tasks. The trace recorded native job IDs, CPU utilization, peak RSS and elapsed time.\nThree failures teach more than the successful command.\n\n4.16.1 Failure 1: Java existed but its default garbage collector crashed\nThe site Java executable was found, yet initialization failed inside the G1 garbage collector. The verified workaround was:\nmodule purge\nmodule load java/jdk-18.0.1.1\nexport NXF_OPTS='-XX:+UseSerialGC'\njava $NXF_OPTS -version\nLesson: command -v java proves resolution, not runtime health. Test the runtime independently and record unusual JVM options.\n\n\n4.16.2 Failure 2: filesystem free space did not prevent a quota error\nNextflow attempted to place its framework JAR under the default home cache and failed with Disk quota exceeded. The partially written JAR then appeared corrupt.\nThe fix was to place Nextflow state on approved project storage:\nexport NXF_HOME=\"$PWD/.nextflow\"\nLesson: diagnose the first write failure before replacing the application. A corrupt cache file can be a downstream symptom of quota exhaustion.\n\n\n4.16.3 Failure 3: the container had tools but lacked ps\nThe workflow tools ran in the image, but Nextflow’s task-metrics wrapper also needed ps. The first containerized run failed with:\nCommand 'ps' required by nextflow to collect task metrics cannot be found\nAdding procps-ng to the image fixed the runtime contract.\nLesson: a process needs both scientific executables and orchestration support. An AI-generated dependency list based only on the pipeline commands may be incomplete.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#build-hpc-inventory.txt",
+    "href": "chapters/04-hpc-mental-model.html#build-hpc-inventory.txt",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.17 Build hpc-inventory.txt",
+    "text": "4.17 Build hpc-inventory.txt\nRun this from a directory approved for small diagnostic files. It performs read-only inspection:\n{\n  printf '=== IDENTITY ===\\n'\n  date\n  printf 'user=%s\\n' \"$USER\"\n  printf 'host=%s\\n' \"$(hostname)\"\n  printf 'cwd=%s\\n' \"$PWD\"\n  printf 'shell=%s\\n' \"$SHELL\"\n\n  printf '\\n=== MODULES ===\\n'\n  module list 2&gt;&1 || true\n\n  printf '\\n=== COMMAND SOURCES ===\\n'\n  for command_name in java conda singularity apptainer sbatch squeue sacct; do\n    if command -v \"$command_name\" &gt;/dev/null 2&gt;&1; then\n      printf '%-12s %s\\n' \\\n        \"$command_name\" \\\n        \"$(command -v \"$command_name\")\"\n    else\n      printf '%-12s NOT_FOUND\\n' \"$command_name\"\n    fi\n  done\n\n  printf '\\n=== ACTIVE CONDA ===\\n'\n  printf 'CONDA_PREFIX=%s\\n' \"${CONDA_PREFIX:-NOT_ACTIVE}\"\n\n  printf '\\n=== SCHEDULER ===\\n'\n  sinfo -o '%P|%a|%l|%D|%c|%m' 2&gt;&1 || true\n  squeue -u \"$USER\" 2&gt;&1 || true\n\n  printf '\\n=== STORAGE ===\\n'\n  df -h \"$HOME\" 2&gt;&1 || true\n  quota -s 2&gt;&1 || true\n} &gt; hpc-inventory.txt\nRead the syntax conceptually:\n\nthe outer braces group output into one report;\n2&gt;&1 includes diagnostic streams;\nthe loop applies one lookup policy consistently;\n${CONDA_PREFIX:-NOT_ACTIVE} provides an explicit fallback; and\n|| true allows optional site commands to be absent without truncating the inventory.\n\n|| true is not appropriate for scientific processing steps whose failure must stop the workflow.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#sanitize-before-sharing",
+    "href": "chapters/04-hpc-mental-model.html#sanitize-before-sharing",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.18 Sanitize before sharing",
+    "text": "4.18 Sanitize before sharing\nInspect:\nless hpc-inventory.txt\nRemove or replace:\n\ninternal hostnames if policy treats them as sensitive;\nprivate project paths;\nusernames when unnecessary;\naccount or allocation names not approved for publication; and\nany accidental credential or patient-data reference.\n\nDo not collect env, shell history, SSH configuration or key contents for this artifact.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#verification-checkpoint",
+    "href": "chapters/04-hpc-mental-model.html#verification-checkpoint",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.19 Verification checkpoint",
+    "text": "4.19 Verification checkpoint\ntest -s hpc-inventory.txt\nprintf 'inventory_nonempty=%s\\n' \"$?\"\n\ngrep -q '^=== IDENTITY ===' hpc-inventory.txt\nprintf 'identity_section=%s\\n' \"$?\"\n\ngrep -q '^=== COMMAND SOURCES ===' hpc-inventory.txt\nprintf 'command_sources_section=%s\\n' \"$?\"\n\ngrep -q '^=== SCHEDULER ===' hpc-inventory.txt\nprintf 'scheduler_section=%s\\n' \"$?\"\n\ngrep -q '^=== STORAGE ===' hpc-inventory.txt\nprintf 'storage_section=%s\\n' \"$?\"\nAll five values should be zero. The deeper pass condition is verbal: point to the lines identifying Java, Conda, the container runtime, scheduler and storage, then explain who manages each one.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#what-changed-on-disk",
+    "href": "chapters/04-hpc-mental-model.html#what-changed-on-disk",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.20 What changed on disk",
+    "text": "4.20 What changed on disk\nThe chapter creates only small diagnostic artifacts:\nhpc-inventory.txt\npath-before-module.txt\npath-after-module.txt\njava-before-module.txt\njava-after-module.txt\nlogs/                         # only for the optional batch example\nIt does not create a Conda environment, download a container or run the NGS pipeline.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#hands-on-exercise-review-a-dangerous-ai-suggestion",
+    "href": "chapters/04-hpc-mental-model.html#hands-on-exercise-review-a-dangerous-ai-suggestion",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.21 Hands-on exercise: review a dangerous AI suggestion",
+    "text": "4.21 Hands-on exercise: review a dangerous AI suggestion\nAn AI assistant proposes this command on a shared login node:\nmodule load java\nconda activate analysis\nnextflow run main.nf \\\n  --reads '/project/patient-data/*.fastq' \\\n  -with-docker \\\n  -process.cpus 64 \\\n  -process.memory 240.GB \\\n  -resume &\nWrite ai-review.md with at least twelve findings. Classify each as:\n\nsite-policy unknown;\nexecution-model error;\nresource assumption;\nsoftware-environment ambiguity;\ndata/privacy risk; or\nverification gap.\n\nYour review must address:\n\nlogin node versus scheduler allocation;\nwhether Docker is available or permitted;\nmodule version ambiguity;\nmodule/Conda Java precedence;\nunverified partition, account and QOS;\nblanket CPU and memory requests;\nquoting and wildcard responsibility;\nprotected-data path disclosure;\ndetached background execution;\n-resume cache assumptions;\nmissing logs, reports and exit-status capture; and\nabsence of scientific output validation.\n\nThen write a decision tree, not merely a corrected command:\nIf this is the login node → submit through the approved scheduler profile.\nIf the site supports Singularity → use the validated SIF/profile.\nIf Java comes from a module → verify its path and runtime before Nextflow.\nIf inputs are protected → follow approved storage and logging policy.\nIf resources are unknown → profile a small representative test first.\n\n\n\n\n\n\nTipExercise reasoning hints\n\n\n\n\n\nA strong review does not invent the correct partition or account. It identifies missing evidence and states how to obtain it. It also distinguishes operational success from scientific validation.\nFor every AI-generated line, ask:\nWhat assumption does this line make?\nWho owns that decision?\nWhat evidence would falsify the assumption?\nWhat damage follows if it is wrong?\nHow will success be verified?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#interview-grill-ten-hard-questions",
+    "href": "chapters/04-hpc-mental-model.html#interview-grill-ten-hard-questions",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.22 Interview grill: ten hard questions",
+    "text": "4.22 Interview grill: ten hard questions\nAnswer aloud before opening the model points. These are intentionally scenario-based.\n\nA job remains pending for two hours with reason Resources. What evidence do you inspect before requesting more resources or changing partitions?\nA four-thread aligner receives --cpus-per-task=16. Describe the possible effects on utilization, queue time, throughput and accounting.\nmodule purge was run, but the prompt still shows a Conda environment. Is that contradictory? How do you prove which Java will run?\ndf -h shows 700 GB free, yet Nextflow reports Disk quota exceeded and later reports a corrupt JAR. Construct the causal explanation.\nA SLURM job is COMPLETED with exit code 0:0, but the BAM contains zero mapped reads. Which system succeeded, which validation failed, and what do you inspect next?\nWhy might requesting the maximum CPU and memory for every Nextflow process reduce total pipeline throughput?\nExplain why a container can contain Bowtie2 and SAMtools yet a Nextflow task still fail because ps is missing.\nAn AI generates a Docker-based launch command for an HPC login node. What questions must be answered before translating it to Singularity/Apptainer?\nWhen would you choose node-local temporary storage over shared project storage, and what correctness risk must the job handle?\nDesign the minimum evidence package for escalating an intermittent HPC job failure without exposing protected data or credentials.\n\n\n\n\n\n\n\nNoteModel answer points\n\n\n\n\n\n\nInspect squeue reason and job details, partition availability, requested shape, priority/QOS/account validity and similar recent jobs. Resources means the current request cannot yet be placed; it does not automatically mean the request is too small.\nThe aligner may use only four CPUs while twelve sit idle. The larger shape can wait longer, reduce how many samples run concurrently and increase charged allocation without reducing runtime. Confirm whether other pipeline work shares the task before reducing it.\nNo. Modules and Conda are independent state mechanisms. Inspect CONDA_PREFIX, module list, type -a java, command -v java and java -version; the first matching path wins.\nFilesystem capacity and user quota are different limits. The initial write was truncated when the user’s quota was exhausted; the corrupt-JAR error is a downstream symptom. Fix cache placement/quota and replace the incomplete artifact only after verifying its exact target.\nSLURM successfully ran a process that reported zero. Biological/QC expectations failed. Inspect the aligner log, reference identity, read pairing, parameters, BAM header, flagstat/idxstats and input checksums.\nOversized tasks occupy scarce nodes, wait for a harder-to-place resource shape and prevent concurrent samples from using otherwise available cores. Throughput depends on the whole task graph, not one task’s maximum size.\nNextflow wraps the scientific command to stage files, capture status and collect metrics. The wrapper’s runtime dependencies are part of the container contract even when they are not biological tools.\nConfirm site runtime/version, OCI compatibility, image provenance, bind paths, clean-environment behavior, user identity, GPU/MPI needs, registry access, cache placement and whether building/pulling is permitted on the cluster.\nUse node-local storage for high-throughput disposable intermediates when shared I/O is a bottleneck. The job must stage inputs in and validated outputs out before termination; node-local data can disappear without recovery.\nInclude sanitized job ID, timestamps, state/exit code, resource request, relevant accounting metrics, module/runtime versions, container digest, command log with protected paths redacted, small non-sensitive reproducer and validation results. Exclude tokens, keys, full environment dumps and patient identifiers.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#what-to-remember",
+    "href": "chapters/04-hpc-mental-model.html#what-to-remember",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.23 What to remember",
+    "text": "4.23 What to remember\n\nA login node coordinates work; a scheduler allocation authorizes heavy work.\nResource requests are hypotheses to validate with measurement.\nModules and Conda are independent, but both can change executable precedence.\nFilesystem capacity, quotas, inodes and retention policies are different constraints.\nScheduler success is not scientific success.\nAI may draft syntax; the human remains responsible for site policy, resource reasoning, privacy and verification.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/04-hpc-mental-model.html#next-chapter",
+    "href": "chapters/04-hpc-mental-model.html#next-chapter",
+    "title": "4  HPC mental model: nodes, schedulers, software and storage",
+    "section": "4.24 Next chapter",
+    "text": "4.24 Next chapter\nChapter 5 develops the Git mental model. We will distinguish the working tree, staging area, commits, branches and remotes, then create a small repository whose history can be reviewed rather than merely generated by AI.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>HPC mental model: nodes, schedulers, software and storage</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-git-mental-model.html",
+    "href": "chapters/05-git-mental-model.html",
+    "title": "5  Git mental model and first repository",
+    "section": "",
+    "text": "This chapter will explain how Git records selected filesystem changes and will build the reader’s first small, reviewable repository.\nThe complete chapter will be developed and tested next.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Git mental model and first repository</span>"
     ]
   },
   {
@@ -847,7 +1111,7 @@
     "section": "",
     "text": "This chapter runs raw QC, paired trimming, post-trim QC, alignment, sorting, indexing and BAM validation one operation at a time. The manual result becomes the baseline against which automation is judged.",
     "crumbs": [
-      "Part II — Build a trusted manual workflow",
+      "Part II — Git, GitHub and collaborative engineering",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Establish a trusted manual pipeline</span>"
     ]
   },
@@ -858,7 +1122,7 @@
     "section": "",
     "text": "This chapter combines validated commands into a script and explains set -euo pipefail one option at a time. Checksums and biological summary statistics are used to confirm that automation preserved the baseline result.",
     "crumbs": [
-      "Part II — Build a trusted manual workflow",
+      "Part II — Git, GitHub and collaborative engineering",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Turn commands into strict Bash</span>"
     ]
   },

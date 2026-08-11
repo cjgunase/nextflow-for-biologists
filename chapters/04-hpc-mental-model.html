@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; HPC mental model: nodes, schedulers, software and storage – From FASTQ to Nextflow</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/05-git-mental-model.html" rel="next">
+<link href="../chapters/03-workstation-setup.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/04-hpc-mental-model.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">HPC mental model: nodes, schedulers, software and storage</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">From FASTQ to Nextflow</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/cjgunase/nextflow-for-biologists" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">From FASTQ to Nextflow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — Build the mental model</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-the-whole-shebang.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The whole shebang</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-terminal-files-paths.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-workstation-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Set up and audit the learning workstation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-hpc-mental-model.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">HPC mental model: nodes, schedulers, software and storage</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Git, GitHub and collaborative engineering</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-git-mental-model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Git mental model and first repository</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-manual-pipeline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Establish a trusted manual pipeline</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-strict-bash.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Turn commands into strict Bash</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Make the software portable</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/08-container-mental-model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Container mental model</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/09-build-the-image.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Build the project image</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/10-singularity-on-hpc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Run the image with Singularity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Port the workflow to Nextflow</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/11-nextflow-mental-model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Nextflow mental model</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-first-nextflow-process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/13-complete-dsl2-workflow.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Complete the DSL2 workflow</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/14-profiles-and-runtimes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Profiles and software runtimes</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Execute and prove it</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/15-slurm-execution.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Submit tasks through SLURM</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/16-testing-and-resume.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Failure tests and resume caching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/17-reproducibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">What reproducibility really means</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/18-release-and-evidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Release an evidence-backed project</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/command-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Command reference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/next-steps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Next steps</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">4.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">4.2</span> Engineering objective</a></li>
+  <li><a href="#the-four-states-people-accidentally-collapse-into-one" id="toc-the-four-states-people-accidentally-collapse-into-one" class="nav-link" data-scroll-target="#the-four-states-people-accidentally-collapse-into-one"><span class="header-section-number">4.3</span> The four states people accidentally collapse into one</a></li>
+  <li><a href="#before-you-type-identify-the-site-and-policy" id="toc-before-you-type-identify-the-site-and-policy" class="nav-link" data-scroll-target="#before-you-type-identify-the-site-and-policy"><span class="header-section-number">4.4</span> Before you type: identify the site and policy</a></li>
+  <li><a href="#connect-through-ssh" id="toc-connect-through-ssh" class="nav-link" data-scroll-target="#connect-through-ssh"><span class="header-section-number">4.5</span> Connect through SSH</a></li>
+  <li><a href="#login-nodes-are-coordination-nodes" id="toc-login-nodes-are-coordination-nodes" class="nav-link" data-scroll-target="#login-nodes-are-coordination-nodes"><span class="header-section-number">4.6</span> Login nodes are coordination nodes</a></li>
+  <li><a href="#compute-nodes-and-allocations" id="toc-compute-nodes-and-allocations" class="nav-link" data-scroll-target="#compute-nodes-and-allocations"><span class="header-section-number">4.7</span> Compute nodes and allocations</a></li>
+  <li><a href="#scheduler-vocabulary" id="toc-scheduler-vocabulary" class="nav-link" data-scroll-target="#scheduler-vocabulary"><span class="header-section-number">4.8</span> Scheduler vocabulary</a></li>
+  <li><a href="#inspect-the-cluster-without-submitting-work" id="toc-inspect-the-cluster-without-submitting-work" class="nav-link" data-scroll-target="#inspect-the-cluster-without-submitting-work"><span class="header-section-number">4.9</span> Inspect the cluster without submitting work</a>
+  <ul class="collapse">
+  <li><a href="#partitions-and-nodes-with-sinfo" id="toc-partitions-and-nodes-with-sinfo" class="nav-link" data-scroll-target="#partitions-and-nodes-with-sinfo"><span class="header-section-number">4.9.1</span> Partitions and nodes with <code>sinfo</code></a></li>
+  <li><a href="#your-jobs-with-squeue" id="toc-your-jobs-with-squeue" class="nav-link" data-scroll-target="#your-jobs-with-squeue"><span class="header-section-number">4.9.2</span> Your jobs with <code>squeue</code></a></li>
+  <li><a href="#historical-evidence-with-sacct" id="toc-historical-evidence-with-sacct" class="nav-link" data-scroll-target="#historical-evidence-with-sacct"><span class="header-section-number">4.9.3</span> Historical evidence with <code>sacct</code></a></li>
+  </ul></li>
+  <li><a href="#resource-requests-are-engineering-hypotheses" id="toc-resource-requests-are-engineering-hypotheses" class="nav-link" data-scroll-target="#resource-requests-are-engineering-hypotheses"><span class="header-section-number">4.10</span> Resource requests are engineering hypotheses</a>
+  <ul class="collapse">
+  <li><a href="#cpus" id="toc-cpus" class="nav-link" data-scroll-target="#cpus"><span class="header-section-number">4.10.1</span> CPUs</a></li>
+  <li><a href="#memory" id="toc-memory" class="nav-link" data-scroll-target="#memory"><span class="header-section-number">4.10.2</span> Memory</a></li>
+  <li><a href="#time" id="toc-time" class="nav-link" data-scroll-target="#time"><span class="header-section-number">4.10.3</span> Time</a></li>
+  <li><a href="#concurrency" id="toc-concurrency" class="nav-link" data-scroll-target="#concurrency"><span class="header-section-number">4.10.4</span> Concurrency</a></li>
+  </ul></li>
+  <li><a href="#read-an-ai-generated-batch-script-critically" id="toc-read-an-ai-generated-batch-script-critically" class="nav-link" data-scroll-target="#read-an-ai-generated-batch-script-critically"><span class="header-section-number">4.11</span> Read an AI-generated batch script critically</a></li>
+  <li><a href="#environment-modules-controlled-shell-transformations" id="toc-environment-modules-controlled-shell-transformations" class="nav-link" data-scroll-target="#environment-modules-controlled-shell-transformations"><span class="header-section-number">4.12</span> Environment Modules: controlled shell transformations</a>
+  <ul class="collapse">
+  <li><a href="#prove-what-a-module-changed" id="toc-prove-what-a-module-changed" class="nav-link" data-scroll-target="#prove-what-a-module-changed"><span class="header-section-number">4.12.1</span> Prove what a module changed</a></li>
+  </ul></li>
+  <li><a href="#modules-and-conda-are-separate-mechanisms" id="toc-modules-and-conda-are-separate-mechanisms" class="nav-link" data-scroll-target="#modules-and-conda-are-separate-mechanisms"><span class="header-section-number">4.13</span> Modules and Conda are separate mechanisms</a></li>
+  <li><a href="#singularityapptainer-the-cluster-container-layer" id="toc-singularityapptainer-the-cluster-container-layer" class="nav-link" data-scroll-target="#singularityapptainer-the-cluster-container-layer"><span class="header-section-number">4.14</span> Singularity/Apptainer: the cluster container layer</a></li>
+  <li><a href="#storage-is-a-resource-not-just-a-path" id="toc-storage-is-a-resource-not-just-a-path" class="nav-link" data-scroll-target="#storage-is-a-resource-not-just-a-path"><span class="header-section-number">4.15</span> Storage is a resource, not just a path</a>
+  <ul class="collapse">
+  <li><a href="#capacity-versus-quota" id="toc-capacity-versus-quota" class="nav-link" data-scroll-target="#capacity-versus-quota"><span class="header-section-number">4.15.1</span> Capacity versus quota</a></li>
+  <li><a href="#match-data-lifetime-to-storage-lifetime" id="toc-match-data-lifetime-to-storage-lifetime" class="nav-link" data-scroll-target="#match-data-lifetime-to-storage-lifetime"><span class="header-section-number">4.15.2</span> Match data lifetime to storage lifetime</a></li>
+  </ul></li>
+  <li><a href="#dldcc-case-study-real-evidence-site-specific-values" id="toc-dldcc-case-study-real-evidence-site-specific-values" class="nav-link" data-scroll-target="#dldcc-case-study-real-evidence-site-specific-values"><span class="header-section-number">4.16</span> DLDCC case study: real evidence, site-specific values</a>
+  <ul class="collapse">
+  <li><a href="#failure-1-java-existed-but-its-default-garbage-collector-crashed" id="toc-failure-1-java-existed-but-its-default-garbage-collector-crashed" class="nav-link" data-scroll-target="#failure-1-java-existed-but-its-default-garbage-collector-crashed"><span class="header-section-number">4.16.1</span> Failure 1: Java existed but its default garbage collector crashed</a></li>
+  <li><a href="#failure-2-filesystem-free-space-did-not-prevent-a-quota-error" id="toc-failure-2-filesystem-free-space-did-not-prevent-a-quota-error" class="nav-link" data-scroll-target="#failure-2-filesystem-free-space-did-not-prevent-a-quota-error"><span class="header-section-number">4.16.2</span> Failure 2: filesystem free space did not prevent a quota error</a></li>
+  <li><a href="#failure-3-the-container-had-tools-but-lacked-ps" id="toc-failure-3-the-container-had-tools-but-lacked-ps" class="nav-link" data-scroll-target="#failure-3-the-container-had-tools-but-lacked-ps"><span class="header-section-number">4.16.3</span> Failure 3: the container had tools but lacked <code>ps</code></a></li>
+  </ul></li>
+  <li><a href="#build-hpc-inventory.txt" id="toc-build-hpc-inventory.txt" class="nav-link" data-scroll-target="#build-hpc-inventory.txt"><span class="header-section-number">4.17</span> Build <code>hpc-inventory.txt</code></a></li>
+  <li><a href="#sanitize-before-sharing" id="toc-sanitize-before-sharing" class="nav-link" data-scroll-target="#sanitize-before-sharing"><span class="header-section-number">4.18</span> Sanitize before sharing</a></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">4.19</span> Verification checkpoint</a></li>
+  <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">4.20</span> What changed on disk</a></li>
+  <li><a href="#hands-on-exercise-review-a-dangerous-ai-suggestion" id="toc-hands-on-exercise-review-a-dangerous-ai-suggestion" class="nav-link" data-scroll-target="#hands-on-exercise-review-a-dangerous-ai-suggestion"><span class="header-section-number">4.21</span> Hands-on exercise: review a dangerous AI suggestion</a></li>
+  <li><a href="#interview-grill-ten-hard-questions" id="toc-interview-grill-ten-hard-questions" class="nav-link" data-scroll-target="#interview-grill-ten-hard-questions"><span class="header-section-number">4.22</span> Interview grill: ten hard questions</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">4.23</span> What to remember</a></li>
+  <li><a href="#next-chapter" id="toc-next-chapter" class="nav-link" data-scroll-target="#next-chapter"><span class="header-section-number">4.24</span> Next chapter</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/04-hpc-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/04-hpc-mental-model.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">HPC mental model: nodes, schedulers, software and storage</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">HPC mental model: nodes, schedulers, software and storage</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="chapter-goals">
+<p><strong>By the end of this chapter, you will be able to:</strong></p>
+<ul>
+<li>explain why a cluster has login nodes, compute nodes and a scheduler;</li>
+<li>distinguish submission, allocation, execution and scientific success;</li>
+<li>reason about CPU, memory, elapsed-time and concurrency requests;</li>
+<li>explain what <code>module purge</code> and <code>module load</code> change;</li>
+<li>predict how modules and Conda can compete through <code>PATH</code>;</li>
+<li>choose among home, project and scratch storage deliberately;</li>
+<li>interpret <code>sinfo</code>, <code>squeue</code>, <code>sacct</code>, quota and filesystem evidence;</li>
+<li>review an AI-generated batch script before submitting it; and</li>
+<li>produce a sanitized <code>hpc-inventory.txt</code> for debugging and interviews.</li>
+</ul>
+</div>
+<section id="why-a-biologist-should-care" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">4.1</span> Why a biologist should care</h2>
+<p>A laptop usually has one user making immediate decisions. An HPC cluster is a shared system where many users compete for finite processors, memory, storage bandwidth and accelerators. The scheduler must decide where and when work runs.</p>
+<p>That changes the meaning of familiar actions:</p>
+<ul>
+<li>starting a program is not the same as submitting a job;</li>
+<li>requesting 32 CPUs does not make single-threaded software use 32 CPUs;</li>
+<li>a job marked <code>COMPLETED</code> may still have produced invalid biological output;</li>
+<li>a file can be on a large filesystem while the user’s quota is exhausted;</li>
+<li>software can exist on the cluster but remain invisible until a module is loaded; and</li>
+<li>activating Conda does not reserve any compute resources.</li>
+</ul>
+<p>AI can draft a batch script in seconds. It cannot know unwritten site policy, your allocation, your data governance requirements or the real resource profile of your sample unless you provide and verify that context.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">4.2</span> Engineering objective</h2>
+<p>The goal is to build an execution model you can interrogate:</p>
+<pre class="text"><code>your terminal
+    │ SSH
+    ▼
+login node ── submits a resource request ──► scheduler
+    │                                         │
+    │ inspect/edit/light work                 │ grants allocation
+    │                                         ▼
+shared storage ◄──────────────────────── compute node
+  home / project / scratch                runs the task</code></pre>
+<p>The scheduler controls compute placement. The filesystem carries scripts, inputs, work directories, logs and outputs between the nodes.</p>
+</section>
+<section id="the-four-states-people-accidentally-collapse-into-one" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="the-four-states-people-accidentally-collapse-into-one"><span class="header-section-number">4.3</span> The four states people accidentally collapse into one</h2>
+<p>An interview-quality explanation separates these states:</p>
+<ol type="1">
+<li><strong>Submitted:</strong> the scheduler accepted a job description and assigned an ID.</li>
+<li><strong>Pending:</strong> the job is waiting for resources, priority, dependencies or a policy condition.</li>
+<li><strong>Running:</strong> commands are executing inside an allocation.</li>
+<li><strong>Completed:</strong> the scheduler received a zero process exit status.</li>
+</ol>
+<p>None of those alone proves that the correct sample, reference, parameters or outputs were used. Scientific validation is a separate layer.</p>
+</section>
+<section id="before-you-type-identify-the-site-and-policy" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="before-you-type-identify-the-site-and-policy"><span class="header-section-number">4.4</span> Before you type: identify the site and policy</h2>
+<p>Never assume that commands from another institution are valid locally. Find the site documentation or ask an administrator:</p>
+<ul>
+<li>What scheduler is used: SLURM, PBS, LSF or something else?</li>
+<li>What partitions or queues may your account use?</li>
+<li>Which project or billing account should jobs charge?</li>
+<li>Where should large inputs, caches, temporary work and final results live?</li>
+<li>Are login-node CPU, memory and time limits enforced?</li>
+<li>Which container runtime is supported?</li>
+<li>How are protected or regulated datasets governed?</li>
+</ul>
+<p>This chapter uses SLURM syntax and DLDCC examples. The mental model is portable; the names <code>main</code>, <code>waterland</code> and <code>java/jdk-18.0.1.1</code> are not.</p>
+</section>
+<section id="connect-through-ssh" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="connect-through-ssh"><span class="header-section-number">4.5</span> Connect through SSH</h2>
+<p>A typical connection has this shape:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> username@login.cluster.example.org</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>SSH authenticates the user and creates a remote shell. It does not reserve a compute node. Verify the new context:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">whoami</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The prompt may include a host name, but scripts should use explicit evidence such as <code>hostname</code> rather than parsing decorative prompt text.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="Do not publish cluster access details">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Do not publish cluster access details
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A tutorial may show a generic login pattern. Do not commit private keys, passwords, one-time codes, internal host inventories or access tokens. Whether a hostname is public is an institutional decision.</p>
+</div>
+</div>
+</section>
+<section id="login-nodes-are-coordination-nodes" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="login-nodes-are-coordination-nodes"><span class="header-section-number">4.6</span> Login nodes are coordination nodes</h2>
+<p>Appropriate login-node work usually includes:</p>
+<ul>
+<li>editing scripts and configuration;</li>
+<li>inspecting small text files and job logs;</li>
+<li>managing Git repositories;</li>
+<li>submitting, monitoring and cancelling jobs;</li>
+<li>transferring modest files through approved methods; and</li>
+<li>performing lightweight environment checks.</li>
+</ul>
+<p>Compute-intensive alignment, large compression jobs, broad recursive scans and workflow execution belong in an allocation. A login node is shared by many people; one uncontrolled process can degrade everyone’s session.</p>
+<p>The line is set by local policy, not by a universal number of seconds or gigabytes.</p>
+</section>
+<section id="compute-nodes-and-allocations" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="compute-nodes-and-allocations"><span class="header-section-number">4.7</span> Compute nodes and allocations</h2>
+<p>A compute node contributes resources such as:</p>
+<ul>
+<li>CPU cores or hardware threads;</li>
+<li>RAM;</li>
+<li>local temporary storage;</li>
+<li>GPUs or other accelerators; and</li>
+<li>access to shared filesystems and high-speed networking.</li>
+</ul>
+<p>An <strong>allocation</strong> is permission to use a specified resource bundle for a limited time. It can be interactive or batch-oriented.</p>
+<p>Interactive allocations are useful for small debugging sessions when the site permits them. A common SLURM pattern is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">srun</span> <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--partition</span><span class="op">=&lt;</span>partition<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--account</span><span class="op">=&lt;</span>account<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--cpus-per-task</span><span class="op">=</span>2 <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mem</span><span class="op">=</span>4G <span class="dt">\</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--time</span><span class="op">=</span>00:15:00 <span class="dt">\</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--pty</span> bash</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Angle-bracket values are placeholders. Site documentation may require <code>salloc</code> followed by <code>srun</code>, or prohibit interactive jobs in some partitions.</p>
+<p>Batch jobs are preferable for reproducible work because the request and command can live in a reviewed file.</p>
+</section>
+<section id="scheduler-vocabulary" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="scheduler-vocabulary"><span class="header-section-number">4.8</span> Scheduler vocabulary</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+<th>Common misunderstanding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cluster</td>
+<td>The complete shared computing system</td>
+<td>One giant computer</td>
+</tr>
+<tr class="even">
+<td>Node</td>
+<td>One computer within the cluster</td>
+<td>One CPU core</td>
+</tr>
+<tr class="odd">
+<td>Partition</td>
+<td>A scheduler grouping of nodes and policy</td>
+<td>A disk partition</td>
+</tr>
+<tr class="even">
+<td>Account</td>
+<td>Project/allocation charged for usage</td>
+<td>Unix login name</td>
+</tr>
+<tr class="odd">
+<td>QOS</td>
+<td>A policy class affecting limits or priority</td>
+<td>Scientific quality score</td>
+</tr>
+<tr class="even">
+<td>Job</td>
+<td>A submitted resource request plus commands</td>
+<td>Guaranteed successful analysis</td>
+</tr>
+<tr class="odd">
+<td>Task</td>
+<td>A unit of work within a job</td>
+<td>Always one biological sample</td>
+</tr>
+<tr class="even">
+<td>Job array</td>
+<td>Repeated job template indexed over items</td>
+<td>Automatic workflow dependency graph</td>
+</tr>
+</tbody>
+</table>
+<p>SLURM’s <a href="https://slurm.schedmd.com/quickstart.html">official quick-start guide</a> is the authoritative command reference. Your site documentation determines which options are permitted.</p>
+</section>
+<section id="inspect-the-cluster-without-submitting-work" class="level2" data-number="4.9">
+<h2 data-number="4.9" class="anchored" data-anchor-id="inspect-the-cluster-without-submitting-work"><span class="header-section-number">4.9</span> Inspect the cluster without submitting work</h2>
+<section id="partitions-and-nodes-with-sinfo" class="level3" data-number="4.9.1">
+<h3 data-number="4.9.1" class="anchored" data-anchor-id="partitions-and-nodes-with-sinfo"><span class="header-section-number">4.9.1</span> Partitions and nodes with <code>sinfo</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sinfo</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A compact site-specific view might be:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sinfo</span> <span class="at">-o</span> <span class="st">'%P|%a|%l|%D|%c|%m'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The fields request partition, availability, time limit, node count, CPUs and memory. Output formats and configured values vary by SLURM version and site.</p>
+<p>Read the evidence as policy and capacity, not a promise that resources are immediately available.</p>
+</section>
+<section id="your-jobs-with-squeue" class="level3" data-number="4.9.2">
+<h3 data-number="4.9.2" class="anchored" data-anchor-id="your-jobs-with-squeue"><span class="header-section-number">4.9.2</span> Your jobs with <code>squeue</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">--me</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If the installed SLURM version lacks <code>--me</code>, use:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">-u</span> <span class="st">"</span><span class="va">$USER</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Important state codes include:</p>
+<ul>
+<li><code>PD</code>: pending;</li>
+<li><code>R</code>: running;</li>
+<li><code>CG</code>: completing; and</li>
+<li>site- or version-dependent failure/hold states.</li>
+</ul>
+<p>For a pending job, inspect the reason column before changing the request. A job waiting for resources is different from one held for an invalid account.</p>
+</section>
+<section id="historical-evidence-with-sacct" class="level3" data-number="4.9.3">
+<h3 data-number="4.9.3" class="anchored" data-anchor-id="historical-evidence-with-sacct"><span class="header-section-number">4.9.3</span> Historical evidence with <code>sacct</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sacct</span> <span class="dt">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--starttime</span> today <span class="dt">\</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--user</span> <span class="st">"</span><span class="va">$USER</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--format</span><span class="op">=</span>JobID,JobName,Partition,State,ExitCode,Elapsed,AllocCPUS,MaxRSS</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Accounting fields depend on site configuration. <code>MaxRSS</code> may be delayed or absent. A <code>COMPLETED</code> state and <code>0:0</code> exit code mean the scheduled process reported success; inspect application logs and outputs next.</p>
+</section>
+</section>
+<section id="resource-requests-are-engineering-hypotheses" class="level2" data-number="4.10">
+<h2 data-number="4.10" class="anchored" data-anchor-id="resource-requests-are-engineering-hypotheses"><span class="header-section-number">4.10</span> Resource requests are engineering hypotheses</h2>
+<section id="cpus" class="level3" data-number="4.10.1">
+<h3 data-number="4.10.1" class="anchored" data-anchor-id="cpus"><span class="header-section-number">4.10.1</span> CPUs</h3>
+<p>In a typical single-program job:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=4</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This allocates four CPUs to one task. The application must also be configured to use four threads:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tool</span> <span class="at">--threads</span> <span class="st">"</span><span class="va">$SLURM_CPUS_PER_TASK</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If the tool is single-threaded, most allocated CPUs remain idle. If the tool silently starts more threads than allocated, it can oversubscribe the node.</p>
+</section>
+<section id="memory" class="level3" data-number="4.10.2">
+<h3 data-number="4.10.2" class="anchored" data-anchor-id="memory"><span class="header-section-number">4.10.2</span> Memory</h3>
+<p>These requests are not interchangeable:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=8G</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>requests memory for the job allocation on a node, whereas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem-per-cpu=2G</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>scales memory with allocated CPUs. Exact semantics should be checked against site policy, especially for multi-node jobs.</p>
+<p>Requesting far too little causes out-of-memory failure. Requesting far too much can delay scheduling and waste charged capacity. Start from test data or prior accounting evidence, then revise with margin.</p>
+</section>
+<section id="time" class="level3" data-number="4.10.3">
+<h3 data-number="4.10.3" class="anchored" data-anchor-id="time"><span class="header-section-number">4.10.3</span> Time</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=00:30:00</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is a maximum wall-clock duration, not predicted CPU time. A job that exceeds it is terminated. A grossly inflated time request may make backfilling harder and delay the job.</p>
+</section>
+<section id="concurrency" class="level3" data-number="4.10.4">
+<h3 data-number="4.10.4" class="anchored" data-anchor-id="concurrency"><span class="header-section-number">4.10.4</span> Concurrency</h3>
+<p>These are different scaling dimensions:</p>
+<ul>
+<li><strong>threads:</strong> one process uses several CPUs;</li>
+<li><strong>processes:</strong> several programs run at once;</li>
+<li><strong>samples:</strong> workflow tasks may execute concurrently;</li>
+<li><strong>nodes:</strong> a distributed program spans computers.</li>
+</ul>
+<p>Giving every task all available CPUs can reduce total throughput when many samples could have run simultaneously. Industry interviews often probe this tradeoff.</p>
+</section>
+</section>
+<section id="read-an-ai-generated-batch-script-critically" class="level2" data-number="4.11">
+<h2 data-number="4.11" class="anchored" data-anchor-id="read-an-ai-generated-batch-script-critically"><span class="header-section-number">4.11</span> Read an AI-generated batch script critically</h2>
+<p>Consider this small template:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env bash</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=inventory-test</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --partition=&lt;partition&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --account=&lt;account&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=2</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=2G</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=00:05:00</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --output=logs/%x-%j.out</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --error=logs/%x-%j.err</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-euo</span> pipefail</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'job_id=%s\n'</span> <span class="st">"</span><span class="va">$SLURM_JOB_ID</span><span class="st">"</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'node=%s\n'</span> <span class="st">"</span><span class="va">$(</span><span class="fu">hostname</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'cpus=%s\n'</span> <span class="st">"</span><span class="va">$SLURM_CPUS_PER_TASK</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Before submission, the human reviewer must answer:</p>
+<ol type="1">
+<li>Do the partition and account exist and permit this job?</li>
+<li>Does <code>logs/</code> exist before SLURM tries to open the output files?</li>
+<li>Is Bash available at the resolved interpreter path?</li>
+<li>Are two CPUs and 2 GB justified by the command?</li>
+<li>Are all required input paths visible from compute nodes?</li>
+<li>Will shell initialization, modules or Conda be established explicitly?</li>
+<li>Could any printed value expose sensitive information?</li>
+<li>What output proves that the intended program ran?</li>
+</ol>
+<p>Create the log directory <strong>before</strong> submission:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> logs</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> inventory-test.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Submission output such as <code>Submitted batch job 123456</code> proves only scheduler acceptance.</p>
+</section>
+<section id="environment-modules-controlled-shell-transformations" class="level2" data-number="4.12">
+<h2 data-number="4.12" class="anchored" data-anchor-id="environment-modules-controlled-shell-transformations"><span class="header-section-number">4.12</span> Environment Modules: controlled shell transformations</h2>
+<p>Clusters may install several versions of Java, compilers and applications. The module system exposes a selected version by modifying environment variables. The <a href="https://lmod.readthedocs.io/en/latest/010_user.html">Lmod user guide</a> describes this behavior.</p>
+<p>Common inspection commands are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> avail</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> list</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> show java/<span class="op">&lt;</span>site-version<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Common state changes are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> purge</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load java/<span class="op">&lt;</span>site-version<span class="op">&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load singularity/<span class="op">&lt;</span>site-version<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>module purge</code> unloads module-managed state. It does not uninstall software or delete files. <code>module load</code> does not copy the application into your home directory; it changes variables so the shell can find a site installation.</p>
+<p>Many module commands print to standard error even when successful. Capture both streams when creating evidence:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> list <span class="op">&gt;</span> loaded-modules.txt <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="prove-what-a-module-changed" class="level3" data-number="4.12.1">
+<h3 data-number="4.12.1" class="anchored" data-anchor-id="prove-what-a-module-changed"><span class="header-section-number">4.12.1</span> Prove what a module changed</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">"</span><span class="va">$PATH</span><span class="st">"</span> <span class="op">&gt;</span> path-before-module.txt</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> java <span class="op">&gt;</span> java-before-module.txt <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load java/<span class="op">&lt;</span>site-version<span class="op">&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">"</span><span class="va">$PATH</span><span class="st">"</span> <span class="op">&gt;</span> path-after-module.txt</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> java <span class="op">&gt;</span> java-after-module.txt <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="fu">diff</span> <span class="at">-u</span> path-before-module.txt path-after-module.txt <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="fu">diff</span> <span class="at">-u</span> java-before-module.txt java-after-module.txt <span class="kw">||</span> <span class="fu">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The final <code>|| true</code> is appropriate here because <code>diff</code> returns 1 when files differ—the condition we are intentionally investigating.</p>
+</section>
+</section>
+<section id="modules-and-conda-are-separate-mechanisms" class="level2" data-number="4.13">
+<h2 data-number="4.13" class="anchored" data-anchor-id="modules-and-conda-are-separate-mechanisms"><span class="header-section-number">4.13</span> Modules and Conda are separate mechanisms</h2>
+<p>This is the most important Chapter 4 distinction.</p>
+<pre class="text"><code>module load java/... ──► edits PATH and related variables
+
+conda activate project ─► edits PATH and sets CONDA_PREFIX
+
+shell resolves `java` ──► first matching executable in current PATH wins</code></pre>
+<p><code>module purge</code> does not deactivate a Conda environment. <code>conda deactivate</code> does not unload a Java module. However, both operations can rearrange <code>PATH</code>, so the winning executable may change.</p>
+<p>Inspect state rather than trusting the prompt:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'CONDA_PREFIX=%s\n'</span> <span class="st">"</span><span class="va">${CONDA_PREFIX</span><span class="op">:-</span>NOT_ACTIVE<span class="va">}</span><span class="st">"</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> list <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span> <span class="at">-a</span> java</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> java</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Order matters. If a Conda environment contains Java and is activated after the module, Conda may win. If the module prepends its Java directory later, the module may win. A pipeline should make this choice explicit.</p>
+<div class="callout callout-style-simple callout-important callout-titled" title="Activation is not allocation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Activation is not allocation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Loading a module or activating Conda changes the software environment in the current shell. Neither action requests CPU, memory or a compute node from SLURM.</p>
+</div>
+</div>
+</section>
+<section id="singularityapptainer-the-cluster-container-layer" class="level2" data-number="4.14">
+<h2 data-number="4.14" class="anchored" data-anchor-id="singularityapptainer-the-cluster-container-layer"><span class="header-section-number">4.14</span> Singularity/Apptainer: the cluster container layer</h2>
+<p>Sites commonly provide either <code>singularity</code> or <code>apptainer</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> singularity</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> <span class="at">--version</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> apptainer</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>They are related HPC-oriented container runtimes, but names, versions and site configuration differ. Do not alias one name to the other without understanding the installation.</p>
+<p>SingularityCE is designed for shared systems and normally preserves the user’s identity inside the container. Its SIF format packages a container as a single file. The <a href="https://docs.sylabs.io/guides/latest/user-guide/">official SingularityCE user guide</a> explains its privilege and runtime model.</p>
+<p>A container packages user-space software. It does not package the host kernel, SLURM allocation, filesystem permissions or data-governance policy. Chapter 19 develops this boundary in depth.</p>
+</section>
+<section id="storage-is-a-resource-not-just-a-path" class="level2" data-number="4.15">
+<h2 data-number="4.15" class="anchored" data-anchor-id="storage-is-a-resource-not-just-a-path"><span class="header-section-number">4.15</span> Storage is a resource, not just a path</h2>
+<p>Typical storage classes have different purposes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Storage</th>
+<th>Typical use</th>
+<th>Typical risk</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Home</td>
+<td>Small configuration, scripts, keys</td>
+<td>Tight quota; backed up but not high-throughput</td>
+</tr>
+<tr class="even">
+<td>Project</td>
+<td>Shared inputs, references, durable results</td>
+<td>Group quota; can become globally full</td>
+</tr>
+<tr class="odd">
+<td>Scratch</td>
+<td>Temporary workflow work and large intermediates</td>
+<td>Purged; not backed up</td>
+</tr>
+<tr class="even">
+<td>Node-local temporary</td>
+<td>Short-lived task-local I/O</td>
+<td>Disappears when job ends; must stage outputs back</td>
+</tr>
+</tbody>
+</table>
+<p>These are common patterns, not promises. Verify your site.</p>
+<section id="capacity-versus-quota" class="level3" data-number="4.15.1">
+<h3 data-number="4.15.1" class="anchored" data-anchor-id="capacity-versus-quota"><span class="header-section-number">4.15.1</span> Capacity versus quota</h3>
+<p><code>df</code> reports filesystem capacity:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">"</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span> /path/to/project</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>du</code> estimates space used by visible files under a path:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">du</span> <span class="at">-sh</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/.nextflow"</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">du</span> <span class="at">-sh</span> /path/to/project/work <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">||</span> <span class="fu">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>quota</code> may report a user or group limit:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quota</span> <span class="at">-s</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A filesystem can show hundreds of gigabytes free while your personal quota is zero. Conversely, your quota can allow growth while the shared filesystem is nearly full. Inode exhaustion can also prevent new files even when byte capacity remains.</p>
+</section>
+<section id="match-data-lifetime-to-storage-lifetime" class="level3" data-number="4.15.2">
+<h3 data-number="4.15.2" class="anchored" data-anchor-id="match-data-lifetime-to-storage-lifetime"><span class="header-section-number">4.15.2</span> Match data lifetime to storage lifetime</h3>
+<ul>
+<li>Keep Git-tracked code and small configuration in durable storage.</li>
+<li>Put reusable reference data in an approved shared location.</li>
+<li>Put Nextflow work directories and large caches where performance, quota and cleanup policy allow.</li>
+<li>Publish final evidence out of scratch before purge deadlines.</li>
+<li>Never use scratch as the only copy of irreplaceable data.</li>
+</ul>
+</section>
+</section>
+<section id="dldcc-case-study-real-evidence-site-specific-values" class="level2" data-number="4.16">
+<h2 data-number="4.16" class="anchored" data-anchor-id="dldcc-case-study-real-evidence-site-specific-values"><span class="header-section-number">4.16</span> DLDCC case study: real evidence, site-specific values</h2>
+<p>The companion project was validated on the DLDCC cluster at Baylor College of Medicine in August 2026. The following values are a historical snapshot, not portable defaults:</p>
+<pre class="text"><code>partition: main
+account: waterland
+container runtime: SingularityCE 4.0.3
+Java module: java/jdk-18.0.1.1</code></pre>
+<p>The workflow later succeeded through SLURM with five separate tasks. The trace recorded native job IDs, CPU utilization, peak RSS and elapsed time.</p>
+<p>Three failures teach more than the successful command.</p>
+<section id="failure-1-java-existed-but-its-default-garbage-collector-crashed" class="level3" data-number="4.16.1">
+<h3 data-number="4.16.1" class="anchored" data-anchor-id="failure-1-java-existed-but-its-default-garbage-collector-crashed"><span class="header-section-number">4.16.1</span> Failure 1: Java existed but its default garbage collector crashed</h3>
+<p>The site Java executable was found, yet initialization failed inside the G1 garbage collector. The verified workaround was:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> purge</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load java/jdk-18.0.1.1</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">NXF_OPTS</span><span class="op">=</span><span class="st">'-XX:+UseSerialGC'</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="va">$NXF_OPTS</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Lesson: <code>command -v java</code> proves resolution, not runtime health. Test the runtime independently and record unusual JVM options.</p>
+</section>
+<section id="failure-2-filesystem-free-space-did-not-prevent-a-quota-error" class="level3" data-number="4.16.2">
+<h3 data-number="4.16.2" class="anchored" data-anchor-id="failure-2-filesystem-free-space-did-not-prevent-a-quota-error"><span class="header-section-number">4.16.2</span> Failure 2: filesystem free space did not prevent a quota error</h3>
+<p>Nextflow attempted to place its framework JAR under the default home cache and failed with <code>Disk quota exceeded</code>. The partially written JAR then appeared corrupt.</p>
+<p>The fix was to place Nextflow state on approved project storage:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">NXF_HOME</span><span class="op">=</span><span class="st">"</span><span class="va">$PWD</span><span class="st">/.nextflow"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Lesson: diagnose the first write failure before replacing the application. A corrupt cache file can be a downstream symptom of quota exhaustion.</p>
+</section>
+<section id="failure-3-the-container-had-tools-but-lacked-ps" class="level3" data-number="4.16.3">
+<h3 data-number="4.16.3" class="anchored" data-anchor-id="failure-3-the-container-had-tools-but-lacked-ps"><span class="header-section-number">4.16.3</span> Failure 3: the container had tools but lacked <code>ps</code></h3>
+<p>The workflow tools ran in the image, but Nextflow’s task-metrics wrapper also needed <code>ps</code>. The first containerized run failed with:</p>
+<pre class="text"><code>Command 'ps' required by nextflow to collect task metrics cannot be found</code></pre>
+<p>Adding <code>procps-ng</code> to the image fixed the runtime contract.</p>
+<p>Lesson: a process needs both scientific executables and orchestration support. An AI-generated dependency list based only on the pipeline commands may be incomplete.</p>
+</section>
+</section>
+<section id="build-hpc-inventory.txt" class="level2" data-number="4.17">
+<h2 data-number="4.17" class="anchored" data-anchor-id="build-hpc-inventory.txt"><span class="header-section-number">4.17</span> Build <code>hpc-inventory.txt</code></h2>
+<p>Run this from a directory approved for small diagnostic files. It performs read-only inspection:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'=== IDENTITY ===\n'</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">date</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'user=%s\n'</span> <span class="st">"</span><span class="va">$USER</span><span class="st">"</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'host=%s\n'</span> <span class="st">"</span><span class="va">$(</span><span class="fu">hostname</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'cwd=%s\n'</span> <span class="st">"</span><span class="va">$PWD</span><span class="st">"</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'shell=%s\n'</span> <span class="st">"</span><span class="va">$SHELL</span><span class="st">"</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== MODULES ===\n'</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">module</span> list <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== COMMAND SOURCES ===\n'</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> command_name <span class="kw">in</span> java conda singularity apptainer sbatch squeue sacct<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span> <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>      <span class="bu">printf</span> <span class="st">'%-12s %s\n'</span> <span class="dt">\</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"</span><span class="va">$(</span><span class="bu">command</span> <span class="at">-v</span> <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>      <span class="bu">printf</span> <span class="st">'%-12s NOT_FOUND\n'</span> <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">done</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== ACTIVE CONDA ===\n'</span></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'CONDA_PREFIX=%s\n'</span> <span class="st">"</span><span class="va">${CONDA_PREFIX</span><span class="op">:-</span>NOT_ACTIVE<span class="va">}</span><span class="st">"</span></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== SCHEDULER ===\n'</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>  <span class="ex">sinfo</span> <span class="at">-o</span> <span class="st">'%P|%a|%l|%D|%c|%m'</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>  <span class="ex">squeue</span> <span class="at">-u</span> <span class="st">"</span><span class="va">$USER</span><span class="st">"</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== STORAGE ===\n'</span></span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">df</span> <span class="at">-h</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">"</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>  <span class="ex">quota</span> <span class="at">-s</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> hpc-inventory.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Read the syntax conceptually:</p>
+<ul>
+<li>the outer braces group output into one report;</li>
+<li><code>2&gt;&amp;1</code> includes diagnostic streams;</li>
+<li>the loop applies one lookup policy consistently;</li>
+<li><code>${CONDA_PREFIX:-NOT_ACTIVE}</code> provides an explicit fallback; and</li>
+<li><code>|| true</code> allows optional site commands to be absent without truncating the inventory.</li>
+</ul>
+<p><code>|| true</code> is not appropriate for scientific processing steps whose failure must stop the workflow.</p>
+</section>
+<section id="sanitize-before-sharing" class="level2" data-number="4.18">
+<h2 data-number="4.18" class="anchored" data-anchor-id="sanitize-before-sharing"><span class="header-section-number">4.18</span> Sanitize before sharing</h2>
+<p>Inspect:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">less</span> hpc-inventory.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Remove or replace:</p>
+<ul>
+<li>internal hostnames if policy treats them as sensitive;</li>
+<li>private project paths;</li>
+<li>usernames when unnecessary;</li>
+<li>account or allocation names not approved for publication; and</li>
+<li>any accidental credential or patient-data reference.</li>
+</ul>
+<p>Do not collect <code>env</code>, shell history, SSH configuration or key contents for this artifact.</p>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="4.19">
+<h2 data-number="4.19" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">4.19</span> Verification checkpoint</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="at">-s</span> hpc-inventory.txt</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'inventory_nonempty=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^=== IDENTITY ==='</span> hpc-inventory.txt</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'identity_section=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^=== COMMAND SOURCES ==='</span> hpc-inventory.txt</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'command_sources_section=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^=== SCHEDULER ==='</span> hpc-inventory.txt</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'scheduler_section=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^=== STORAGE ==='</span> hpc-inventory.txt</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'storage_section=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>All five values should be zero. The deeper pass condition is verbal: point to the lines identifying Java, Conda, the container runtime, scheduler and storage, then explain who manages each one.</p>
+</section>
+<section id="what-changed-on-disk" class="level2" data-number="4.20">
+<h2 data-number="4.20" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">4.20</span> What changed on disk</h2>
+<p>The chapter creates only small diagnostic artifacts:</p>
+<pre class="text"><code>hpc-inventory.txt
+path-before-module.txt
+path-after-module.txt
+java-before-module.txt
+java-after-module.txt
+logs/                         # only for the optional batch example</code></pre>
+<p>It does not create a Conda environment, download a container or run the NGS pipeline.</p>
+</section>
+<section id="hands-on-exercise-review-a-dangerous-ai-suggestion" class="level2" data-number="4.21">
+<h2 data-number="4.21" class="anchored" data-anchor-id="hands-on-exercise-review-a-dangerous-ai-suggestion"><span class="header-section-number">4.21</span> Hands-on exercise: review a dangerous AI suggestion</h2>
+<p>An AI assistant proposes this command on a shared login node:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load java</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate analysis</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run main.nf <span class="dt">\</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--reads</span> <span class="st">'/project/patient-data/*.fastq'</span> <span class="dt">\</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-with-docker</span> <span class="dt">\</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-process.cpus</span> 64 <span class="dt">\</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-process.memory</span> 240.GB <span class="dt">\</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">-resume</span> <span class="kw">&amp;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Write <code>ai-review.md</code> with at least twelve findings. Classify each as:</p>
+<ul>
+<li><strong>site-policy unknown</strong>;</li>
+<li><strong>execution-model error</strong>;</li>
+<li><strong>resource assumption</strong>;</li>
+<li><strong>software-environment ambiguity</strong>;</li>
+<li><strong>data/privacy risk</strong>; or</li>
+<li><strong>verification gap</strong>.</li>
+</ul>
+<p>Your review must address:</p>
+<ol type="1">
+<li>login node versus scheduler allocation;</li>
+<li>whether Docker is available or permitted;</li>
+<li>module version ambiguity;</li>
+<li>module/Conda Java precedence;</li>
+<li>unverified partition, account and QOS;</li>
+<li>blanket CPU and memory requests;</li>
+<li>quoting and wildcard responsibility;</li>
+<li>protected-data path disclosure;</li>
+<li>detached background execution;</li>
+<li><code>-resume</code> cache assumptions;</li>
+<li>missing logs, reports and exit-status capture; and</li>
+<li>absence of scientific output validation.</li>
+</ol>
+<p>Then write a <strong>decision tree</strong>, not merely a corrected command:</p>
+<pre class="text"><code>If this is the login node → submit through the approved scheduler profile.
+If the site supports Singularity → use the validated SIF/profile.
+If Java comes from a module → verify its path and runtime before Nextflow.
+If inputs are protected → follow approved storage and logging policy.
+If resources are unknown → profile a small representative test first.</code></pre>
+<div class="callout callout-style-simple callout-tip callout-titled" title="Exercise reasoning hints">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Exercise reasoning hints
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A strong review does not invent the correct partition or account. It identifies missing evidence and states how to obtain it. It also distinguishes operational success from scientific validation.</p>
+<p>For every AI-generated line, ask:</p>
+<pre class="text"><code>What assumption does this line make?
+Who owns that decision?
+What evidence would falsify the assumption?
+What damage follows if it is wrong?
+How will success be verified?</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="interview-grill-ten-hard-questions" class="level2" data-number="4.22">
+<h2 data-number="4.22" class="anchored" data-anchor-id="interview-grill-ten-hard-questions"><span class="header-section-number">4.22</span> Interview grill: ten hard questions</h2>
+<p>Answer aloud before opening the model points. These are intentionally scenario-based.</p>
+<ol type="1">
+<li>A job remains pending for two hours with reason <code>Resources</code>. What evidence do you inspect before requesting more resources or changing partitions?</li>
+<li>A four-thread aligner receives <code>--cpus-per-task=16</code>. Describe the possible effects on utilization, queue time, throughput and accounting.</li>
+<li><code>module purge</code> was run, but the prompt still shows a Conda environment. Is that contradictory? How do you prove which Java will run?</li>
+<li><code>df -h</code> shows 700 GB free, yet Nextflow reports <code>Disk quota exceeded</code> and later reports a corrupt JAR. Construct the causal explanation.</li>
+<li>A SLURM job is <code>COMPLETED</code> with exit code <code>0:0</code>, but the BAM contains zero mapped reads. Which system succeeded, which validation failed, and what do you inspect next?</li>
+<li>Why might requesting the maximum CPU and memory for every Nextflow process reduce total pipeline throughput?</li>
+<li>Explain why a container can contain Bowtie2 and SAMtools yet a Nextflow task still fail because <code>ps</code> is missing.</li>
+<li>An AI generates a Docker-based launch command for an HPC login node. What questions must be answered before translating it to Singularity/Apptainer?</li>
+<li>When would you choose node-local temporary storage over shared project storage, and what correctness risk must the job handle?</li>
+<li>Design the minimum evidence package for escalating an intermittent HPC job failure without exposing protected data or credentials.</li>
+</ol>
+<div class="callout callout-style-simple callout-note callout-titled" title="Model answer points">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Model answer points
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Inspect <code>squeue</code> reason and job details, partition availability, requested shape, priority/QOS/account validity and similar recent jobs. <code>Resources</code> means the current request cannot yet be placed; it does not automatically mean the request is too small.</li>
+<li>The aligner may use only four CPUs while twelve sit idle. The larger shape can wait longer, reduce how many samples run concurrently and increase charged allocation without reducing runtime. Confirm whether other pipeline work shares the task before reducing it.</li>
+<li>No.&nbsp;Modules and Conda are independent state mechanisms. Inspect <code>CONDA_PREFIX</code>, <code>module list</code>, <code>type -a java</code>, <code>command -v java</code> and <code>java -version</code>; the first matching path wins.</li>
+<li>Filesystem capacity and user quota are different limits. The initial write was truncated when the user’s quota was exhausted; the corrupt-JAR error is a downstream symptom. Fix cache placement/quota and replace the incomplete artifact only after verifying its exact target.</li>
+<li>SLURM successfully ran a process that reported zero. Biological/QC expectations failed. Inspect the aligner log, reference identity, read pairing, parameters, BAM header, flagstat/idxstats and input checksums.</li>
+<li>Oversized tasks occupy scarce nodes, wait for a harder-to-place resource shape and prevent concurrent samples from using otherwise available cores. Throughput depends on the whole task graph, not one task’s maximum size.</li>
+<li>Nextflow wraps the scientific command to stage files, capture status and collect metrics. The wrapper’s runtime dependencies are part of the container contract even when they are not biological tools.</li>
+<li>Confirm site runtime/version, OCI compatibility, image provenance, bind paths, clean-environment behavior, user identity, GPU/MPI needs, registry access, cache placement and whether building/pulling is permitted on the cluster.</li>
+<li>Use node-local storage for high-throughput disposable intermediates when shared I/O is a bottleneck. The job must stage inputs in and validated outputs out before termination; node-local data can disappear without recovery.</li>
+<li>Include sanitized job ID, timestamps, state/exit code, resource request, relevant accounting metrics, module/runtime versions, container digest, command log with protected paths redacted, small non-sensitive reproducer and validation results. Exclude tokens, keys, full environment dumps and patient identifiers.</li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-remember" class="level2" data-number="4.23">
+<h2 data-number="4.23" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">4.23</span> What to remember</h2>
+<ul>
+<li>A login node coordinates work; a scheduler allocation authorizes heavy work.</li>
+<li>Resource requests are hypotheses to validate with measurement.</li>
+<li>Modules and Conda are independent, but both can change executable precedence.</li>
+<li>Filesystem capacity, quotas, inodes and retention policies are different constraints.</li>
+<li>Scheduler success is not scientific success.</li>
+<li>AI may draft syntax; the human remains responsible for site policy, resource reasoning, privacy and verification.</li>
+</ul>
+</section>
+<section id="next-chapter" class="level2" data-number="4.24">
+<h2 data-number="4.24" class="anchored" data-anchor-id="next-chapter"><span class="header-section-number">4.24</span> Next chapter</h2>
+<p>Chapter 5 develops the Git mental model. We will distinguish the working tree, staging area, commits, branches and remotes, then create a small repository whose history can be reviewed rather than merely generated by AI.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/cjgunase\.github\.io\/nextflow-for-biologists\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/03-workstation-setup.html" class="pagination-link" aria-label="Set up and audit the learning workstation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Set up and audit the learning workstation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/05-git-mental-model.html" class="pagination-link" aria-label="Git mental model and first repository">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Git mental model and first repository</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>From FASTQ to Nextflow</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/04-hpc-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>A reproducible learning resource</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
