@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -36,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../chapters/06-manual-pipeline.html" rel="next">
+<link href="../chapters/07-safe-daily-git-workflow.html" rel="next">
 <link href="../chapters/05-cloud-execution-mental-model.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -187,14 +222,20 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/06-manual-pipeline.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Establish a trusted manual pipeline</span></span></a>
+  <a href="../chapters/07-safe-daily-git-workflow.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">A safe daily Git workflow</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/07-strict-bash.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Turn commands into strict Bash</span></span></a>
+  <a href="../chapters/08-github-collaboration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">GitHub, issues, pull requests and code review</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/09-versions-tags-releases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Versions, tags, changelogs and releases</span></span></a>
   </div>
 </li>
       </ul>
@@ -202,7 +243,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Part III — Make the software portable</span></a>
+ <span class="menu-text">Part III — Environments, data and a trusted analytical baseline</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -210,20 +251,26 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/08-container-mental-model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Container mental model</span></span></a>
+  <a href="../chapters/10-conda-and-channels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Dependencies, Conda and channels</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/09-build-the-image.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build the project image</span></span></a>
+  <a href="../chapters/11-build-tool-environment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Build and audit the tool environment</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/10-singularity-on-hpc.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Run the image with Singularity</span></span></a>
+  <a href="../chapters/12-test-data-provenance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Deterministic test data, provenance and checksums</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-manual-pipeline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Establish a trusted manual pipeline</span></span></a>
   </div>
 </li>
       </ul>
@@ -231,7 +278,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Part IV — Port the workflow to Nextflow</span></a>
+ <span class="menu-text">Part IV — Scripting, configuration, logging and tests</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -239,26 +286,20 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/11-nextflow-mental-model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Nextflow mental model</span></span></a>
+  <a href="../chapters/07-strict-bash.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Turn commands into strict Bash</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/12-first-nextflow-process.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></span></a>
+  <a href="../chapters/15-defensive-scripts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Defensive scripts, parameters and logs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/13-complete-dsl2-workflow.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Complete the DSL2 workflow</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../chapters/14-profiles-and-runtimes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Profiles and software runtimes</span></span></a>
+  <a href="../chapters/16-software-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Testing bioinformatics software</span></span></a>
   </div>
 </li>
       </ul>
@@ -266,7 +307,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text">Part V — Execute and prove it</span></a>
+ <span class="menu-text">Part V — Containerization and portable software</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -274,26 +315,26 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/15-slurm-execution.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Submit tasks through SLURM</span></span></a>
+  <a href="../chapters/08-container-mental-model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Container mental model</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/16-testing-and-resume.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Failure tests and resume caching</span></span></a>
+  <a href="../chapters/09-build-the-image.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Build the project image</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/17-reproducibility.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">What reproducibility really means</span></span></a>
+  <a href="../chapters/19-registries-image-ci.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Registries, image CI and immutable evidence</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/18-release-and-evidence.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Release an evidence-backed project</span></span></a>
+  <a href="../chapters/10-singularity-on-hpc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Run the image with Singularity</span></span></a>
   </div>
 </li>
       </ul>
@@ -301,7 +342,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text">Appendices</span></a>
+ <span class="menu-text">Part VI — Nextflow DSL2 from first process to complete pipeline</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -309,26 +350,137 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../chapters/11-nextflow-mental-model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Nextflow mental model</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-first-nextflow-process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/23-channels-tuples-paired-files.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Channels, tuples and paired files</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/13-complete-dsl2-workflow.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Complete the DSL2 workflow</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/14-profiles-and-runtimes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Profiles and software runtimes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/16-testing-and-resume.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Failure tests and resume caching</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Schedulers, CI/CD and reproducible delivery</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/15-slurm-execution.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Submit tasks through SLURM</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/28-cicd-github-actions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">CI/CD for a bioinformatics repository with GitHub Actions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/17-reproducibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">What reproducibility really means</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/18-release-and-evidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Release an evidence-backed project</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Working safely and effectively in industry</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/31-security-privacy-regulated-boundaries.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Security, privacy and regulated boundaries</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/32-team-practices-operations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Team practices: documentation, review and operations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/33-where-to-go-next.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Where to go next</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../appendices/glossary.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/troubleshooting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/command-reference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Command reference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Command reference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/next-steps.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Next steps</span></span></a>
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Next steps</span></span></a>
   </div>
 </li>
       </ul>
@@ -338,8 +490,69 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">6.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">6.2</span> Engineering objective</a></li>
+  <li><a href="#repository-working-tree-and-.git" id="toc-repository-working-tree-and-.git" class="nav-link" data-scroll-target="#repository-working-tree-and-.git"><span class="header-section-number">6.3</span> Repository, working tree and <code>.git</code></a></li>
+  <li><a href="#the-staging-area-is-a-proposed-next-snapshot" id="toc-the-staging-area-is-a-proposed-next-snapshot" class="nav-link" data-scroll-target="#the-staging-area-is-a-proposed-next-snapshot"><span class="header-section-number">6.4</span> The staging area is a proposed next snapshot</a></li>
+  <li><a href="#the-five-file-states" id="toc-the-five-file-states" class="nav-link" data-scroll-target="#the-five-file-states"><span class="header-section-number">6.5</span> The five file states</a></li>
+  <li><a href="#commits-are-snapshots-connected-by-history" id="toc-commits-are-snapshots-connected-by-history" class="nav-link" data-scroll-target="#commits-are-snapshots-connected-by-history"><span class="header-section-number">6.6</span> Commits are snapshots connected by history</a></li>
+  <li><a href="#branches-and-head" id="toc-branches-and-head" class="nav-link" data-scroll-target="#branches-and-head"><span class="header-section-number">6.7</span> Branches and <code>HEAD</code></a></li>
+  <li><a href="#git-identity-is-not-authentication" id="toc-git-identity-is-not-authentication" class="nav-link" data-scroll-target="#git-identity-is-not-authentication"><span class="header-section-number">6.8</span> Git identity is not authentication</a></li>
+  <li><a href="#what-belongs-in-a-bioinformatics-repository" id="toc-what-belongs-in-a-bioinformatics-repository" class="nav-link" data-scroll-target="#what-belongs-in-a-bioinformatics-repository"><span class="header-section-number">6.9</span> What belongs in a bioinformatics repository?</a></li>
+  <li><a href="#gitignore-controls-untracked-discovery" id="toc-gitignore-controls-untracked-discovery" class="nav-link" data-scroll-target="#gitignore-controls-untracked-discovery"><span class="header-section-number">6.10</span> <code>.gitignore</code> controls untracked discovery</a></li>
+  <li><a href="#the-inspection-commands-form-a-safety-loop" id="toc-the-inspection-commands-form-a-safety-loop" class="nav-link" data-scroll-target="#the-inspection-commands-form-a-safety-loop"><span class="header-section-number">6.11</span> The inspection commands form a safety loop</a>
+  <ul class="collapse">
+  <li><a href="#git-status-classify-current-state" id="toc-git-status-classify-current-state" class="nav-link" data-scroll-target="#git-status-classify-current-state"><span class="header-section-number">6.11.1</span> <code>git status</code>: classify current state</a></li>
+  <li><a href="#git-diff-inspect-unstaged-changes" id="toc-git-diff-inspect-unstaged-changes" class="nav-link" data-scroll-target="#git-diff-inspect-unstaged-changes"><span class="header-section-number">6.11.2</span> <code>git diff</code>: inspect unstaged changes</a></li>
+  <li><a href="#git-diff---staged-inspect-the-proposed-commit" id="toc-git-diff---staged-inspect-the-proposed-commit" class="nav-link" data-scroll-target="#git-diff---staged-inspect-the-proposed-commit"><span class="header-section-number">6.11.3</span> <code>git diff --staged</code>: inspect the proposed commit</a></li>
+  <li><a href="#git-ls-files-list-what-git-tracks" id="toc-git-ls-files-list-what-git-tracks" class="nav-link" data-scroll-target="#git-ls-files-list-what-git-tracks"><span class="header-section-number">6.11.4</span> <code>git ls-files</code>: list what Git tracks</a></li>
+  <li><a href="#git-log-and-git-show-inspect-recorded-history" id="toc-git-log-and-git-show-inspect-recorded-history" class="nav-link" data-scroll-target="#git-log-and-git-show-inspect-recorded-history"><span class="header-section-number">6.11.5</span> <code>git log</code> and <code>git show</code>: inspect recorded history</a></li>
+  </ul></li>
+  <li><a href="#practical-create-your-first-local-repository" id="toc-practical-create-your-first-local-repository" class="nav-link" data-scroll-target="#practical-create-your-first-local-repository"><span class="header-section-number">6.12</span> Practical: create your first local repository</a>
+  <ul class="collapse">
+  <li><a href="#step-0-verify-the-location" id="toc-step-0-verify-the-location" class="nav-link" data-scroll-target="#step-0-verify-the-location"><span class="header-section-number">6.12.1</span> Step 0 — verify the location</a></li>
+  <li><a href="#step-1-create-and-initialize-the-project" id="toc-step-1-create-and-initialize-the-project" class="nav-link" data-scroll-target="#step-1-create-and-initialize-the-project"><span class="header-section-number">6.12.2</span> Step 1 — create and initialize the project</a></li>
+  <li><a href="#step-2-configure-repository-local-attribution" id="toc-step-2-configure-repository-local-attribution" class="nav-link" data-scroll-target="#step-2-configure-repository-local-attribution"><span class="header-section-number">6.12.3</span> Step 2 — configure repository-local attribution</a></li>
+  <li><a href="#step-3-create-the-initial-files" id="toc-step-3-create-the-initial-files" class="nav-link" data-scroll-target="#step-3-create-the-initial-files"><span class="header-section-number">6.12.4</span> Step 3 — create the initial files</a></li>
+  <li><a href="#step-4-stage-and-inspect-the-first-snapshot" id="toc-step-4-stage-and-inspect-the-first-snapshot" class="nav-link" data-scroll-target="#step-4-stage-and-inspect-the-first-snapshot"><span class="header-section-number">6.12.5</span> Step 4 — stage and inspect the first snapshot</a></li>
+  <li><a href="#step-5-create-the-first-commit" id="toc-step-5-create-the-first-commit" class="nav-link" data-scroll-target="#step-5-create-the-first-commit"><span class="header-section-number">6.12.6</span> Step 5 — create the first commit</a></li>
+  <li><a href="#step-6-create-a-focused-second-change" id="toc-step-6-create-a-focused-second-change" class="nav-link" data-scroll-target="#step-6-create-a-focused-second-change"><span class="header-section-number">6.12.7</span> Step 6 — create a focused second change</a></li>
+  <li><a href="#step-7-prove-the-acceptance-conditions" id="toc-step-7-prove-the-acceptance-conditions" class="nav-link" data-scroll-target="#step-7-prove-the-acceptance-conditions"><span class="header-section-number">6.12.8</span> Step 7 — prove the acceptance conditions</a></li>
+  </ul></li>
+  <li><a href="#read-a-diff-rather-than-merely-looking-at-colors" id="toc-read-a-diff-rather-than-merely-looking-at-colors" class="nav-link" data-scroll-target="#read-a-diff-rather-than-merely-looking-at-colors"><span class="header-section-number">6.13</span> Read a diff rather than merely looking at colors</a></li>
+  <li><a href="#commit-messages-are-part-of-the-evidence" id="toc-commit-messages-are-part-of-the-evidence" class="nav-link" data-scroll-target="#commit-messages-are-part-of-the-evidence"><span class="header-section-number">6.14</span> Commit messages are part of the evidence</a></li>
+  <li><a href="#what-git-does-not-guarantee" id="toc-what-git-does-not-guarantee" class="nav-link" data-scroll-target="#what-git-does-not-guarantee"><span class="header-section-number">6.15</span> What Git does not guarantee</a></li>
+  <li><a href="#common-beginner-failures" id="toc-common-beginner-failures" class="nav-link" data-scroll-target="#common-beginner-failures"><span class="header-section-number">6.16</span> Common beginner failures</a>
+  <ul class="collapse">
+  <li><a href="#i-committed-but-my-new-file-is-missing" id="toc-i-committed-but-my-new-file-is-missing" class="nav-link" data-scroll-target="#i-committed-but-my-new-file-is-missing"><span class="header-section-number">6.16.1</span> “I committed, but my new file is missing”</a></li>
+  <li><a href="#i-added-a-pattern-but-the-file-is-still-tracked" id="toc-i-added-a-pattern-but-the-file-is-still-tracked" class="nav-link" data-scroll-target="#i-added-a-pattern-but-the-file-is-still-tracked"><span class="header-section-number">6.16.2</span> “I added a pattern, but the file is still tracked”</a></li>
+  <li><a href="#my-result-directory-disappeared" id="toc-my-result-directory-disappeared" class="nav-link" data-scroll-target="#my-result-directory-disappeared"><span class="header-section-number">6.16.3</span> “My result directory disappeared”</a></li>
+  <li><a href="#i-initialized-git-in-the-wrong-directory" id="toc-i-initialized-git-in-the-wrong-directory" class="nav-link" data-scroll-target="#i-initialized-git-in-the-wrong-directory"><span class="header-section-number">6.16.4</span> “I initialized Git in the wrong directory”</a></li>
+  <li><a href="#git-rejected-my-commit-identity" id="toc-git-rejected-my-commit-identity" class="nav-link" data-scroll-target="#git-rejected-my-commit-identity"><span class="header-section-number">6.16.5</span> “Git rejected my commit identity”</a></li>
+  </ul></li>
+  <li><a href="#reviewing-ai-generated-git-instructions" id="toc-reviewing-ai-generated-git-instructions" class="nav-link" data-scroll-target="#reviewing-ai-generated-git-instructions"><span class="header-section-number">6.17</span> Reviewing AI-generated Git instructions</a></li>
+  <li><a href="#hands-on-exercise-audit-an-ai-authored-change" id="toc-hands-on-exercise-audit-an-ai-authored-change" class="nav-link" data-scroll-target="#hands-on-exercise-audit-an-ai-authored-change"><span class="header-section-number">6.18</span> Hands-on exercise: audit an AI-authored change</a></li>
+  <li><a href="#ten-interview-questions" id="toc-ten-interview-questions" class="nav-link" data-scroll-target="#ten-interview-questions"><span class="header-section-number">6.19</span> Ten interview questions</a>
+  <ul class="collapse">
+  <li><a href="#what-is-the-difference-between-the-working-tree-staging-area-and-repository" id="toc-what-is-the-difference-between-the-working-tree-staging-area-and-repository" class="nav-link" data-scroll-target="#what-is-the-difference-between-the-working-tree-staging-area-and-repository"><span class="header-section-number">6.19.1</span> 1. What is the difference between the working tree, staging area and repository?</a></li>
+  <li><a href="#why-can-git-diff-be-empty-when-git-status-shows-a-new-file" id="toc-why-can-git-diff-be-empty-when-git-status-shows-a-new-file" class="nav-link" data-scroll-target="#why-can-git-diff-be-empty-when-git-status-shows-a-new-file"><span class="header-section-number">6.19.2</span> 2. Why can <code>git diff</code> be empty when <code>git status</code> shows a new file?</a></li>
+  <li><a href="#what-does-git-add-actually-do" id="toc-what-does-git-add-actually-do" class="nav-link" data-scroll-target="#what-does-git-add-actually-do"><span class="header-section-number">6.19.3</span> 3. What does <code>git add</code> actually do?</a></li>
+  <li><a href="#is-a-git-commit-a-diff-or-a-snapshot" id="toc-is-a-git-commit-a-diff-or-a-snapshot" class="nav-link" data-scroll-target="#is-a-git-commit-a-diff-or-a-snapshot"><span class="header-section-number">6.19.4</span> 4. Is a Git commit a diff or a snapshot?</a></li>
+  <li><a href="#what-is-a-branch-and-what-does-head-mean" id="toc-what-is-a-branch-and-what-does-head-mean" class="nav-link" data-scroll-target="#what-is-a-branch-and-what-does-head-mean"><span class="header-section-number">6.19.5</span> 5. What is a branch, and what does <code>HEAD</code> mean?</a></li>
+  <li><a href="#why-is-.gitignore-not-a-security-control" id="toc-why-is-.gitignore-not-a-security-control" class="nav-link" data-scroll-target="#why-is-.gitignore-not-a-security-control"><span class="header-section-number">6.19.6</span> 6. Why is <code>.gitignore</code> not a security control?</a></li>
+  <li><a href="#which-bioinformatics-artifacts-would-you-track-and-which-would-you-exclude" id="toc-which-bioinformatics-artifacts-would-you-track-and-which-would-you-exclude" class="nav-link" data-scroll-target="#which-bioinformatics-artifacts-would-you-track-and-which-would-you-exclude"><span class="header-section-number">6.19.7</span> 7. Which bioinformatics artifacts would you track, and which would you exclude?</a></li>
+  <li><a href="#does-a-clean-working-tree-prove-the-analysis-is-reproducible" id="toc-does-a-clean-working-tree-prove-the-analysis-is-reproducible" class="nav-link" data-scroll-target="#does-a-clean-working-tree-prove-the-analysis-is-reproducible"><span class="header-section-number">6.19.8</span> 8. Does a clean working tree prove the analysis is reproducible?</a></li>
+  <li><a href="#how-would-you-verify-what-a-commit-contains-before-sharing-it" id="toc-how-would-you-verify-what-a-commit-contains-before-sharing-it" class="nav-link" data-scroll-target="#how-would-you-verify-what-a-commit-contains-before-sharing-it"><span class="header-section-number">6.19.9</span> 9. How would you verify what a commit contains before sharing it?</a></li>
+  <li><a href="#why-should-an-ai-not-automatically-stage-and-commit-every-change-it-generates" id="toc-why-should-an-ai-not-automatically-stage-and-commit-every-change-it-generates" class="nav-link" data-scroll-target="#why-should-an-ai-not-automatically-stage-and-commit-every-change-it-generates"><span class="header-section-number">6.19.10</span> 10. Why should an AI not automatically stage and commit every change it generates?</a></li>
+  </ul></li>
+  <li><a href="#what-you-should-now-be-able-to-explain" id="toc-what-you-should-now-be-able-to-explain" class="nav-link" data-scroll-target="#what-you-should-now-be-able-to-explain"><span class="header-section-number">6.20</span> What you should now be able to explain</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/06-git-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -363,10 +576,648 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter will explain how Git records selected filesystem changes and will build the reader’s first small, reviewable repository.</p>
-<p>The complete chapter will be developed and tested after the cloud execution chapter.</p>
+<div class="chapter-goals">
+<p><strong>By the end of this chapter, you will be able to:</strong></p>
+<ul>
+<li>explain the working tree, staging area, repository, commit, branch and <code>HEAD</code> without calling Git a backup service;</li>
+<li>distinguish untracked, tracked, modified, staged and committed content;</li>
+<li>initialize a repository and create two small, meaningful commits;</li>
+<li>use <code>git status</code>, <code>git diff</code>, <code>git diff --staged</code>, <code>git log</code>, <code>git show</code> and <code>git ls-files</code> as evidence;</li>
+<li>design a <code>.gitignore</code> without accidentally hiding source or provenance;</li>
+<li>decide which bioinformatics files belong in Git;</li>
+<li>inspect AI-generated changes before accepting them; and</li>
+<li>produce a clean local practice repository that you can explain in an interview.</li>
+</ul>
+</div>
+<section id="why-a-biologist-should-care" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">6.1</span> Why a biologist should care</h2>
+<p>A computational result depends on more than FASTQ files and a tool name. It also depends on scripts, workflow definitions, parameters, environment files, container recipes and decisions that change over time.</p>
+<p>Without version control, files often evolve like this:</p>
+<pre class="text"><code>analysis.sh
+analysis_fixed.sh
+analysis_final.sh
+analysis_final_really.sh
+analysis_final_really_2.sh</code></pre>
+<p>Those names do not answer:</p>
+<ul>
+<li>what changed;</li>
+<li>why it changed;</li>
+<li>who changed it;</li>
+<li>which version produced a result;</li>
+<li>whether two files differ; or</li>
+<li>how to return to a known revision.</li>
+</ul>
+<p>Git records deliberate snapshots and the relationships between them. It gives software changes a reviewable history. It does not decide whether the biology is correct; it makes the exact analytical instructions available for review.</p>
+<p>AI increases the need for this discipline. If an assistant edits eight files, you need a way to inspect the exact patch, separate useful changes from unrelated ones and preserve the accepted state.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">6.2</span> Engineering objective</h2>
+<p>Build this model before memorizing commands:</p>
+<pre class="text"><code>files you can see and edit
+        working tree
+             │
+             │ git add selects content
+             ▼
+      staging area / index
+             │
+             │ git commit records a snapshot
+             ▼
+     local Git repository
+       commits + branches
+             │
+             │ later: git push
+             ▼
+      remote repository
+       such as GitHub</code></pre>
+<p>Chapter 6 stops at the local repository. GitHub is introduced in Chapter 8. This separation matters: Git works without GitHub, and GitHub is not Git.</p>
+</section>
+<section id="repository-working-tree-and-.git" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="repository-working-tree-and-.git"><span class="header-section-number">6.3</span> Repository, working tree and <code>.git</code></h2>
+<p>A <strong>repository</strong> is a project whose history Git manages. In a normal local repository you see the project files plus a hidden <code>.git</code> directory:</p>
+<pre class="text"><code>git-first-repo/
+├── .git/            Git's database and local configuration
+├── .gitignore       tracked rules for intentionally untracked paths
+├── README.md        project explanation
+└── workflow.md      example analytical plan</code></pre>
+<p>The <strong>working tree</strong> is the checked-out collection of ordinary files you edit. The <code>.git</code> directory stores commits, references, configuration and other metadata. Deleting <code>.git</code> does not delete the visible project files, but it removes that local repository’s Git history and identity.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="Do not edit `.git` by hand">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Do not edit <code>.git</code> by hand
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use Git commands to inspect and change repository state. Directly modifying files inside <code>.git</code> can corrupt or misdirect the repository.</p>
+</div>
+</div>
+</section>
+<section id="the-staging-area-is-a-proposed-next-snapshot" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="the-staging-area-is-a-proposed-next-snapshot"><span class="header-section-number">6.4</span> The staging area is a proposed next snapshot</h2>
+<p>The staging area—also called the <strong>index</strong>—is the content currently selected for the next commit.</p>
+<p>Imagine that you edit <code>README.md</code> and <code>workflow.md</code>, but only the README is ready. You can stage only that file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add README.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now the repository contains three relevant versions:</p>
+<ol type="1">
+<li>the last committed <code>README.md</code>;</li>
+<li>the staged README proposed for the next commit; and</li>
+<li>any additional unstaged edits in the working tree.</li>
+</ol>
+<p>This is why “I saved the file” and “I committed the change” are different.</p>
+</section>
+<section id="the-five-file-states" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="the-five-file-states"><span class="header-section-number">6.5</span> The five file states</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>State</th>
+<th>Meaning</th>
+<th>Useful evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Untracked</td>
+<td>File exists but has never been selected for Git</td>
+<td><code>git status</code></td>
+</tr>
+<tr class="even">
+<td>Tracked and unchanged</td>
+<td>Working copy matches the selected commit</td>
+<td>clean <code>git status</code></td>
+</tr>
+<tr class="odd">
+<td>Modified</td>
+<td>Tracked file differs from the index/commit</td>
+<td><code>git diff</code></td>
+</tr>
+<tr class="even">
+<td>Staged</td>
+<td>Content is selected for the next commit</td>
+<td><code>git diff --staged</code></td>
+</tr>
+<tr class="odd">
+<td>Committed</td>
+<td>Snapshot is stored in local history</td>
+<td><code>git log</code>, <code>git show</code></td>
+</tr>
+</tbody>
+</table>
+<p>A file can have both staged and unstaged changes. For example, you can stage one version, edit it again and then see the filename in both sections of <code>git status</code>.</p>
+</section>
+<section id="commits-are-snapshots-connected-by-history" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="commits-are-snapshots-connected-by-history"><span class="header-section-number">6.6</span> Commits are snapshots connected by history</h2>
+<p>A commit records:</p>
+<ul>
+<li>a snapshot of tracked content;</li>
+<li>a reference to its parent commit or commits;</li>
+<li>author and committer information;</li>
+<li>timestamps; and</li>
+<li>a message.</li>
+</ul>
+<p>Git identifies a commit using a cryptographic object ID. You often see an abbreviated form such as:</p>
+<pre class="text"><code>a17c42e docs: describe the synthetic test fixture</code></pre>
+<p>Changing commit content or metadata produces a different ID. A commit ID is therefore more precise than “the latest version,” but an abbreviated ID should be long enough to remain unique in the repository.</p>
+<p>Git is conceptually snapshot-based, even though commands such as <code>git diff</code> show changes between snapshots.</p>
+</section>
+<section id="branches-and-head" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="branches-and-head"><span class="header-section-number">6.7</span> Branches and <code>HEAD</code></h2>
+<p>A <strong>branch</strong> is a movable name pointing to a commit. <code>main</code> is a common default branch name. When you create a new commit on <code>main</code>, the branch advances to the new commit.</p>
+<p><code>HEAD</code> normally identifies the branch currently checked out:</p>
+<pre class="text"><code>HEAD ──► main ──► newest commit ──► parent commit</code></pre>
+<p>This model explains why a branch is cheap: it is primarily a reference, not a second full copy of every project file.</p>
+<p>Branches, switching and merging are developed in Chapter 7. For now, remain on one local branch and learn to inspect it.</p>
+</section>
+<section id="git-identity-is-not-authentication" class="level2" data-number="6.8">
+<h2 data-number="6.8" class="anchored" data-anchor-id="git-identity-is-not-authentication"><span class="header-section-number">6.8</span> Git identity is not authentication</h2>
+<p>Every commit stores an author name and email. Configure them for this practice repository:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> user.name <span class="st">"Your Name"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> user.email <span class="st">"you@example.org"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>--local</code> writes configuration for the current repository. It avoids silently changing every repository on a shared or institutional machine.</p>
+<p>Inspect the result:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> <span class="at">--get</span> user.name</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> <span class="at">--get</span> user.email</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This identity is attribution, not proof that you can access GitHub. SSH keys, HTTPS tokens and federated login are authentication mechanisms discussed in Chapter 8.</p>
+</section>
+<section id="what-belongs-in-a-bioinformatics-repository" class="level2" data-number="6.9">
+<h2 data-number="6.9" class="anchored" data-anchor-id="what-belongs-in-a-bioinformatics-repository"><span class="header-section-number">6.9</span> What belongs in a bioinformatics repository?</h2>
+<p>Usually track small, reviewable files that define or explain the analysis:</p>
+<ul>
+<li>Nextflow, Bash, Python or R source;</li>
+<li><code>nextflow.config</code> and nonsensitive parameter examples;</li>
+<li><code>environment.yml</code>, lock files and Dockerfiles;</li>
+<li>small test fixtures when licensing and privacy permit;</li>
+<li>checksum and provenance manifests;</li>
+<li>tests, documentation and diagrams;</li>
+<li>CI/CD workflow definitions; and</li>
+<li>summary evidence small enough to review.</li>
+</ul>
+<p>Usually do not track:</p>
+<ul>
+<li>patient or participant data;</li>
+<li>credentials, tokens, private keys or <code>.env</code> secrets;</li>
+<li>large FASTQ, BAM, CRAM, index and reference bundles;</li>
+<li>generated result directories;</li>
+<li>Nextflow <code>work/</code> and <code>.nextflow/</code> state;</li>
+<li>Conda environment directories;</li>
+<li>Docker or Singularity image files; or</li>
+<li>temporary/editor operating-system files.</li>
+</ul>
+<p>“Git can store it” is not the same as “Git is the correct governed storage system for it.”</p>
+</section>
+<section id="gitignore-controls-untracked-discovery" class="level2" data-number="6.10">
+<h2 data-number="6.10" class="anchored" data-anchor-id="gitignore-controls-untracked-discovery"><span class="header-section-number">6.10</span> <code>.gitignore</code> controls untracked discovery</h2>
+<p>A <code>.gitignore</code> file contains patterns for paths Git should normally leave untracked. A small workflow project might begin with:</p>
+<pre class="gitignore"><code># Workflow runtime state
+work/
+.nextflow/
+.nextflow.log*
+
+# Generated data and results
+data/
+results/
+*.bam
+*.bai
+*.fastq
+*.fastq.gz
+
+# Local environments and container artifacts
+.conda/
+conda-envs/
+containers/
+*.sif
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Operating-system/editor files
+.DS_Store
+*~</code></pre>
+<p>Patterns are project decisions. If <code>data/</code> contains a deliberately tiny public fixture that should be tracked, ignoring the entire directory would be too broad. You might instead ignore <code>data/raw/</code> and explicitly retain <code>data/test/mini.fastq</code>.</p>
+<p>Important limitation: <code>.gitignore</code> does not make an already tracked file untracked, remove it from old commits or protect a secret. If a secret entered history, stop using it, revoke/rotate it and follow your organization’s incident procedure.</p>
+<p>Test an ignore decision:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> check-ignore <span class="at">-v</span> path/to/file</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This prints the matching rule and its source. No output usually means that path is not ignored.</p>
+</section>
+<section id="the-inspection-commands-form-a-safety-loop" class="level2" data-number="6.11">
+<h2 data-number="6.11" class="anchored" data-anchor-id="the-inspection-commands-form-a-safety-loop"><span class="header-section-number">6.11</span> The inspection commands form a safety loop</h2>
+<section id="git-status-classify-current-state" class="level3" data-number="6.11.1">
+<h3 data-number="6.11.1" class="anchored" data-anchor-id="git-status-classify-current-state"><span class="header-section-number">6.11.1</span> <code>git status</code>: classify current state</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The long form teaches what is staged and unstaged. The short form is compact once you understand the two status columns.</p>
+<p>Examples:</p>
+<pre class="text"><code>?? notes.md       untracked
+ M README.md      modified in working tree
+M  workflow.md    staged change
+MM config.yml     staged content plus additional unstaged edits</code></pre>
+</section>
+<section id="git-diff-inspect-unstaged-changes" class="level3" data-number="6.11.2">
+<h3 data-number="6.11.2" class="anchored" data-anchor-id="git-diff-inspect-unstaged-changes"><span class="header-section-number">6.11.2</span> <code>git diff</code>: inspect unstaged changes</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--</span> README.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This compares the working tree with the staging area. It does not show newly untracked file contents.</p>
+</section>
+<section id="git-diff---staged-inspect-the-proposed-commit" class="level3" data-number="6.11.3">
+<h3 data-number="6.11.3" class="anchored" data-anchor-id="git-diff---staged-inspect-the-proposed-commit"><span class="header-section-number">6.11.3</span> <code>git diff --staged</code>: inspect the proposed commit</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--staged</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is the final review before <code>git commit</code>. If the output contains a key, patient identifier, large generated file or unrelated edit, do not commit it.</p>
+<p><code>--cached</code> is a synonym:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="git-ls-files-list-what-git-tracks" class="level3" data-number="6.11.4">
+<h3 data-number="6.11.4" class="anchored" data-anchor-id="git-ls-files-list-what-git-tracks"><span class="header-section-number">6.11.4</span> <code>git ls-files</code>: list what Git tracks</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> ls-files</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is more reliable than looking at the directory. A file can exist locally without being part of the repository.</p>
+</section>
+<section id="git-log-and-git-show-inspect-recorded-history" class="level3" data-number="6.11.5">
+<h3 data-number="6.11.5" class="anchored" data-anchor-id="git-log-and-git-show-inspect-recorded-history"><span class="header-section-number">6.11.5</span> <code>git log</code> and <code>git show</code>: inspect recorded history</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">--decorate</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> show <span class="at">--stat</span> HEAD</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> show HEAD</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>git log</code> shows commit history. <code>git show</code> displays one commit’s metadata and patch. <code>HEAD</code> means the currently selected commit.</p>
+</section>
+</section>
+<section id="practical-create-your-first-local-repository" class="level2" data-number="6.12">
+<h2 data-number="6.12" class="anchored" data-anchor-id="practical-create-your-first-local-repository"><span class="header-section-number">6.12</span> Practical: create your first local repository</h2>
+<p>This exercise creates a disposable repository with no cloud account, remote or biological data. Run it somewhere outside another Git repository.</p>
+<section id="step-0-verify-the-location" class="level3" data-number="6.12.1">
+<h3 data-number="6.12.1" class="anchored" data-anchor-id="step-0-verify-the-location"><span class="header-section-number">6.12.1</span> Step 0 — verify the location</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rev-parse <span class="at">--show-toplevel</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For the third command, a failure is desirable if you intend to create a new standalone repository. If it prints an existing parent repository, move to a different location before continuing.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="Nested repositories confuse beginners">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Nested repositories confuse beginners
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Running <code>git init</code> inside an existing repository creates a nested repository. That can be intentional, but it is not this exercise. Always inspect <code>git rev-parse --show-toplevel</code> first.</p>
+</div>
+</div>
+</section>
+<section id="step-1-create-and-initialize-the-project" class="level3" data-number="6.12.2">
+<h3 data-number="6.12.2" class="anchored" data-anchor-id="step-1-create-and-initialize-the-project"><span class="header-section-number">6.12.2</span> Step 1 — create and initialize the project</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> git-first-repo</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> git-first-repo</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init <span class="at">-b</span> main</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If an older Git version does not support <code>-b</code>, use:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-M</span> main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Confirm the repository root and branch:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rev-parse <span class="at">--show-toplevel</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">--show-current</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expected branch: <code>main</code>.</p>
+</section>
+<section id="step-2-configure-repository-local-attribution" class="level3" data-number="6.12.3">
+<h3 data-number="6.12.3" class="anchored" data-anchor-id="step-2-configure-repository-local-attribution"><span class="header-section-number">6.12.3</span> Step 2 — configure repository-local attribution</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> user.name <span class="st">"Your Name"</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> user.email <span class="st">"you@example.org"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--local</span> <span class="at">--list</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use your real professional attribution if this repository will later be published. The example address is intentionally a placeholder.</p>
+</section>
+<section id="step-3-create-the-initial-files" class="level3" data-number="6.12.4">
+<h3 data-number="6.12.4" class="anchored" data-anchor-id="step-3-create-the-initial-files"><span class="header-section-number">6.12.4</span> Step 3 — create the initial files</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="dt">\</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'# Mini workflow engineering lab'</span> <span class="dt">\</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">''</span> <span class="dt">\</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'A local Git exercise using synthetic data only.'</span> <span class="dt">\</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span> README.md</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="dt">\</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">'work/'</span> <span class="dt">\</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">'results/'</span> <span class="dt">\</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">'.nextflow/'</span> <span class="dt">\</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">'.nextflow.log*'</span> <span class="dt">\</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">'.env'</span> <span class="dt">\</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">'*.key'</span> <span class="dt">\</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">'.DS_Store'</span> <span class="dt">\</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span> .gitignore</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create paths that should be ignored:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> work results</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'temporary task state\n'</span> <span class="op">&gt;</span> work/task.txt</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'generated output\n'</span> <span class="op">&gt;</span> results/result.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Inspect:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> check-ignore <span class="at">-v</span> work/task.txt results/result.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Only <code>.gitignore</code> and <code>README.md</code> should appear as untracked. The other command should identify the ignore rules.</p>
+</section>
+<section id="step-4-stage-and-inspect-the-first-snapshot" class="level3" data-number="6.12.5">
+<h3 data-number="6.12.5" class="anchored" data-anchor-id="step-4-stage-and-inspect-the-first-snapshot"><span class="header-section-number">6.12.5</span> Step 4 — stage and inspect the first snapshot</h3>
+<p>Stage explicit files:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore README.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not make <code>git add .</code> your only habit. It can be appropriate after inspection, but explicit paths make the intended scope obvious to a beginner.</p>
+<p>Review all three views:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--staged</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>git diff</code> should be empty because there are no unstaged edits. The staged diff should show the two new files.</p>
+</section>
+<section id="step-5-create-the-first-commit" class="level3" data-number="6.12.6">
+<h3 data-number="6.12.6" class="anchored" data-anchor-id="step-5-create-the-first-commit"><span class="header-section-number">6.12.6</span> Step 5 — create the first commit</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: initialize the learning repository"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Verify the result:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">--decorate</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> show <span class="at">--stat</span> HEAD</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> ls-files</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The working tree should be clean, and exactly <code>.gitignore</code> and <code>README.md</code> should be tracked.</p>
+</section>
+<section id="step-6-create-a-focused-second-change" class="level3" data-number="6.12.7">
+<h3 data-number="6.12.7" class="anchored" data-anchor-id="step-6-create-a-focused-second-change"><span class="header-section-number">6.12.7</span> Step 6 — create a focused second change</h3>
+<p>Add an analytical plan:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="dt">\</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'# Planned workflow'</span> <span class="dt">\</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">''</span> <span class="dt">\</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'1. Validate paired synthetic FASTQ inputs.'</span> <span class="dt">\</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">'2. Run read quality control.'</span> <span class="dt">\</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">'3. Trim adapters and low-quality ends.'</span> <span class="dt">\</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">'4. Align reads to a declared reference.'</span> <span class="dt">\</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">'5. Validate the sorted BAM and summarize mapping.'</span> <span class="dt">\</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span> workflow.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Inspect the state:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>workflow.md</code> is untracked, so normal <code>git diff</code> will not display its content. Read it directly, then stage it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> workflow.md</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add workflow.md</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--staged</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Commit it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"docs: add the planned analysis stages"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="step-7-prove-the-acceptance-conditions" class="level3" data-number="6.12.8">
+<h3 data-number="6.12.8" class="anchored" data-anchor-id="step-7-prove-the-acceptance-conditions"><span class="header-section-number">6.12.8</span> Step 7 — prove the acceptance conditions</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">--decorate</span> <span class="at">-2</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> ls-files</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> show <span class="at">--stat</span> HEAD</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> show <span class="at">--stat</span> HEAD~1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Acceptance criteria:</p>
+<ul>
+<li><code>git status --short</code> produces no output;</li>
+<li>the log contains two meaningful commits;</li>
+<li>three files are tracked;</li>
+<li>the newest commit contains only <code>workflow.md</code>; and</li>
+<li>the first commit contains only <code>.gitignore</code> and <code>README.md</code>.</li>
+</ul>
+<p>Save interview evidence without inventing it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">'=== STATUS ==='</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">git</span> status</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">'=== HISTORY ==='</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">--decorate</span> <span class="at">-2</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">'=== TRACKED FILES ==='</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">git</span> ls-files</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">'=== LATEST COMMIT ==='</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">git</span> show <span class="at">--stat</span> <span class="at">--oneline</span> HEAD</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> git-practice-evidence.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This evidence file is initially untracked. Decide whether it is a useful small project artifact before adding it; do not automatically create a third commit.</p>
+</section>
+</section>
+<section id="read-a-diff-rather-than-merely-looking-at-colors" class="level2" data-number="6.13">
+<h2 data-number="6.13" class="anchored" data-anchor-id="read-a-diff-rather-than-merely-looking-at-colors"><span class="header-section-number">6.13</span> Read a diff rather than merely looking at colors</h2>
+<p>A simplified patch looks like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode diff code-with-copy"><code class="sourceCode diff"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">diff --git a/workflow.md b/workflow.md</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>new file mode 100644</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="dt">--- /dev/null</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="dt">+++ b/workflow.md</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="dt">@@ -0,0 +1,3 @@</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="va">+# Planned workflow</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="va">+</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="va">+1. Validate paired synthetic FASTQ inputs.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Interpretation:</p>
+<ul>
+<li><code>a/</code> and <code>b/</code> label the compared sides;</li>
+<li><code>/dev/null</code> indicates the file did not exist on the old side;</li>
+<li><code>+</code> lines are additions;</li>
+<li><code>-</code> lines would be removals; and</li>
+<li>the hunk header describes affected line ranges.</li>
+</ul>
+<p>Green text is not automatically good and red text is not automatically bad. Review meaning: a one-line deletion can remove a validation check, and a hundred-line addition can be generated noise.</p>
+</section>
+<section id="commit-messages-are-part-of-the-evidence" class="level2" data-number="6.14">
+<h2 data-number="6.14" class="anchored" data-anchor-id="commit-messages-are-part-of-the-evidence"><span class="header-section-number">6.14</span> Commit messages are part of the evidence</h2>
+<p>A useful message completes this sentence:</p>
+<blockquote class="blockquote">
+<p>If applied, this commit will …</p>
+</blockquote>
+<p>Examples:</p>
+<pre class="text"><code>docs: record synthetic fixture provenance
+fix: fail when paired FASTQ input is incomplete
+test: add missing-reference negative case
+build: pin samtools container digest</code></pre>
+<p>Avoid messages such as <code>stuff</code>, <code>changes</code>, <code>final</code>, or <code>AI update</code>. The message should describe the change, not the mood of the author.</p>
+<p>A commit should normally represent one coherent reason for change. Small does not mean one line; it means reviewable and conceptually focused.</p>
+</section>
+<section id="what-git-does-not-guarantee" class="level2" data-number="6.15">
+<h2 data-number="6.15" class="anchored" data-anchor-id="what-git-does-not-guarantee"><span class="header-section-number">6.15</span> What Git does not guarantee</h2>
+<p>Git does not automatically prove:</p>
+<ul>
+<li>scientific correctness;</li>
+<li>authenticity of the author’s real-world identity;</li>
+<li>compliance with privacy or regulatory policy;</li>
+<li>that an external reference URL still serves the same bytes;</li>
+<li>that ignored data is safely backed up;</li>
+<li>that a remote copy exists;</li>
+<li>that a container or result was built from the commit; or</li>
+<li>that a commit was reviewed.</li>
+</ul>
+<p>Those claims need additional controls and evidence: tests, checksums, provenance, signed artifacts, code review, governed storage and CI/CD.</p>
+</section>
+<section id="common-beginner-failures" class="level2" data-number="6.16">
+<h2 data-number="6.16" class="anchored" data-anchor-id="common-beginner-failures"><span class="header-section-number">6.16</span> Common beginner failures</h2>
+<section id="i-committed-but-my-new-file-is-missing" class="level3" data-number="6.16.1">
+<h3 data-number="6.16.1" class="anchored" data-anchor-id="i-committed-but-my-new-file-is-missing"><span class="header-section-number">6.16.1</span> “I committed, but my new file is missing”</h3>
+<p><code>git commit</code> records staged content, not every visible file. Use:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> ls-files</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then stage the intended file and review <code>git diff --staged</code>.</p>
+</section>
+<section id="i-added-a-pattern-but-the-file-is-still-tracked" class="level3" data-number="6.16.2">
+<h3 data-number="6.16.2" class="anchored" data-anchor-id="i-added-a-pattern-but-the-file-is-still-tracked"><span class="header-section-number">6.16.2</span> “I added a pattern, but the file is still tracked”</h3>
+<p><code>.gitignore</code> mainly affects untracked paths. First determine why the file was tracked and whether removing it from future snapshots is appropriate. Do not copy an index-removal command without understanding its effect.</p>
+</section>
+<section id="my-result-directory-disappeared" class="level3" data-number="6.16.3">
+<h3 data-number="6.16.3" class="anchored" data-anchor-id="my-result-directory-disappeared"><span class="header-section-number">6.16.3</span> “My result directory disappeared”</h3>
+<p>Git does not track empty directories, and ignored/generated directories may not exist in a fresh clone. Scripts should create required output directories.</p>
+</section>
+<section id="i-initialized-git-in-the-wrong-directory" class="level3" data-number="6.16.4">
+<h3 data-number="6.16.4" class="anchored" data-anchor-id="i-initialized-git-in-the-wrong-directory"><span class="header-section-number">6.16.4</span> “I initialized Git in the wrong directory”</h3>
+<p>Stop before committing. Inspect:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rev-parse <span class="at">--show-toplevel</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not delete an unexpected <code>.git</code> directory until you know whether it contains valuable history and have confirmed the exact path.</p>
+</section>
+<section id="git-rejected-my-commit-identity" class="level3" data-number="6.16.5">
+<h3 data-number="6.16.5" class="anchored" data-anchor-id="git-rejected-my-commit-identity"><span class="header-section-number">6.16.5</span> “Git rejected my commit identity”</h3>
+<p>Configure a name and email locally, inspect them and retry. This is independent of GitHub login.</p>
+</section>
+</section>
+<section id="reviewing-ai-generated-git-instructions" class="level2" data-number="6.17">
+<h2 data-number="6.17" class="anchored" data-anchor-id="reviewing-ai-generated-git-instructions"><span class="header-section-number">6.17</span> Reviewing AI-generated Git instructions</h2>
+<p>AI often proposes commands that produce a desired final state while destroying useful evidence. Be suspicious of unexplained commands containing:</p>
+<pre class="text"><code>reset --hard
+clean -fd
+checkout -- &lt;path&gt;
+restore --source ...
+push --force
+filter-repo</code></pre>
+<p>These commands have legitimate uses, but they can discard work or rewrite history. They are not beginner troubleshooting defaults.</p>
+<p>Before running any Git command suggested by AI, require answers to:</p>
+<ol type="1">
+<li>What repository root will it affect?</li>
+<li>Does it modify the working tree, staging area, commits or remote history?</li>
+<li>Which exact paths or branches are targeted?</li>
+<li>Can uncommitted content be lost?</li>
+<li>Is the operation recoverable, and from what evidence?</li>
+<li>What read-only command shows the current state first?</li>
+</ol>
+<p>Prefer diagnosis with <code>status</code>, <code>diff</code>, <code>log</code>, <code>show</code>, <code>branch</code> and <code>rev-parse</code> before mutation.</p>
+</section>
+<section id="hands-on-exercise-audit-an-ai-authored-change" class="level2" data-number="6.18">
+<h2 data-number="6.18" class="anchored" data-anchor-id="hands-on-exercise-audit-an-ai-authored-change"><span class="header-section-number">6.18</span> Hands-on exercise: audit an AI-authored change</h2>
+<p>In your practice repository, ask an AI system to propose one paragraph for the README explaining why synthetic data is used. Do not let it commit for you.</p>
+<p>Then:</p>
+<ol type="1">
+<li>inspect <code>git status --short</code>;</li>
+<li>inspect the unstaged patch with <code>git diff</code>;</li>
+<li>check the text for claims the project does not demonstrate;</li>
+<li>edit or reject unsupported claims;</li>
+<li>stage only <code>README.md</code>;</li>
+<li>inspect <code>git diff --staged</code>;</li>
+<li>write a commit message describing your accepted change; and</li>
+<li>prove the final working tree is clean.</li>
+</ol>
+<p>Create <code>ai-change-review.md</code> outside the practice repository or leave it untracked. Record:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># AI change review</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Requested change</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">## Files the AI proposed changing</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Claims independently verified</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Claims corrected or rejected</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Final staged scope</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">## Commit ID</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Post-commit status</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The important skill is not producing the paragraph. It is controlling scope, validating meaning and establishing traceable acceptance.</p>
+</section>
+<section id="ten-interview-questions" class="level2" data-number="6.19">
+<h2 data-number="6.19" class="anchored" data-anchor-id="ten-interview-questions"><span class="header-section-number">6.19</span> Ten interview questions</h2>
+<section id="what-is-the-difference-between-the-working-tree-staging-area-and-repository" class="level3" data-number="6.19.1">
+<h3 data-number="6.19.1" class="anchored" data-anchor-id="what-is-the-difference-between-the-working-tree-staging-area-and-repository"><span class="header-section-number">6.19.1</span> 1. What is the difference between the working tree, staging area and repository?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>The working tree contains the files currently checked out for editing. The staging area holds the exact content proposed for the next commit. The local repository stores commits, references and history under <code>.git</code>. Saving, staging and committing are therefore three different state transitions.</p>
+</details>
+</section>
+<section id="why-can-git-diff-be-empty-when-git-status-shows-a-new-file" class="level3" data-number="6.19.2">
+<h3 data-number="6.19.2" class="anchored" data-anchor-id="why-can-git-diff-be-empty-when-git-status-shows-a-new-file"><span class="header-section-number">6.19.2</span> 2. Why can <code>git diff</code> be empty when <code>git status</code> shows a new file?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>Normal <code>git diff</code> compares tracked working-tree content with the index. An untracked file has no indexed version to compare, so its content is not shown. I inspect the file directly, stage it intentionally and then use <code>git diff --staged</code>.</p>
+</details>
+</section>
+<section id="what-does-git-add-actually-do" class="level3" data-number="6.19.3">
+<h3 data-number="6.19.3" class="anchored" data-anchor-id="what-does-git-add-actually-do"><span class="header-section-number">6.19.3</span> 3. What does <code>git add</code> actually do?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>It copies the selected content into the index as part of the proposed next snapshot. It does not create a commit, upload anything to GitHub or permanently save all future edits to that file.</p>
+</details>
+</section>
+<section id="is-a-git-commit-a-diff-or-a-snapshot" class="level3" data-number="6.19.4">
+<h3 data-number="6.19.4" class="anchored" data-anchor-id="is-a-git-commit-a-diff-or-a-snapshot"><span class="header-section-number">6.19.4</span> 4. Is a Git commit a diff or a snapshot?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>Git’s model is snapshot-based: a commit refers to a complete tree of recorded content plus metadata and parent relationships. Git efficiently stores and displays differences, which is why users often experience commits as patches.</p>
+</details>
+</section>
+<section id="what-is-a-branch-and-what-does-head-mean" class="level3" data-number="6.19.5">
+<h3 data-number="6.19.5" class="anchored" data-anchor-id="what-is-a-branch-and-what-does-head-mean"><span class="header-section-number">6.19.5</span> 5. What is a branch, and what does <code>HEAD</code> mean?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>A branch is a movable reference to a commit. <code>HEAD</code> normally identifies the currently checked-out branch, which in turn points to the current commit. A new commit advances that branch reference.</p>
+</details>
+</section>
+<section id="why-is-.gitignore-not-a-security-control" class="level3" data-number="6.19.6">
+<h3 data-number="6.19.6" class="anchored" data-anchor-id="why-is-.gitignore-not-a-security-control"><span class="header-section-number">6.19.6</span> 6. Why is <code>.gitignore</code> not a security control?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>It only influences which untracked paths Git normally reports or stages. It does not encrypt files, prevent another program from reading them, remove already tracked content or erase old commits. Exposed credentials must be revoked or rotated even if an ignore rule is later added.</p>
+</details>
+</section>
+<section id="which-bioinformatics-artifacts-would-you-track-and-which-would-you-exclude" class="level3" data-number="6.19.7">
+<h3 data-number="6.19.7" class="anchored" data-anchor-id="which-bioinformatics-artifacts-would-you-track-and-which-would-you-exclude"><span class="header-section-number">6.19.7</span> 7. Which bioinformatics artifacts would you track, and which would you exclude?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>I track reviewable source, configuration, environment/container specifications, tests, documentation, provenance and small permitted fixtures. I exclude sensitive data, secrets, large raw/generated files, workflow caches, local environments and container binaries. Exact choices follow governance, licensing, reproducibility and repository-size requirements.</p>
+</details>
+</section>
+<section id="does-a-clean-working-tree-prove-the-analysis-is-reproducible" class="level3" data-number="6.19.8">
+<h3 data-number="6.19.8" class="anchored" data-anchor-id="does-a-clean-working-tree-prove-the-analysis-is-reproducible"><span class="header-section-number">6.19.8</span> 8. Does a clean working tree prove the analysis is reproducible?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>No.&nbsp;It only says tracked working-tree and staged content match the selected commit and there are no reported untracked changes. Reproducibility also needs inputs, dependencies, parameters, runtime, references, provenance and validation evidence.</p>
+</details>
+</section>
+<section id="how-would-you-verify-what-a-commit-contains-before-sharing-it" class="level3" data-number="6.19.9">
+<h3 data-number="6.19.9" class="anchored" data-anchor-id="how-would-you-verify-what-a-commit-contains-before-sharing-it"><span class="header-section-number">6.19.9</span> 9. How would you verify what a commit contains before sharing it?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>Before committing I use <code>git status</code> and <code>git diff --staged</code>. After committing I use <code>git show --stat &lt;commit&gt;</code> for scope and <code>git show &lt;commit&gt;</code> for the patch, plus <code>git ls-files</code> when tracked-file inventory matters. I also scan for secrets, sensitive data and unintended generated files.</p>
+</details>
+</section>
+<section id="why-should-an-ai-not-automatically-stage-and-commit-every-change-it-generates" class="level3" data-number="6.19.10">
+<h3 data-number="6.19.10" class="anchored" data-anchor-id="why-should-an-ai-not-automatically-stage-and-commit-every-change-it-generates"><span class="header-section-number">6.19.10</span> 10. Why should an AI not automatically stage and commit every change it generates?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>Generation is not review. The AI may change unrelated files, include secrets, invent claims, misunderstand repository policy or bundle several concerns. A human or authorized review process should inspect the patch, test behavior, control staged scope and choose a message that accurately records the accepted change.</p>
+</details>
+</section>
+</section>
+<section id="what-you-should-now-be-able-to-explain" class="level2" data-number="6.20">
+<h2 data-number="6.20" class="anchored" data-anchor-id="what-you-should-now-be-able-to-explain"><span class="header-section-number">6.20</span> What you should now be able to explain</h2>
+<p>You should be able to point to any visible project file and say whether Git is ignoring it, tracking it, staging a change or storing it in a commit. You should also be able to prove that your first repository contains two deliberate snapshots and no unexplained working-tree changes.</p>
+<p>The next chapter turns this static model into a safe daily workflow using branches, focused commits, comparisons, restoration and merge-conflict reasoning.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -781,8 +1632,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../chapters/06-manual-pipeline.html" class="pagination-link" aria-label="Establish a trusted manual pipeline">
-        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Establish a trusted manual pipeline</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../chapters/07-safe-daily-git-workflow.html" class="pagination-link" aria-label="A safe daily Git workflow">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">A safe daily Git workflow</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -794,7 +1645,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/06-git-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/06-git-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

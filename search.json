@@ -1351,197 +1351,571 @@
     "href": "chapters/06-git-mental-model.html",
     "title": "6  Git mental model and first repository",
     "section": "",
-    "text": "This chapter will explain how Git records selected filesystem changes and will build the reader’s first small, reviewable repository.\nThe complete chapter will be developed and tested after the cloud execution chapter.",
+    "text": "6.1 Why a biologist should care\nA computational result depends on more than FASTQ files and a tool name. It also depends on scripts, workflow definitions, parameters, environment files, container recipes and decisions that change over time.\nWithout version control, files often evolve like this:\nThose names do not answer:\nGit records deliberate snapshots and the relationships between them. It gives software changes a reviewable history. It does not decide whether the biology is correct; it makes the exact analytical instructions available for review.\nAI increases the need for this discipline. If an assistant edits eight files, you need a way to inspect the exact patch, separate useful changes from unrelated ones and preserve the accepted state.",
     "crumbs": [
       "Part II — Git, GitHub and collaborative engineering",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
     ]
   },
   {
+    "objectID": "chapters/06-git-mental-model.html#why-a-biologist-should-care",
+    "href": "chapters/06-git-mental-model.html#why-a-biologist-should-care",
+    "title": "6  Git mental model and first repository",
+    "section": "",
+    "text": "analysis.sh\nanalysis_fixed.sh\nanalysis_final.sh\nanalysis_final_really.sh\nanalysis_final_really_2.sh\n\n\nwhat changed;\nwhy it changed;\nwho changed it;\nwhich version produced a result;\nwhether two files differ; or\nhow to return to a known revision.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#engineering-objective",
+    "href": "chapters/06-git-mental-model.html#engineering-objective",
+    "title": "6  Git mental model and first repository",
+    "section": "6.2 Engineering objective",
+    "text": "6.2 Engineering objective\nBuild this model before memorizing commands:\nfiles you can see and edit\n        working tree\n             │\n             │ git add selects content\n             ▼\n      staging area / index\n             │\n             │ git commit records a snapshot\n             ▼\n     local Git repository\n       commits + branches\n             │\n             │ later: git push\n             ▼\n      remote repository\n       such as GitHub\nChapter 6 stops at the local repository. GitHub is introduced in Chapter 8. This separation matters: Git works without GitHub, and GitHub is not Git.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#repository-working-tree-and-.git",
+    "href": "chapters/06-git-mental-model.html#repository-working-tree-and-.git",
+    "title": "6  Git mental model and first repository",
+    "section": "6.3 Repository, working tree and .git",
+    "text": "6.3 Repository, working tree and .git\nA repository is a project whose history Git manages. In a normal local repository you see the project files plus a hidden .git directory:\ngit-first-repo/\n├── .git/            Git's database and local configuration\n├── .gitignore       tracked rules for intentionally untracked paths\n├── README.md        project explanation\n└── workflow.md      example analytical plan\nThe working tree is the checked-out collection of ordinary files you edit. The .git directory stores commits, references, configuration and other metadata. Deleting .git does not delete the visible project files, but it removes that local repository’s Git history and identity.\n\n\n\n\n\n\nWarningDo not edit .git by hand\n\n\n\nUse Git commands to inspect and change repository state. Directly modifying files inside .git can corrupt or misdirect the repository.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#the-staging-area-is-a-proposed-next-snapshot",
+    "href": "chapters/06-git-mental-model.html#the-staging-area-is-a-proposed-next-snapshot",
+    "title": "6  Git mental model and first repository",
+    "section": "6.4 The staging area is a proposed next snapshot",
+    "text": "6.4 The staging area is a proposed next snapshot\nThe staging area—also called the index—is the content currently selected for the next commit.\nImagine that you edit README.md and workflow.md, but only the README is ready. You can stage only that file:\ngit add README.md\nNow the repository contains three relevant versions:\n\nthe last committed README.md;\nthe staged README proposed for the next commit; and\nany additional unstaged edits in the working tree.\n\nThis is why “I saved the file” and “I committed the change” are different.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#the-five-file-states",
+    "href": "chapters/06-git-mental-model.html#the-five-file-states",
+    "title": "6  Git mental model and first repository",
+    "section": "6.5 The five file states",
+    "text": "6.5 The five file states\n\n\n\n\n\n\n\n\nState\nMeaning\nUseful evidence\n\n\n\n\nUntracked\nFile exists but has never been selected for Git\ngit status\n\n\nTracked and unchanged\nWorking copy matches the selected commit\nclean git status\n\n\nModified\nTracked file differs from the index/commit\ngit diff\n\n\nStaged\nContent is selected for the next commit\ngit diff --staged\n\n\nCommitted\nSnapshot is stored in local history\ngit log, git show\n\n\n\nA file can have both staged and unstaged changes. For example, you can stage one version, edit it again and then see the filename in both sections of git status.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#commits-are-snapshots-connected-by-history",
+    "href": "chapters/06-git-mental-model.html#commits-are-snapshots-connected-by-history",
+    "title": "6  Git mental model and first repository",
+    "section": "6.6 Commits are snapshots connected by history",
+    "text": "6.6 Commits are snapshots connected by history\nA commit records:\n\na snapshot of tracked content;\na reference to its parent commit or commits;\nauthor and committer information;\ntimestamps; and\na message.\n\nGit identifies a commit using a cryptographic object ID. You often see an abbreviated form such as:\na17c42e docs: describe the synthetic test fixture\nChanging commit content or metadata produces a different ID. A commit ID is therefore more precise than “the latest version,” but an abbreviated ID should be long enough to remain unique in the repository.\nGit is conceptually snapshot-based, even though commands such as git diff show changes between snapshots.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#branches-and-head",
+    "href": "chapters/06-git-mental-model.html#branches-and-head",
+    "title": "6  Git mental model and first repository",
+    "section": "6.7 Branches and HEAD",
+    "text": "6.7 Branches and HEAD\nA branch is a movable name pointing to a commit. main is a common default branch name. When you create a new commit on main, the branch advances to the new commit.\nHEAD normally identifies the branch currently checked out:\nHEAD ──► main ──► newest commit ──► parent commit\nThis model explains why a branch is cheap: it is primarily a reference, not a second full copy of every project file.\nBranches, switching and merging are developed in Chapter 7. For now, remain on one local branch and learn to inspect it.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#git-identity-is-not-authentication",
+    "href": "chapters/06-git-mental-model.html#git-identity-is-not-authentication",
+    "title": "6  Git mental model and first repository",
+    "section": "6.8 Git identity is not authentication",
+    "text": "6.8 Git identity is not authentication\nEvery commit stores an author name and email. Configure them for this practice repository:\ngit config --local user.name \"Your Name\"\ngit config --local user.email \"you@example.org\"\n--local writes configuration for the current repository. It avoids silently changing every repository on a shared or institutional machine.\nInspect the result:\ngit config --local --get user.name\ngit config --local --get user.email\nThis identity is attribution, not proof that you can access GitHub. SSH keys, HTTPS tokens and federated login are authentication mechanisms discussed in Chapter 8.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#what-belongs-in-a-bioinformatics-repository",
+    "href": "chapters/06-git-mental-model.html#what-belongs-in-a-bioinformatics-repository",
+    "title": "6  Git mental model and first repository",
+    "section": "6.9 What belongs in a bioinformatics repository?",
+    "text": "6.9 What belongs in a bioinformatics repository?\nUsually track small, reviewable files that define or explain the analysis:\n\nNextflow, Bash, Python or R source;\nnextflow.config and nonsensitive parameter examples;\nenvironment.yml, lock files and Dockerfiles;\nsmall test fixtures when licensing and privacy permit;\nchecksum and provenance manifests;\ntests, documentation and diagrams;\nCI/CD workflow definitions; and\nsummary evidence small enough to review.\n\nUsually do not track:\n\npatient or participant data;\ncredentials, tokens, private keys or .env secrets;\nlarge FASTQ, BAM, CRAM, index and reference bundles;\ngenerated result directories;\nNextflow work/ and .nextflow/ state;\nConda environment directories;\nDocker or Singularity image files; or\ntemporary/editor operating-system files.\n\n“Git can store it” is not the same as “Git is the correct governed storage system for it.”",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#gitignore-controls-untracked-discovery",
+    "href": "chapters/06-git-mental-model.html#gitignore-controls-untracked-discovery",
+    "title": "6  Git mental model and first repository",
+    "section": "6.10 .gitignore controls untracked discovery",
+    "text": "6.10 .gitignore controls untracked discovery\nA .gitignore file contains patterns for paths Git should normally leave untracked. A small workflow project might begin with:\n# Workflow runtime state\nwork/\n.nextflow/\n.nextflow.log*\n\n# Generated data and results\ndata/\nresults/\n*.bam\n*.bai\n*.fastq\n*.fastq.gz\n\n# Local environments and container artifacts\n.conda/\nconda-envs/\ncontainers/\n*.sif\n\n# Secrets\n.env\n*.pem\n*.key\n\n# Operating-system/editor files\n.DS_Store\n*~\nPatterns are project decisions. If data/ contains a deliberately tiny public fixture that should be tracked, ignoring the entire directory would be too broad. You might instead ignore data/raw/ and explicitly retain data/test/mini.fastq.\nImportant limitation: .gitignore does not make an already tracked file untracked, remove it from old commits or protect a secret. If a secret entered history, stop using it, revoke/rotate it and follow your organization’s incident procedure.\nTest an ignore decision:\ngit check-ignore -v path/to/file\nThis prints the matching rule and its source. No output usually means that path is not ignored.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#the-inspection-commands-form-a-safety-loop",
+    "href": "chapters/06-git-mental-model.html#the-inspection-commands-form-a-safety-loop",
+    "title": "6  Git mental model and first repository",
+    "section": "6.11 The inspection commands form a safety loop",
+    "text": "6.11 The inspection commands form a safety loop\n\n6.11.1 git status: classify current state\ngit status\ngit status --short\nThe long form teaches what is staged and unstaged. The short form is compact once you understand the two status columns.\nExamples:\n?? notes.md       untracked\n M README.md      modified in working tree\nM  workflow.md    staged change\nMM config.yml     staged content plus additional unstaged edits\n\n\n6.11.2 git diff: inspect unstaged changes\ngit diff\ngit diff -- README.md\nThis compares the working tree with the staging area. It does not show newly untracked file contents.\n\n\n6.11.3 git diff --staged: inspect the proposed commit\ngit diff --staged\nThis is the final review before git commit. If the output contains a key, patient identifier, large generated file or unrelated edit, do not commit it.\n--cached is a synonym:\ngit diff --cached\n\n\n6.11.4 git ls-files: list what Git tracks\ngit ls-files\nThis is more reliable than looking at the directory. A file can exist locally without being part of the repository.\n\n\n6.11.5 git log and git show: inspect recorded history\ngit log --oneline --decorate\ngit show --stat HEAD\ngit show HEAD\ngit log shows commit history. git show displays one commit’s metadata and patch. HEAD means the currently selected commit.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#practical-create-your-first-local-repository",
+    "href": "chapters/06-git-mental-model.html#practical-create-your-first-local-repository",
+    "title": "6  Git mental model and first repository",
+    "section": "6.12 Practical: create your first local repository",
+    "text": "6.12 Practical: create your first local repository\nThis exercise creates a disposable repository with no cloud account, remote or biological data. Run it somewhere outside another Git repository.\n\n6.12.1 Step 0 — verify the location\npwd\ngit --version\ngit rev-parse --show-toplevel\nFor the third command, a failure is desirable if you intend to create a new standalone repository. If it prints an existing parent repository, move to a different location before continuing.\n\n\n\n\n\n\nWarningNested repositories confuse beginners\n\n\n\nRunning git init inside an existing repository creates a nested repository. That can be intentional, but it is not this exercise. Always inspect git rev-parse --show-toplevel first.\n\n\n\n\n6.12.2 Step 1 — create and initialize the project\nmkdir git-first-repo\ncd git-first-repo\n\ngit init -b main\ngit status\nIf an older Git version does not support -b, use:\ngit init\ngit branch -M main\nConfirm the repository root and branch:\ngit rev-parse --show-toplevel\ngit branch --show-current\nExpected branch: main.\n\n\n6.12.3 Step 2 — configure repository-local attribution\ngit config --local user.name \"Your Name\"\ngit config --local user.email \"you@example.org\"\n\ngit config --local --list\nUse your real professional attribution if this repository will later be published. The example address is intentionally a placeholder.\n\n\n6.12.4 Step 3 — create the initial files\nprintf '%s\\n' \\\n  '# Mini workflow engineering lab' \\\n  '' \\\n  'A local Git exercise using synthetic data only.' \\\n  &gt; README.md\n\nprintf '%s\\n' \\\n  'work/' \\\n  'results/' \\\n  '.nextflow/' \\\n  '.nextflow.log*' \\\n  '.env' \\\n  '*.key' \\\n  '.DS_Store' \\\n  &gt; .gitignore\nCreate paths that should be ignored:\nmkdir -p work results\nprintf 'temporary task state\\n' &gt; work/task.txt\nprintf 'generated output\\n' &gt; results/result.txt\nInspect:\ngit status --short\ngit check-ignore -v work/task.txt results/result.txt\nOnly .gitignore and README.md should appear as untracked. The other command should identify the ignore rules.\n\n\n6.12.5 Step 4 — stage and inspect the first snapshot\nStage explicit files:\ngit add .gitignore README.md\nDo not make git add . your only habit. It can be appropriate after inspection, but explicit paths make the intended scope obvious to a beginner.\nReview all three views:\ngit status\ngit diff\ngit diff --staged\ngit diff should be empty because there are no unstaged edits. The staged diff should show the two new files.\n\n\n6.12.6 Step 5 — create the first commit\ngit commit -m \"chore: initialize the learning repository\"\nVerify the result:\ngit status\ngit log --oneline --decorate\ngit show --stat HEAD\ngit ls-files\nThe working tree should be clean, and exactly .gitignore and README.md should be tracked.\n\n\n6.12.7 Step 6 — create a focused second change\nAdd an analytical plan:\nprintf '%s\\n' \\\n  '# Planned workflow' \\\n  '' \\\n  '1. Validate paired synthetic FASTQ inputs.' \\\n  '2. Run read quality control.' \\\n  '3. Trim adapters and low-quality ends.' \\\n  '4. Align reads to a declared reference.' \\\n  '5. Validate the sorted BAM and summarize mapping.' \\\n  &gt; workflow.md\nInspect the state:\ngit status --short\ngit diff\nworkflow.md is untracked, so normal git diff will not display its content. Read it directly, then stage it:\ncat workflow.md\ngit add workflow.md\ngit diff --staged\nCommit it:\ngit commit -m \"docs: add the planned analysis stages\"\n\n\n6.12.8 Step 7 — prove the acceptance conditions\ngit status --short\ngit log --oneline --decorate -2\ngit ls-files\ngit show --stat HEAD\ngit show --stat HEAD~1\nAcceptance criteria:\n\ngit status --short produces no output;\nthe log contains two meaningful commits;\nthree files are tracked;\nthe newest commit contains only workflow.md; and\nthe first commit contains only .gitignore and README.md.\n\nSave interview evidence without inventing it:\n{\n  printf '%s\\n' '=== STATUS ==='\n  git status\n  printf '%s\\n' '=== HISTORY ==='\n  git log --oneline --decorate -2\n  printf '%s\\n' '=== TRACKED FILES ==='\n  git ls-files\n  printf '%s\\n' '=== LATEST COMMIT ==='\n  git show --stat --oneline HEAD\n} &gt; git-practice-evidence.txt\nThis evidence file is initially untracked. Decide whether it is a useful small project artifact before adding it; do not automatically create a third commit.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#read-a-diff-rather-than-merely-looking-at-colors",
+    "href": "chapters/06-git-mental-model.html#read-a-diff-rather-than-merely-looking-at-colors",
+    "title": "6  Git mental model and first repository",
+    "section": "6.13 Read a diff rather than merely looking at colors",
+    "text": "6.13 Read a diff rather than merely looking at colors\nA simplified patch looks like this:\ndiff --git a/workflow.md b/workflow.md\nnew file mode 100644\n--- /dev/null\n+++ b/workflow.md\n@@ -0,0 +1,3 @@\n+# Planned workflow\n+\n+1. Validate paired synthetic FASTQ inputs.\nInterpretation:\n\na/ and b/ label the compared sides;\n/dev/null indicates the file did not exist on the old side;\n+ lines are additions;\n- lines would be removals; and\nthe hunk header describes affected line ranges.\n\nGreen text is not automatically good and red text is not automatically bad. Review meaning: a one-line deletion can remove a validation check, and a hundred-line addition can be generated noise.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#commit-messages-are-part-of-the-evidence",
+    "href": "chapters/06-git-mental-model.html#commit-messages-are-part-of-the-evidence",
+    "title": "6  Git mental model and first repository",
+    "section": "6.14 Commit messages are part of the evidence",
+    "text": "6.14 Commit messages are part of the evidence\nA useful message completes this sentence:\n\nIf applied, this commit will …\n\nExamples:\ndocs: record synthetic fixture provenance\nfix: fail when paired FASTQ input is incomplete\ntest: add missing-reference negative case\nbuild: pin samtools container digest\nAvoid messages such as stuff, changes, final, or AI update. The message should describe the change, not the mood of the author.\nA commit should normally represent one coherent reason for change. Small does not mean one line; it means reviewable and conceptually focused.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#what-git-does-not-guarantee",
+    "href": "chapters/06-git-mental-model.html#what-git-does-not-guarantee",
+    "title": "6  Git mental model and first repository",
+    "section": "6.15 What Git does not guarantee",
+    "text": "6.15 What Git does not guarantee\nGit does not automatically prove:\n\nscientific correctness;\nauthenticity of the author’s real-world identity;\ncompliance with privacy or regulatory policy;\nthat an external reference URL still serves the same bytes;\nthat ignored data is safely backed up;\nthat a remote copy exists;\nthat a container or result was built from the commit; or\nthat a commit was reviewed.\n\nThose claims need additional controls and evidence: tests, checksums, provenance, signed artifacts, code review, governed storage and CI/CD.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#common-beginner-failures",
+    "href": "chapters/06-git-mental-model.html#common-beginner-failures",
+    "title": "6  Git mental model and first repository",
+    "section": "6.16 Common beginner failures",
+    "text": "6.16 Common beginner failures\n\n6.16.1 “I committed, but my new file is missing”\ngit commit records staged content, not every visible file. Use:\ngit status\ngit ls-files\nThen stage the intended file and review git diff --staged.\n\n\n6.16.2 “I added a pattern, but the file is still tracked”\n.gitignore mainly affects untracked paths. First determine why the file was tracked and whether removing it from future snapshots is appropriate. Do not copy an index-removal command without understanding its effect.\n\n\n6.16.3 “My result directory disappeared”\nGit does not track empty directories, and ignored/generated directories may not exist in a fresh clone. Scripts should create required output directories.\n\n\n6.16.4 “I initialized Git in the wrong directory”\nStop before committing. Inspect:\npwd\ngit rev-parse --show-toplevel\ngit status\nDo not delete an unexpected .git directory until you know whether it contains valuable history and have confirmed the exact path.\n\n\n6.16.5 “Git rejected my commit identity”\nConfigure a name and email locally, inspect them and retry. This is independent of GitHub login.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#reviewing-ai-generated-git-instructions",
+    "href": "chapters/06-git-mental-model.html#reviewing-ai-generated-git-instructions",
+    "title": "6  Git mental model and first repository",
+    "section": "6.17 Reviewing AI-generated Git instructions",
+    "text": "6.17 Reviewing AI-generated Git instructions\nAI often proposes commands that produce a desired final state while destroying useful evidence. Be suspicious of unexplained commands containing:\nreset --hard\nclean -fd\ncheckout -- &lt;path&gt;\nrestore --source ...\npush --force\nfilter-repo\nThese commands have legitimate uses, but they can discard work or rewrite history. They are not beginner troubleshooting defaults.\nBefore running any Git command suggested by AI, require answers to:\n\nWhat repository root will it affect?\nDoes it modify the working tree, staging area, commits or remote history?\nWhich exact paths or branches are targeted?\nCan uncommitted content be lost?\nIs the operation recoverable, and from what evidence?\nWhat read-only command shows the current state first?\n\nPrefer diagnosis with status, diff, log, show, branch and rev-parse before mutation.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#hands-on-exercise-audit-an-ai-authored-change",
+    "href": "chapters/06-git-mental-model.html#hands-on-exercise-audit-an-ai-authored-change",
+    "title": "6  Git mental model and first repository",
+    "section": "6.18 Hands-on exercise: audit an AI-authored change",
+    "text": "6.18 Hands-on exercise: audit an AI-authored change\nIn your practice repository, ask an AI system to propose one paragraph for the README explaining why synthetic data is used. Do not let it commit for you.\nThen:\n\ninspect git status --short;\ninspect the unstaged patch with git diff;\ncheck the text for claims the project does not demonstrate;\nedit or reject unsupported claims;\nstage only README.md;\ninspect git diff --staged;\nwrite a commit message describing your accepted change; and\nprove the final working tree is clean.\n\nCreate ai-change-review.md outside the practice repository or leave it untracked. Record:\n# AI change review\n\n## Requested change\n## Files the AI proposed changing\n## Claims independently verified\n## Claims corrected or rejected\n## Final staged scope\n## Commit ID\n## Post-commit status\nThe important skill is not producing the paragraph. It is controlling scope, validating meaning and establishing traceable acceptance.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#ten-interview-questions",
+    "href": "chapters/06-git-mental-model.html#ten-interview-questions",
+    "title": "6  Git mental model and first repository",
+    "section": "6.19 Ten interview questions",
+    "text": "6.19 Ten interview questions\n\n6.19.1 1. What is the difference between the working tree, staging area and repository?\n\n\nModel answer\n\nThe working tree contains the files currently checked out for editing. The staging area holds the exact content proposed for the next commit. The local repository stores commits, references and history under .git. Saving, staging and committing are therefore three different state transitions.\n\n\n\n6.19.2 2. Why can git diff be empty when git status shows a new file?\n\n\nModel answer\n\nNormal git diff compares tracked working-tree content with the index. An untracked file has no indexed version to compare, so its content is not shown. I inspect the file directly, stage it intentionally and then use git diff --staged.\n\n\n\n6.19.3 3. What does git add actually do?\n\n\nModel answer\n\nIt copies the selected content into the index as part of the proposed next snapshot. It does not create a commit, upload anything to GitHub or permanently save all future edits to that file.\n\n\n\n6.19.4 4. Is a Git commit a diff or a snapshot?\n\n\nModel answer\n\nGit’s model is snapshot-based: a commit refers to a complete tree of recorded content plus metadata and parent relationships. Git efficiently stores and displays differences, which is why users often experience commits as patches.\n\n\n\n6.19.5 5. What is a branch, and what does HEAD mean?\n\n\nModel answer\n\nA branch is a movable reference to a commit. HEAD normally identifies the currently checked-out branch, which in turn points to the current commit. A new commit advances that branch reference.\n\n\n\n6.19.6 6. Why is .gitignore not a security control?\n\n\nModel answer\n\nIt only influences which untracked paths Git normally reports or stages. It does not encrypt files, prevent another program from reading them, remove already tracked content or erase old commits. Exposed credentials must be revoked or rotated even if an ignore rule is later added.\n\n\n\n6.19.7 7. Which bioinformatics artifacts would you track, and which would you exclude?\n\n\nModel answer\n\nI track reviewable source, configuration, environment/container specifications, tests, documentation, provenance and small permitted fixtures. I exclude sensitive data, secrets, large raw/generated files, workflow caches, local environments and container binaries. Exact choices follow governance, licensing, reproducibility and repository-size requirements.\n\n\n\n6.19.8 8. Does a clean working tree prove the analysis is reproducible?\n\n\nModel answer\n\nNo. It only says tracked working-tree and staged content match the selected commit and there are no reported untracked changes. Reproducibility also needs inputs, dependencies, parameters, runtime, references, provenance and validation evidence.\n\n\n\n6.19.9 9. How would you verify what a commit contains before sharing it?\n\n\nModel answer\n\nBefore committing I use git status and git diff --staged. After committing I use git show --stat &lt;commit&gt; for scope and git show &lt;commit&gt; for the patch, plus git ls-files when tracked-file inventory matters. I also scan for secrets, sensitive data and unintended generated files.\n\n\n\n6.19.10 10. Why should an AI not automatically stage and commit every change it generates?\n\n\nModel answer\n\nGeneration is not review. The AI may change unrelated files, include secrets, invent claims, misunderstand repository policy or bundle several concerns. A human or authorized review process should inspect the patch, test behavior, control staged scope and choose a message that accurately records the accepted change.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/06-git-mental-model.html#what-you-should-now-be-able-to-explain",
+    "href": "chapters/06-git-mental-model.html#what-you-should-now-be-able-to-explain",
+    "title": "6  Git mental model and first repository",
+    "section": "6.20 What you should now be able to explain",
+    "text": "6.20 What you should now be able to explain\nYou should be able to point to any visible project file and say whether Git is ignoring it, tracking it, staging a change or storing it in a commit. You should also be able to prove that your first repository contains two deliberate snapshots and no unexplained working-tree changes.\nThe next chapter turns this static model into a safe daily workflow using branches, focused commits, comparisons, restoration and merge-conflict reasoning.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Git mental model and first repository</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/07-safe-daily-git-workflow.html",
+    "href": "chapters/07-safe-daily-git-workflow.html",
+    "title": "7  A safe daily Git workflow",
+    "section": "",
+    "text": "This planned chapter will teach small commits, branches, comparison, safe restoration and conflict resolution without relying on destructive shortcuts.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>A safe daily Git workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/08-github-collaboration.html",
+    "href": "chapters/08-github-collaboration.html",
+    "title": "8  GitHub, issues, pull requests and code review",
+    "section": "",
+    "text": "This planned chapter will distinguish Git from GitHub and teach remotes, authentication, issues, pull requests, review and branch protection.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>GitHub, issues, pull requests and code review</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/09-versions-tags-releases.html",
+    "href": "chapters/09-versions-tags-releases.html",
+    "title": "9  Versions, tags, changelogs and releases",
+    "section": "",
+    "text": "This planned chapter will teach semantic versioning, annotated tags, changelogs, release notes and immutable release evidence.",
+    "crumbs": [
+      "Part II — Git, GitHub and collaborative engineering",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Versions, tags, changelogs and releases</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/10-conda-and-channels.html",
+    "href": "chapters/10-conda-and-channels.html",
+    "title": "10  Dependencies, Conda and channels",
+    "section": "",
+    "text": "This planned chapter will explain packages, dependencies, environments, solvers, channels, Bioconda, conda-forge, priority and version pinning.",
+    "crumbs": [
+      "Part III — Environments, data and a trusted analytical baseline",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Dependencies, Conda and channels</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-build-tool-environment.html",
+    "href": "chapters/11-build-tool-environment.html",
+    "title": "11  Build and audit the tool environment",
+    "section": "",
+    "text": "This planned chapter will create the pinned learning environment and verify that every executable and version comes from the intended location.",
+    "crumbs": [
+      "Part III — Environments, data and a trusted analytical baseline",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Build and audit the tool environment</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-test-data-provenance.html",
+    "href": "chapters/12-test-data-provenance.html",
+    "title": "12  Deterministic test data, provenance and checksums",
+    "section": "",
+    "text": "This planned chapter will create the synthetic paired-read fixture, verify its reference and checksums, and record reproducible provenance.",
+    "crumbs": [
+      "Part III — Environments, data and a trusted analytical baseline",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Deterministic test data, provenance and checksums</span>"
+    ]
+  },
+  {
     "objectID": "chapters/06-manual-pipeline.html",
     "href": "chapters/06-manual-pipeline.html",
-    "title": "7  Establish a trusted manual pipeline",
+    "title": "13  Establish a trusted manual pipeline",
     "section": "",
     "text": "This chapter runs raw QC, paired trimming, post-trim QC, alignment, sorting, indexing and BAM validation one operation at a time. The manual result becomes the baseline against which automation is judged.",
     "crumbs": [
-      "Part II — Git, GitHub and collaborative engineering",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Establish a trusted manual pipeline</span>"
+      "Part III — Environments, data and a trusted analytical baseline",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Establish a trusted manual pipeline</span>"
     ]
   },
   {
     "objectID": "chapters/07-strict-bash.html",
     "href": "chapters/07-strict-bash.html",
-    "title": "8  Turn commands into strict Bash",
+    "title": "14  Turn commands into strict Bash",
     "section": "",
     "text": "This chapter combines validated commands into a script and explains set -euo pipefail one option at a time. Checksums and biological summary statistics are used to confirm that automation preserved the baseline result.",
     "crumbs": [
-      "Part II — Git, GitHub and collaborative engineering",
-      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Turn commands into strict Bash</span>"
+      "Part IV — Scripting, configuration, logging and tests",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Turn commands into strict Bash</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-defensive-scripts.html",
+    "href": "chapters/15-defensive-scripts.html",
+    "title": "15  Defensive scripts, parameters and logs",
+    "section": "",
+    "text": "This planned chapter will add validation, usage messages, safe temporary-file handling, structured logs and portable configuration to the Bash workflow.",
+    "crumbs": [
+      "Part IV — Scripting, configuration, logging and tests",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>Defensive scripts, parameters and logs</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-software-testing.html",
+    "href": "chapters/16-software-testing.html",
+    "title": "16  Testing bioinformatics software",
+    "section": "",
+    "text": "This planned chapter will distinguish syntax, unit, integration, smoke, regression, negative and scientific acceptance tests.",
+    "crumbs": [
+      "Part IV — Scripting, configuration, logging and tests",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>Testing bioinformatics software</span>"
     ]
   },
   {
     "objectID": "chapters/08-container-mental-model.html",
     "href": "chapters/08-container-mental-model.html",
-    "title": "9  Container mental model",
+    "title": "17  Container mental model",
     "section": "",
     "text": "This chapter distinguishes an image, a running container, a registry, an image tag and an immutable digest. It also explains what containers do—and do not—do for reproducibility.",
     "crumbs": [
-      "Part III — Make the software portable",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Container mental model</span>"
+      "Part V — Containerization and portable software",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>Container mental model</span>"
     ]
   },
   {
     "objectID": "chapters/09-build-the-image.html",
     "href": "chapters/09-build-the-image.html",
-    "title": "10  Build the project image",
+    "title": "18  Build the project image",
     "section": "",
     "text": "This chapter reads the Dockerfile from top to bottom, builds the OCI image with GitHub Actions and records evidence about its contents. Special attention is given to layers, executable paths and pinned packages.",
     "crumbs": [
-      "Part III — Make the software portable",
-      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Build the project image</span>"
+      "Part V — Containerization and portable software",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Build the project image</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/19-registries-image-ci.html",
+    "href": "chapters/19-registries-image-ci.html",
+    "title": "19  Registries, image CI and immutable evidence",
+    "section": "",
+    "text": "This planned chapter will use GitHub Actions to build and smoke-test an OCI image, publish it to GHCR and record its immutable digest.",
+    "crumbs": [
+      "Part V — Containerization and portable software",
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Registries, image CI and immutable evidence</span>"
     ]
   },
   {
     "objectID": "chapters/10-singularity-on-hpc.html",
     "href": "chapters/10-singularity-on-hpc.html",
-    "title": "11  Run the image with Singularity",
+    "title": "20  Run the image with Singularity",
     "section": "",
     "text": "This chapter pulls the OCI image into a SIF file and runs tools with singularity exec --cleanenv. It uses the real PATH and ps failures to show how container-runtime assumptions can differ between Docker and HPC execution.",
     "crumbs": [
-      "Part III — Make the software portable",
-      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Run the image with Singularity</span>"
+      "Part V — Containerization and portable software",
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Run the image with Singularity</span>"
     ]
   },
   {
     "objectID": "chapters/11-nextflow-mental-model.html",
     "href": "chapters/11-nextflow-mental-model.html",
-    "title": "12  Nextflow mental model",
+    "title": "21  Nextflow mental model",
     "section": "",
     "text": "This chapter introduces processes, channels, values, paths, task working directories, dataflow and publishDir without yet constructing the complete workflow.",
     "crumbs": [
-      "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Nextflow mental model</span>"
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
     ]
   },
   {
     "objectID": "chapters/12-first-nextflow-process.html",
     "href": "chapters/12-first-nextflow-process.html",
-    "title": "13  Your first Nextflow process",
+    "title": "22  Your first Nextflow process",
     "section": "",
     "text": "This chapter builds a minimal DSL2 workflow, examines .command.sh, .command.run, .command.log and .exitcode, then ports raw FastQC as the first real process.",
     "crumbs": [
-      "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html",
+    "href": "chapters/23-channels-tuples-paired-files.html",
+    "title": "23  Channels, tuples and paired files",
+    "section": "",
+    "text": "This planned chapter will teach explicit channel shapes, metadata tuples, paired inputs and the operators that connect Nextflow processes safely.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
     ]
   },
   {
     "objectID": "chapters/13-complete-dsl2-workflow.html",
     "href": "chapters/13-complete-dsl2-workflow.html",
-    "title": "14  Complete the DSL2 workflow",
+    "title": "24  Complete the DSL2 workflow",
     "section": "",
     "text": "This chapter adds paired trimming, post-trim QC, alignment and BAM validation. Each input/output declaration is related back to the corresponding manual files so readers can see how a shell pipeline becomes a dataflow graph.",
     "crumbs": [
-      "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
     ]
   },
   {
     "objectID": "chapters/14-profiles-and-runtimes.html",
     "href": "chapters/14-profiles-and-runtimes.html",
-    "title": "15  Profiles and software runtimes",
+    "title": "25  Profiles and software runtimes",
     "section": "",
     "text": "This chapter defines Conda-local, Singularity-local and SLURM-Singularity profiles. It explains the separation between workflow logic, software runtime and execution platform.",
     "crumbs": [
-      "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
-    ]
-  },
-  {
-    "objectID": "chapters/15-slurm-execution.html",
-    "href": "chapters/15-slurm-execution.html",
-    "title": "16  Submit tasks through SLURM",
-    "section": "",
-    "text": "This chapter examines the SLURM executor, resource requests and generated #SBATCH directives. It verifies that each of the five processes ran as a scheduled job inside the intended container.",
-    "crumbs": [
-      "Part V — Execute and prove it",
-      "<span class='chapter-number'>16</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
     ]
   },
   {
     "objectID": "chapters/16-testing-and-resume.html",
     "href": "chapters/16-testing-and-resume.html",
-    "title": "17  Failure tests and resume caching",
+    "title": "26  Failure tests and resume caching",
     "section": "",
     "text": "This chapter deliberately supplies a missing input pattern, checks the nonzero exit code and interprets the error. It then uses -resume and a trace file to prove that all five completed tasks were restored from cache.",
     "crumbs": [
-      "Part V — Execute and prove it",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html",
+    "href": "chapters/15-slurm-execution.html",
+    "title": "27  Submit tasks through SLURM",
+    "section": "",
+    "text": "This chapter examines the SLURM executor, resource requests and generated #SBATCH directives. It verifies that each of the five processes ran as a scheduled job inside the intended container.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/28-cicd-github-actions.html",
+    "href": "chapters/28-cicd-github-actions.html",
+    "title": "28  CI/CD for a bioinformatics repository with GitHub Actions",
+    "section": "",
+    "text": "This planned chapter will build layered pull-request checks, a miniature pipeline smoke test, container and documentation automation, protected release publication, deliberate failure diagnosis and least-privilege permissions.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>28</span>  <span class='chapter-title'>CI/CD for a bioinformatics repository with GitHub Actions</span>"
     ]
   },
   {
     "objectID": "chapters/17-reproducibility.html",
     "href": "chapters/17-reproducibility.html",
-    "title": "18  What reproducibility really means",
+    "title": "29  What reproducibility really means",
     "section": "",
     "text": "This chapter compares Conda and container outputs. It explains why whole BAM hashes differed because provenance headers recorded different executable paths, while headerless alignment records, flagstat and idxstats remained identical.",
     "crumbs": [
-      "Part V — Execute and prove it",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>What reproducibility really means</span>"
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>29</span>  <span class='chapter-title'>What reproducibility really means</span>"
     ]
   },
   {
     "objectID": "chapters/18-release-and-evidence.html",
     "href": "chapters/18-release-and-evidence.html",
-    "title": "19  Release an evidence-backed project",
+    "title": "30  Release an evidence-backed project",
     "section": "",
     "text": "This chapter cleans the repository, creates a semantic version tag and connects each engineering claim to a reviewable artifact. It also teaches readers how to describe limitations without weakening the work.",
     "crumbs": [
-      "Part V — Execute and prove it",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Release an evidence-backed project</span>"
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>30</span>  <span class='chapter-title'>Release an evidence-backed project</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/31-security-privacy-regulated-boundaries.html",
+    "href": "chapters/31-security-privacy-regulated-boundaries.html",
+    "title": "31  Security, privacy and regulated boundaries",
+    "section": "",
+    "text": "This planned chapter will cover least privilege, secrets, dependency and image risk, PHI/PII, auditability and the boundary between demonstration and clinical validation.",
+    "crumbs": [
+      "Part VIII — Working safely and effectively in industry",
+      "<span class='chapter-number'>31</span>  <span class='chapter-title'>Security, privacy and regulated boundaries</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/32-team-practices-operations.html",
+    "href": "chapters/32-team-practices-operations.html",
+    "title": "32  Team practices: documentation, review and operations",
+    "section": "",
+    "text": "This planned chapter will teach ownership, review, decisions, runbooks, observability, change control, incidents and blameless postmortems.",
+    "crumbs": [
+      "Part VIII — Working safely and effectively in industry",
+      "<span class='chapter-number'>32</span>  <span class='chapter-title'>Team practices: documentation, review and operations</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/33-where-to-go-next.html",
+    "href": "chapters/33-where-to-go-next.html",
+    "title": "33  Where to go next",
+    "section": "",
+    "text": "This planned chapter will help readers build a realistic 30/60/90-day plan for nf-core, workflow tests, cloud executors, infrastructure and platform work.",
+    "crumbs": [
+      "Part VIII — Working safely and effectively in industry",
+      "<span class='chapter-number'>33</span>  <span class='chapter-title'>Where to go next</span>"
     ]
   },
   {
     "objectID": "appendices/glossary.html",
     "href": "appendices/glossary.html",
-    "title": "20  Glossary",
+    "title": "34  Glossary",
     "section": "",
     "text": "Channel\nA Nextflow dataflow object that carries values between workflow components.\nConda environment\nAn isolated collection of software packages and their dependencies.\nContainer image\nAn immutable package of files and metadata used to create a container runtime.\nExecutor\nThe Nextflow component that determines how tasks are launched, such as locally or through SLURM.\nProcess\nA Nextflow definition describing a repeatable unit of work, its inputs, outputs and command script.\nSLURM\nA workload manager that schedules jobs and allocates shared cluster resources.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Glossary</span>"
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Glossary</span>"
     ]
   },
   {
     "objectID": "appendices/troubleshooting.html",
     "href": "appendices/troubleshooting.html",
-    "title": "21  Troubleshooting",
+    "title": "35  Troubleshooting",
     "section": "",
     "text": "The final appendix will organize the real failures from the companion project by symptom, diagnostic observation, root cause, fix and durable lesson.\nInitial cases include Java G1 initialization failure, home-directory quota exhaustion, Conda dependency solving, missing container PATH entries, missing ps, invalid SAMtools options and misleading whole-file BAM hashes.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Troubleshooting</span>"
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>Troubleshooting</span>"
     ]
   },
   {
     "objectID": "appendices/command-reference.html",
     "href": "appendices/command-reference.html",
-    "title": "22  Command reference",
+    "title": "36  Command reference",
     "section": "",
     "text": "This appendix will collect the small set of shell, Git, Conda, Singularity, Nextflow and SLURM commands introduced in the lessons. It is a memory aid, not a replacement for understanding the commands in context.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Command reference</span>"
+      "<span class='chapter-number'>36</span>  <span class='chapter-title'>Command reference</span>"
     ]
   },
   {
     "objectID": "appendices/next-steps.html",
     "href": "appendices/next-steps.html",
-    "title": "23  Next steps",
+    "title": "37  Next steps",
     "section": "",
     "text": "After completing the book, readers will be directed toward Nextflow training, nf-core conventions, larger test suites, workflow modules, continuous integration and domain-appropriate aligners. These are presented as future skills rather than accomplishments of the teaching pipeline.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Next steps</span>"
+      "<span class='chapter-number'>37</span>  <span class='chapter-title'>Next steps</span>"
     ]
   }
 ]
