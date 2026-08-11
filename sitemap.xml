@@ -2,98 +2,98 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/index.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/preface.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/01-the-whole-shebang.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/02-terminal-files-paths.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/03-workstation-setup.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/04-conda-environments.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/05-test-data.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/06-manual-pipeline.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/07-strict-bash.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/08-container-mental-model.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/09-build-the-image.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/10-singularity-on-hpc.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/11-nextflow-mental-model.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/12-first-nextflow-process.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/13-complete-dsl2-workflow.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/14-profiles-and-runtimes.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/15-slurm-execution.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/16-testing-and-resume.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/17-reproducibility.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/chapters/18-release-and-evidence.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/appendices/glossary.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/appendices/troubleshooting.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/appendices/command-reference.html</loc>
-    <lastmod>2026-08-11T02:23:37.829Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.543Z</lastmod>
   </url>
   <url>
     <loc>https://cjgunase.github.io/nextflow-for-biologists/appendices/next-steps.html</loc>
-    <lastmod>2026-08-11T02:23:37.830Z</lastmod>
+    <lastmod>2026-08-11T02:42:35.544Z</lastmod>
   </url>
 </urlset>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>4&nbsp; Set up the learning workstation – From FASTQ to Nextflow</title>
+<title>3&nbsp; Set up and audit the learning workstation – From FASTQ to Nextflow</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -25,6 +25,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -89,7 +124,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-workstation-setup.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-workstation-setup.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Set up and audit the learning workstation</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -120,7 +155,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">From FASTQ to Nextflow</span></span></a>
+ <span class="menu-text">From FASTQ to Nextflow</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -141,19 +176,19 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/01-the-whole-shebang.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The whole shebang</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The whole shebang</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/02-terminal-files-paths.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/03-workstation-setup.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Set up and audit the learning workstation</span></span></a>
   </div>
 </li>
       </ul>
@@ -170,25 +205,25 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/04-conda-environments.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Conda environments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Conda environments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/05-test-data.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">A deterministic test fixture</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">A deterministic test fixture</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/06-manual-pipeline.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Establish a trusted manual pipeline</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Establish a trusted manual pipeline</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/07-strict-bash.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Turn commands into strict Bash</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Turn commands into strict Bash</span></span></a>
   </div>
 </li>
       </ul>
@@ -205,19 +240,19 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/08-container-mental-model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Container mental model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Container mental model</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/09-build-the-image.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build the project image</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Build the project image</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/10-singularity-on-hpc.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Run the image with Singularity</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Run the image with Singularity</span></span></a>
   </div>
 </li>
       </ul>
@@ -234,25 +269,25 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/11-nextflow-mental-model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Nextflow mental model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Nextflow mental model</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/12-first-nextflow-process.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/13-complete-dsl2-workflow.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Complete the DSL2 workflow</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Complete the DSL2 workflow</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/14-profiles-and-runtimes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Profiles and software runtimes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Profiles and software runtimes</span></span></a>
   </div>
 </li>
       </ul>
@@ -269,25 +304,25 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/15-slurm-execution.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Submit tasks through SLURM</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Submit tasks through SLURM</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/16-testing-and-resume.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Failure tests and resume caching</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Failure tests and resume caching</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/17-reproducibility.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">What reproducibility really means</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">What reproducibility really means</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/18-release-and-evidence.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Release an evidence-backed project</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Release an evidence-backed project</span></span></a>
   </div>
 </li>
       </ul>
@@ -304,25 +339,25 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/glossary.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/troubleshooting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/command-reference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Command reference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Command reference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../appendices/next-steps.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Next steps</span></span></a>
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Next steps</span></span></a>
   </div>
 </li>
       </ul>
@@ -332,15 +367,65 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">3.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">3.2</span> Engineering objective</a></li>
+  <li><a href="#three-software-layers" id="toc-three-software-layers" class="nav-link" data-scroll-target="#three-software-layers"><span class="header-section-number">3.3</span> Three software layers</a></li>
+  <li><a href="#the-vocabulary-distribution-package-manager-environment-and-channel" id="toc-the-vocabulary-distribution-package-manager-environment-and-channel" class="nav-link" data-scroll-target="#the-vocabulary-distribution-package-manager-environment-and-channel"><span class="header-section-number">3.4</span> The vocabulary: distribution, package manager, environment and channel</a></li>
+  <li><a href="#audit-before-installing" id="toc-audit-before-installing" class="nav-link" data-scroll-target="#audit-before-installing"><span class="header-section-number">3.5</span> Audit before installing</a>
+  <ul class="collapse">
+  <li><a href="#identify-the-shell" id="toc-identify-the-shell" class="nav-link" data-scroll-target="#identify-the-shell"><span class="header-section-number">3.5.1</span> Identify the shell</a></li>
+  <li><a href="#identify-the-operating-system-and-architecture" id="toc-identify-the-operating-system-and-architecture" class="nav-link" data-scroll-target="#identify-the-operating-system-and-architecture"><span class="header-section-number">3.5.2</span> Identify the operating system and architecture</a></li>
+  <li><a href="#understand-path" id="toc-understand-path" class="nav-link" data-scroll-target="#understand-path"><span class="header-section-number">3.5.3</span> Understand <code>PATH</code></a></li>
+  </ul></li>
+  <li><a href="#build-a-read-only-inventory" id="toc-build-a-read-only-inventory" class="nav-link" data-scroll-target="#build-a-read-only-inventory"><span class="header-section-number">3.6</span> Build a read-only inventory</a></li>
+  <li><a href="#a-reusable-audit-function" id="toc-a-reusable-audit-function" class="nav-link" data-scroll-target="#a-reusable-audit-function"><span class="header-section-number">3.7</span> A reusable audit function</a></li>
+  <li><a href="#tool-by-tool-decisions" id="toc-tool-by-tool-decisions" class="nav-link" data-scroll-target="#tool-by-tool-decisions"><span class="header-section-number">3.8</span> Tool-by-tool decisions</a>
+  <ul class="collapse">
+  <li><a href="#git-required-on-a-workstation" id="toc-git-required-on-a-workstation" class="nav-link" data-scroll-target="#git-required-on-a-workstation"><span class="header-section-number">3.8.1</span> Git: required on a workstation</a></li>
+  <li><a href="#conda-through-miniforge-required-for-the-local-conda-path" id="toc-conda-through-miniforge-required-for-the-local-conda-path" class="nav-link" data-scroll-target="#conda-through-miniforge-required-for-the-local-conda-path"><span class="header-section-number">3.8.2</span> Conda through Miniforge: required for the local Conda path</a></li>
+  <li><a href="#java-required-to-launch-nextflow" id="toc-java-required-to-launch-nextflow" class="nav-link" data-scroll-target="#java-required-to-launch-nextflow"><span class="header-section-number">3.8.3</span> Java: required to launch Nextflow</a></li>
+  <li><a href="#nextflow-required-but-keep-the-launcher-separate" id="toc-nextflow-required-but-keep-the-launcher-separate" class="nav-link" data-scroll-target="#nextflow-required-but-keep-the-launcher-separate"><span class="header-section-number">3.8.4</span> Nextflow: required, but keep the launcher separate</a></li>
+  <li><a href="#docker-required-only-for-building-locally" id="toc-docker-required-only-for-building-locally" class="nav-link" data-scroll-target="#docker-required-only-for-building-locally"><span class="header-section-number">3.8.5</span> Docker: required only for building locally</a></li>
+  <li><a href="#quarto-required-only-for-writing-this-book" id="toc-quarto-required-only-for-writing-this-book" class="nav-link" data-scroll-target="#quarto-required-only-for-writing-this-book"><span class="header-section-number">3.8.6</span> Quarto: required only for writing this book</a></li>
+  <li><a href="#a-text-editor-required-an-ide-is-optional" id="toc-a-text-editor-required-an-ide-is-optional" class="nav-link" data-scroll-target="#a-text-editor-required-an-ide-is-optional"><span class="header-section-number">3.8.7</span> A text editor: required; an IDE is optional</a></li>
+  </ul></li>
+  <li><a href="#workstation-linux-and-hpc-decision-paths" id="toc-workstation-linux-and-hpc-decision-paths" class="nav-link" data-scroll-target="#workstation-linux-and-hpc-decision-paths"><span class="header-section-number">3.9</span> Workstation, Linux and HPC decision paths</a>
+  <ul class="collapse">
+  <li><a href="#personal-macos-workstation" id="toc-personal-macos-workstation" class="nav-link" data-scroll-target="#personal-macos-workstation"><span class="header-section-number">3.9.1</span> Personal macOS workstation</a></li>
+  <li><a href="#personal-linux-workstation" id="toc-personal-linux-workstation" class="nav-link" data-scroll-target="#personal-linux-workstation"><span class="header-section-number">3.9.2</span> Personal Linux workstation</a></li>
+  <li><a href="#managed-hpc-system" id="toc-managed-hpc-system" class="nav-link" data-scroll-target="#managed-hpc-system"><span class="header-section-number">3.9.3</span> Managed HPC system</a></li>
+  </ul></li>
+  <li><a href="#complete-the-setup-report" id="toc-complete-the-setup-report" class="nav-link" data-scroll-target="#complete-the-setup-report"><span class="header-section-number">3.10</span> Complete the setup report</a></li>
+  <li><a href="#expected-evidence-not-expected-versions" id="toc-expected-evidence-not-expected-versions" class="nav-link" data-scroll-target="#expected-evidence-not-expected-versions"><span class="header-section-number">3.11</span> Expected evidence, not expected versions</a></li>
+  <li><a href="#common-failures-and-how-to-reason-about-them" id="toc-common-failures-and-how-to-reason-about-them" class="nav-link" data-scroll-target="#common-failures-and-how-to-reason-about-them"><span class="header-section-number">3.12</span> Common failures and how to reason about them</a>
+  <ul class="collapse">
+  <li><a href="#command-not-found-after-installation" id="toc-command-not-found-after-installation" class="nav-link" data-scroll-target="#command-not-found-after-installation"><span class="header-section-number">3.12.1</span> <code>command not found</code> after installation</a></li>
+  <li><a href="#the-wrong-architecture-installer-was-downloaded" id="toc-the-wrong-architecture-installer-was-downloaded" class="nav-link" data-scroll-target="#the-wrong-architecture-installer-was-downloaded"><span class="header-section-number">3.12.2</span> The wrong architecture installer was downloaded</a></li>
+  <li><a href="#java--version-shows-an-unexpected-runtime" id="toc-java--version-shows-an-unexpected-runtime" class="nav-link" data-scroll-target="#java--version-shows-an-unexpected-runtime"><span class="header-section-number">3.12.3</span> <code>java -version</code> shows an unexpected runtime</a></li>
+  <li><a href="#nextflow-says-java-is-missing-or-incompatible" id="toc-nextflow-says-java-is-missing-or-incompatible" class="nav-link" data-scroll-target="#nextflow-says-java-is-missing-or-incompatible"><span class="header-section-number">3.12.4</span> Nextflow says Java is missing or incompatible</a></li>
+  <li><a href="#docker---version-works-but-docker-info-fails" id="toc-docker---version-works-but-docker-info-fails" class="nav-link" data-scroll-target="#docker---version-works-but-docker-info-fails"><span class="header-section-number">3.12.5</span> <code>docker --version</code> works but <code>docker info</code> fails</a></li>
+  <li><a href="#conda-appears-twice" id="toc-conda-appears-twice" class="nav-link" data-scroll-target="#conda-appears-twice"><span class="header-section-number">3.12.6</span> Conda appears twice</a></li>
+  <li><a href="#a-home-directory-fills-during-setup" id="toc-a-home-directory-fills-during-setup" class="nav-link" data-scroll-target="#a-home-directory-fills-during-setup"><span class="header-section-number">3.12.7</span> A home directory fills during setup</a></li>
+  </ul></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">3.13</span> Verification checkpoint</a></li>
+  <li><a href="#hands-on-exercise-audit-a-second-execution-context" id="toc-hands-on-exercise-audit-a-second-execution-context" class="nav-link" data-scroll-target="#hands-on-exercise-audit-a-second-execution-context"><span class="header-section-number">3.14</span> Hands-on exercise: audit a second execution context</a></li>
+  <li><a href="#interview-grill-ten-questions" id="toc-interview-grill-ten-questions" class="nav-link" data-scroll-target="#interview-grill-ten-questions"><span class="header-section-number">3.15</span> Interview grill: ten questions</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">3.16</span> What to remember</a></li>
+  <li><a href="#next-chapter" id="toc-next-chapter" class="nav-link" data-scroll-target="#next-chapter"><span class="header-section-number">3.17</span> Next chapter</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/03-workstation-setup.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-workstation-setup.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-workstation-setup.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Set up and audit the learning workstation</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Set up and audit the learning workstation</span></h1>
 </div>
 
 
@@ -357,10 +442,664 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter will establish a safe local workstation for the exercises and verify the required software before any project packages are installed.</p>
-<p>The complete chapter will be developed and tested next.</p>
+<div class="chapter-goals">
+<p><strong>By the end of this chapter, you will be able to:</strong></p>
+<ul>
+<li>distinguish host software from project software and cluster software;</li>
+<li>identify your operating system, processor architecture and active shell;</li>
+<li>use <code>command -v</code> and version commands to audit executables;</li>
+<li>decide what belongs on a workstation and what an HPC administrator provides;</li>
+<li>verify Git, Conda, Java, Nextflow, Docker, Quarto and an editor;</li>
+<li>avoid installing a second copy merely because a command is not on <code>PATH</code>; and</li>
+<li>create a shareable <code>setup-check.txt</code> without exposing secrets.</li>
+</ul>
+</div>
+<section id="why-a-biologist-should-care" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">3.1</span> Why a biologist should care</h2>
+<p>Most installation trouble is not caused by biology. It comes from answering the wrong question.</p>
+<p>“Is Nextflow installed?” sounds simple, but it can mean several different things:</p>
+<ul>
+<li>Does a file named <code>nextflow</code> exist somewhere?</li>
+<li>Can this shell find it?</li>
+<li>Is its Java runtime compatible?</li>
+<li>Can it write to its cache directory?</li>
+<li>Is this the same executable that worked yesterday?</li>
+</ul>
+<p>A reliable setup records evidence for each layer. That habit prevents hours of guessing later and produces useful information when asking a colleague or administrator for help.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">3.2</span> Engineering objective</h2>
+<p>The objective is <strong>not</strong> to install everything everywhere. It is to establish a known starting state:</p>
+<pre class="text"><code>machine identity
+      ↓
+executable location
+      ↓
+version and runtime check
+      ↓
+responsibility decision
+      ↓
+install, request, defer or mark optional
+      ↓
+recorded setup evidence</code></pre>
+<p>We will create <code>setup-check.txt</code>. It is an inventory, not a guarantee that every future pipeline will run.</p>
+</section>
+<section id="three-software-layers" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="three-software-layers"><span class="header-section-number">3.3</span> Three software layers</h2>
+<p>Treat the tools in this book as three different layers.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Examples</th>
+<th>Who normally manages it?</th>
+<th>Why it belongs there</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Host/workstation</td>
+<td>Git, Java, Nextflow launcher, Docker, Quarto, editor</td>
+<td>You or desktop IT</td>
+<td>Starts projects and provides system-level services</td>
+</tr>
+<tr class="even">
+<td>Project environment</td>
+<td>FastQC, Trim Galore, Bowtie2, SAMtools</td>
+<td>Conda or a container recipe</td>
+<td>Must be reproducible per analysis</td>
+</tr>
+<tr class="odd">
+<td>HPC site</td>
+<td>Java module, Singularity/Apptainer, SLURM</td>
+<td>Cluster administrators</td>
+<td>Integrates with shared hardware and policy</td>
+</tr>
+</tbody>
+</table>
+<p>Installing Bowtie2 globally on your laptop is not necessary for this book. We will declare it in a project environment. Installing Docker inside a Conda environment would not create the privileged container service Docker needs.</p>
+<div class="callout callout-style-simple callout-important callout-titled" title="One machine is enough">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>One machine is enough
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You do not need both a workstation and an HPC account to understand the book. A workstation can complete the local path. An HPC reader can perform the audit and mark workstation-only tools as unavailable or deferred.</p>
+</div>
+</div>
+</section>
+<section id="the-vocabulary-distribution-package-manager-environment-and-channel" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="the-vocabulary-distribution-package-manager-environment-and-channel"><span class="header-section-number">3.4</span> The vocabulary: distribution, package manager, environment and channel</h2>
+<p>These names are easy to blur together.</p>
+<ul>
+<li><strong>Conda</strong> is a package and environment manager.</li>
+<li>A <strong>Conda distribution</strong> is a bootstrap installation containing Conda and supporting files.</li>
+<li><strong>Miniforge</strong> is a small Conda distribution configured for the community-run <code>conda-forge</code> package channel.</li>
+<li><strong>Anaconda Distribution</strong> is a larger commercial distribution containing many packages and additional products.</li>
+<li>A <strong>package</strong> is an installable unit such as <code>samtools</code> plus metadata.</li>
+<li>An <strong>environment</strong> is an isolated directory containing a selected collection of packages.</li>
+<li>A <strong>channel</strong> is a repository from which Conda obtains packages and metadata.</li>
+</ul>
+<p>This book recommends Miniforge for a new personal installation because it is a small, community-focused entry point. It does not require replacing a working, institutionally managed Conda installation.</p>
+<p>The <a href="https://github.com/conda-forge/miniforge">official Miniforge project</a> publishes installers for supported operating systems and architectures. Always recheck that page because filenames and requirements change.</p>
+</section>
+<section id="audit-before-installing" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="audit-before-installing"><span class="header-section-number">3.5</span> Audit before installing</h2>
+<p>Open a new terminal. Do not activate a project environment yet.</p>
+<section id="identify-the-shell" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="identify-the-shell"><span class="header-section-number">3.5.1</span> Identify the shell</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'login_shell=%s\n'</span> <span class="st">"</span><span class="va">$SHELL</span><span class="st">"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'current_process=%s\n'</span> <span class="st">"</span><span class="va">$0</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>$SHELL</code> usually records your configured login shell. <code>$0</code> describes the current shell or script. They can differ—for example, a Bash script can run from an interactive Zsh session.</p>
+</section>
+<section id="identify-the-operating-system-and-architecture" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="identify-the-operating-system-and-architecture"><span class="header-section-number">3.5.2</span> Identify the operating system and architecture</h3>
+<p>Commands and installer files are platform-specific:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-s</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-m</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Common results include:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>uname -s</code></th>
+<th><code>uname -m</code></th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Darwin</code></td>
+<td><code>arm64</code></td>
+<td>macOS on Apple silicon</td>
+</tr>
+<tr class="even">
+<td><code>Darwin</code></td>
+<td><code>x86_64</code></td>
+<td>macOS on an Intel processor</td>
+</tr>
+<tr class="odd">
+<td><code>Linux</code></td>
+<td><code>x86_64</code></td>
+<td>64-bit Intel/AMD Linux</td>
+</tr>
+<tr class="even">
+<td><code>Linux</code></td>
+<td><code>aarch64</code></td>
+<td>64-bit ARM Linux</td>
+</tr>
+</tbody>
+</table>
+<p>On macOS, add:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sw_vers</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>On Linux, inspect the distribution metadata:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/os-release</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not run macOS installation commands merely because they appear above Linux commands on a webpage. First match both the operating system and architecture.</p>
+</section>
+<section id="understand-path" class="level3" data-number="3.5.3">
+<h3 data-number="3.5.3" class="anchored" data-anchor-id="understand-path"><span class="header-section-number">3.5.3</span> Understand <code>PATH</code></h3>
+<p>When you type a command without a slash, the shell searches directories listed in <code>PATH</code>, from left to right:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">"</span><span class="va">$PATH</span><span class="st">"</span> <span class="kw">|</span> <span class="fu">tr</span> <span class="st">':'</span> <span class="st">'\n'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If two directories contain <code>java</code>, the first matching path wins. Conda activation and HPC modules work partly by changing this search order.</p>
+<p>Use the shell’s own lookup command:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> java</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> conda</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Possible interpretations:</p>
+<ul>
+<li>a path: the shell found an executable;</li>
+<li>an alias or function description: the name is being intercepted by the shell;</li>
+<li>no output with a nonzero status: the shell cannot currently resolve it.</li>
+</ul>
+<p><code>which</code> is widely available, but <code>command -v</code> is a shell builtin with more predictable behavior for scripts.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="Not found does not mean not installed">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Not found does not mean not installed
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If <code>command -v tool</code> prints nothing, the tool may be absent, installed outside <code>PATH</code>, available only after loading an HPC module, or provided only inside a container. Investigate before installing another copy.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="build-a-read-only-inventory" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="build-a-read-only-inventory"><span class="header-section-number">3.6</span> Build a read-only inventory</h2>
+<p>Create a practice directory:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/nextflow-for-biologists-practice/chapter-03"</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/nextflow-for-biologists-practice/chapter-03"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Start the report without including environment variables, which may contain tokens or credentials:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'=== WORKSTATION IDENTITY ===\n'</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">date</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'os=%s\n'</span> <span class="st">"</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-s</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'architecture=%s\n'</span> <span class="st">"</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'login_shell=%s\n'</span> <span class="st">"</span><span class="va">$SHELL</span><span class="st">"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'working_directory=%s\n'</span> <span class="st">"</span><span class="va">$PWD</span><span class="st">"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> setup-check.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The braces group several commands so one redirection captures their combined standard output. <code>$(...)</code> is command substitution: the shell runs the inner command and inserts its output.</p>
+<p>Inspect before continuing:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> setup-check.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="a-reusable-audit-function" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="a-reusable-audit-function"><span class="header-section-number">3.7</span> A reusable audit function</h2>
+<p>Typing the same test seven times invites inconsistency. Define a small function for the current shell:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_command()</span> <span class="kw">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">command_name</span><span class="op">=</span><span class="st">"</span><span class="va">$1</span><span class="st">"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span> <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">printf</span> <span class="st">'%-12s FOUND  %s\n'</span> <span class="dt">\</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"</span><span class="va">$(</span><span class="bu">command</span> <span class="at">-v</span> <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">printf</span> <span class="st">'%-12s MISSING_OR_NOT_ON_PATH\n'</span> <span class="st">"</span><span class="va">$command_name</span><span class="st">"</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== COMMAND LOCATIONS ===\n'</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> git</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> conda</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> mamba</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> java</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> nextflow</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> docker</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> quarto</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> code</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> singularity</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> apptainer</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">check_command</span> sbatch</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;&gt;</span> setup-check.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This function reports state; it does not modify the machine.</p>
+</section>
+<section id="tool-by-tool-decisions" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="tool-by-tool-decisions"><span class="header-section-number">3.8</span> Tool-by-tool decisions</h2>
+<section id="git-required-on-a-workstation" class="level3" data-number="3.8.1">
+<h3 data-number="3.8.1" class="anchored" data-anchor-id="git-required-on-a-workstation"><span class="header-section-number">3.8.1</span> Git: required on a workstation</h3>
+<p>Git records changes to the book project and pipeline repository. Chapter 5 teaches its mental model; here we only verify the executable.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> git</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If Git is absent:</p>
+<ul>
+<li><strong>macOS:</strong> follow the <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">official Git installation guidance</a>, which describes the Xcode Command Line Tools and official installer paths;</li>
+<li><strong>Debian/Ubuntu workstation:</strong> use the distribution package manager only if you administer the machine;</li>
+<li><strong>Fedora/RHEL workstation:</strong> use the documented distribution package manager;</li>
+<li><strong>managed HPC:</strong> ask whether Git is already installed or available as a module. Do not use <code>sudo</code>.</li>
+</ul>
+<p>Example commands for a personally administered Linux workstation are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Debian or Ubuntu workstation only</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install git</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Fedora workstation only</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dnf install git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not copy both branches. Choose the one matching your distribution.</p>
+</section>
+<section id="conda-through-miniforge-required-for-the-local-conda-path" class="level3" data-number="3.8.2">
+<h3 data-number="3.8.2" class="anchored" data-anchor-id="conda-through-miniforge-required-for-the-local-conda-path"><span class="header-section-number">3.8.2</span> Conda through Miniforge: required for the local Conda path</h3>
+<p>Audit both the command and its base installation:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> conda</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> <span class="at">--version</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> info <span class="at">--base</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If those commands work, keep the installation for now. Record it. Do not stack a second Miniforge installation on top.</p>
+<p>For a new personal macOS or Linux installation, use the installer appropriate to <code>uname -s</code> and <code>uname -m</code> from the <a href="https://github.com/conda-forge/miniforge/releases">official Miniforge releases</a>. The interactive shell installer pattern documented by Miniforge is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> <span class="at">-O</span> <span class="dt">\</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-</span><span class="va">$(</span><span class="fu">uname</span><span class="va">)</span><span class="st">-</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span><span class="st">.sh"</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> <span class="st">"Miniforge3-</span><span class="va">$(</span><span class="fu">uname</span><span class="va">)</span><span class="st">-</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span><span class="st">.sh"</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> <span class="st">"Miniforge3-</span><span class="va">$(</span><span class="fu">uname</span><span class="va">)</span><span class="st">-</span><span class="va">$(</span><span class="fu">uname</span> <span class="at">-m</span><span class="va">)</span><span class="st">.sh"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The installer asks where to install and whether to initialize Conda for the current shell. Read each prompt. After installation, close and reopen the terminal, then verify:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> <span class="at">--version</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> info <span class="at">--base</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>On a shared HPC system, first ask whether Conda is provided and where personal environments should live. Home quotas are often too small for large package caches.</p>
+<div class="callout callout-style-simple callout-note callout-titled" title="Miniforge, Miniconda and Anaconda">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Miniforge, Miniconda and Anaconda
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>All can provide the <code>conda</code> command. Seeing <code>(base)</code> in a prompt means a base environment is active; it does not identify the distribution reliably. Use <code>conda info --base</code> and institutional documentation instead of guessing.</p>
+</div>
+</div>
+</section>
+<section id="java-required-to-launch-nextflow" class="level3" data-number="3.8.3">
+<h3 data-number="3.8.3" class="anchored" data-anchor-id="java-required-to-launch-nextflow"><span class="header-section-number">3.8.3</span> Java: required to launch Nextflow</h3>
+<p>Nextflow is a Java application. Its current official installation guidance requires Java 17 or later. Verify the executable and read the first lines of its diagnostic output:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> java</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Java traditionally writes version information to standard error, so this is normal:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span> <span class="op">&gt;</span> java-version.txt <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-n</span> 3 java-version.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not assume a larger Java version number is always safer. A workflow may be validated against a supported range, and an HPC build may behave differently from a desktop build. Record the exact runtime.</p>
+<p>On HPC, Java is commonly selected through a module:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> avail java</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load java/<span class="op">&lt;</span>site-version<span class="op">&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>&lt;site-version&gt;</code> is a placeholder. Never type angle-bracket placeholders literally. Chapter 4 explains modules and the DLDCC Java workaround from the companion project.</p>
+</section>
+<section id="nextflow-required-but-keep-the-launcher-separate" class="level3" data-number="3.8.4">
+<h3 data-number="3.8.4" class="anchored" data-anchor-id="nextflow-required-but-keep-the-launcher-separate"><span class="header-section-number">3.8.4</span> Nextflow: required, but keep the launcher separate</h3>
+<p>Verify:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> nextflow</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The launcher and workflow dependencies solve different problems. Nextflow can live in a user-controlled <code>bin</code> directory while FastQC and Bowtie2 live in a Conda environment or container.</p>
+<p>For a personal Unix-like workstation, consult the <a href="https://www.nextflow.io/docs/latest/install.html">official Nextflow installation page</a> and verify Java first. A cautious form of the official bootstrap process is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/.local/bin"</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/nextflow-download"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/nextflow-download"</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSLo</span> get-nextflow.sh https://get.nextflow.io</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">less</span> get-nextflow.sh</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> get-nextflow.sh</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> u+x nextflow</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mv</span> nextflow <span class="st">"</span><span class="va">$HOME</span><span class="st">/.local/bin/nextflow"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then ensure the user bin directory is on <code>PATH</code> for the current session:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PATH</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/.local/bin:</span><span class="va">$PATH</span><span class="st">"</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> nextflow</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Persisting the <code>PATH</code> change belongs in the startup file for your actual shell, such as <code>~/.zshrc</code> or <code>~/.bashrc</code>. Do not edit both blindly.</p>
+<p>The companion project uses a repository-local launcher at <code>./bin/nextflow</code> so the execution evidence refers to a known project entry point.</p>
+</section>
+<section id="docker-required-only-for-building-locally" class="level3" data-number="3.8.5">
+<h3 data-number="3.8.5" class="anchored" data-anchor-id="docker-required-only-for-building-locally"><span class="header-section-number">3.8.5</span> Docker: required only for building locally</h3>
+<p><code>docker --version</code> verifies the client program, but not the engine:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> docker</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> <span class="at">--version</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> info</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Interpret them separately:</p>
+<ul>
+<li><code>docker --version</code> can succeed while Docker Desktop or the daemon is stopped;</li>
+<li><code>docker info</code> must communicate with the engine;</li>
+<li><code>docker run --rm hello-world</code> additionally tests pulling and executing an image, which requires network access on the first run.</li>
+</ul>
+<p>On macOS, follow Docker’s <a href="https://docs.docker.com/desktop/setup/install/mac-install/">official Docker Desktop installation guide</a> and choose the Apple-silicon or Intel download that matches <code>uname -m</code>. Check your organization’s Docker Desktop licensing policy before professional use.</p>
+<p>On a personally administered Linux workstation, follow the <a href="https://docs.docker.com/engine/install/">official Docker Engine instructions for your distribution</a>. Do not copy a package recipe for a different Linux distribution.</p>
+<p>Docker is commonly unavailable on multi-user HPC compute nodes because its daemon and privilege model require site-level administration. This is not a defect in the cluster. We build an OCI image on an appropriate workstation or CI runner, then run it through Singularity/Apptainer in Chapter 19.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="The Docker group is security-sensitive">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The Docker group is security-sensitive
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>On Linux, membership in the <code>docker</code> group can confer root-equivalent control of the host. Do not change groups, socket permissions or daemon configuration on a managed system. Follow local security policy.</p>
+</div>
+</div>
+</section>
+<section id="quarto-required-only-for-writing-this-book" class="level3" data-number="3.8.6">
+<h3 data-number="3.8.6" class="anchored" data-anchor-id="quarto-required-only-for-writing-this-book"><span class="header-section-number">3.8.6</span> Quarto: required only for writing this book</h3>
+<p>Readers following the bioinformatics workflow do not need Quarto. Authors and contributors use it to render the tutorial:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> quarto</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Installers and current platform requirements are on the <a href="https://quarto.org/docs/download/">official Quarto download page</a>. Treat Quarto as documentation tooling, not a biological dependency.</p>
+</section>
+<section id="a-text-editor-required-an-ide-is-optional" class="level3" data-number="3.8.7">
+<h3 data-number="3.8.7" class="anchored" data-anchor-id="a-text-editor-required-an-ide-is-optional"><span class="header-section-number">3.8.7</span> A text editor: required; an IDE is optional</h3>
+<p>Any plain-text editor is sufficient. Visual Studio Code is a convenient option because the Nextflow project provides an official extension, but the concepts do not depend on it.</p>
+<p>If the <code>code</code> command is configured:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> code</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">code</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The graphical editor may be installed even when its terminal command is not on <code>PATH</code>. That is another example of “not found” not proving “not installed.”</p>
+<p>Never use a word processor that silently adds rich-text formatting to <code>.nf</code>, <code>.yml</code>, <code>.sh</code> or <code>.md</code> files.</p>
+</section>
+</section>
+<section id="workstation-linux-and-hpc-decision-paths" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="workstation-linux-and-hpc-decision-paths"><span class="header-section-number">3.9</span> Workstation, Linux and HPC decision paths</h2>
+<section id="personal-macos-workstation" class="level3" data-number="3.9.1">
+<h3 data-number="3.9.1" class="anchored" data-anchor-id="personal-macos-workstation"><span class="header-section-number">3.9.1</span> Personal macOS workstation</h3>
+<ol type="1">
+<li>Identify <code>arm64</code> versus <code>x86_64</code>.</li>
+<li>Verify or install Git.</li>
+<li>Install Miniforge only if Conda is absent or intentionally being replaced.</li>
+<li>Install a supported Java runtime.</li>
+<li>install the Nextflow launcher in a user bin directory.</li>
+<li>Install and start Docker Desktop if you will build images locally.</li>
+<li>Install Quarto only if you will render the book.</li>
+<li>Record all paths and versions.</li>
+</ol>
+</section>
+<section id="personal-linux-workstation" class="level3" data-number="3.9.2">
+<h3 data-number="3.9.2" class="anchored" data-anchor-id="personal-linux-workstation"><span class="header-section-number">3.9.2</span> Personal Linux workstation</h3>
+<ol type="1">
+<li>Identify the distribution and architecture.</li>
+<li>Prefer its package manager for host tools such as Git and Java.</li>
+<li>Use the official Miniforge installer for the matching architecture.</li>
+<li>Install Nextflow in a user bin directory.</li>
+<li>Follow Docker’s distribution-specific repository instructions.</li>
+<li>Record both Docker client and daemon checks.</li>
+</ol>
+</section>
+<section id="managed-hpc-system" class="level3" data-number="3.9.3">
+<h3 data-number="3.9.3" class="anchored" data-anchor-id="managed-hpc-system"><span class="header-section-number">3.9.3</span> Managed HPC system</h3>
+<ol type="1">
+<li>Do not use <code>sudo</code> or install a system daemon.</li>
+<li>Inventory commands and available modules.</li>
+<li>Ask which storage area should hold Conda caches and Nextflow work files.</li>
+<li>Use administrator-provided Java, scheduler and Singularity/Apptainer.</li>
+<li>Use a user-managed Conda environment only where policy permits.</li>
+<li>Build Docker images elsewhere and transfer or pull an approved artifact.</li>
+<li>Record missing workstation-only tools as <code>NOT_REQUIRED_ON_HPC</code>.</li>
+</ol>
+</section>
+</section>
+<section id="complete-the-setup-report" class="level2" data-number="3.10">
+<h2 data-number="3.10" class="anchored" data-anchor-id="complete-the-setup-report"><span class="header-section-number">3.10</span> Complete the setup report</h2>
+<p>Append version evidence only for commands that exist:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'\n=== VERSION EVIDENCE ===\n'</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> git <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">git</span> <span class="at">--version</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> conda <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">conda</span> <span class="at">--version</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">printf</span> <span class="st">'conda_base=%s\n'</span> <span class="st">"</span><span class="va">$(</span><span class="ex">conda</span> info <span class="at">--base</span><span class="va">)</span><span class="st">"</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> java <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">java</span> <span class="at">-version</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 3</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> nextflow <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="ex">nextflow</span> <span class="at">-version</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> docker <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">docker</span> <span class="at">--version</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">command</span> <span class="at">-v</span> quarto <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">quarto</span> <span class="at">--version</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;&gt;</span> setup-check.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Add a responsibility table using your editor or <code>printf</code>:</p>
+<pre class="text"><code>=== RESPONSIBILITY DECISIONS ===
+git=REQUIRED_HOST
+conda=REQUIRED_LOCAL_PROFILE
+java=REQUIRED_NEXTFLOW_RUNTIME
+nextflow=REQUIRED_WORKFLOW_ENGINE
+docker=OPTIONAL_IF_BUILDING_ELSE_CI
+quarto=OPTIONAL_BOOK_AUTHORING
+singularity_or_apptainer=HPC_ADMIN_PROVIDED
+slurm=HPC_ADMIN_PROVIDED
+bioinformatics_tools=PROJECT_ENVIRONMENT_LATER</code></pre>
+</section>
+<section id="expected-evidence-not-expected-versions" class="level2" data-number="3.11">
+<h2 data-number="3.11" class="anchored" data-anchor-id="expected-evidence-not-expected-versions"><span class="header-section-number">3.11</span> Expected evidence, not expected versions</h2>
+<p>Exact version numbers change. A valid report resembles:</p>
+<pre class="text"><code>=== WORKSTATION IDENTITY ===
+...
+os=Darwin
+architecture=arm64
+login_shell=/bin/zsh
+working_directory=/Users/learner/nextflow-for-biologists-practice/chapter-03
+
+=== COMMAND LOCATIONS ===
+git          FOUND  /usr/bin/git
+conda        FOUND  /Users/learner/miniforge3/condabin/conda
+java         FOUND  /usr/bin/java
+nextflow     FOUND  /Users/learner/.local/bin/nextflow
+docker       FOUND  /usr/local/bin/docker
+quarto       FOUND  /usr/local/bin/quarto
+singularity  MISSING_OR_NOT_ON_PATH
+sbatch       MISSING_OR_NOT_ON_PATH</code></pre>
+<p>A missing Singularity or SLURM command on a laptop is expected. A missing Docker daemon on HPC is expected. Context determines whether absence is a problem.</p>
+</section>
+<section id="common-failures-and-how-to-reason-about-them" class="level2" data-number="3.12">
+<h2 data-number="3.12" class="anchored" data-anchor-id="common-failures-and-how-to-reason-about-them"><span class="header-section-number">3.12</span> Common failures and how to reason about them</h2>
+<section id="command-not-found-after-installation" class="level3" data-number="3.12.1">
+<h3 data-number="3.12.1" class="anchored" data-anchor-id="command-not-found-after-installation"><span class="header-section-number">3.12.1</span> <code>command not found</code> after installation</h3>
+<p>Open a new terminal, identify the current shell, inspect <code>PATH</code>, and locate the installation directory. Do not reinstall immediately.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'shell=%s\n'</span> <span class="st">"</span><span class="va">$SHELL</span><span class="st">"</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">"</span><span class="va">$PATH</span><span class="st">"</span> <span class="kw">|</span> <span class="fu">tr</span> <span class="st">':'</span> <span class="st">'\n'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="the-wrong-architecture-installer-was-downloaded" class="level3" data-number="3.12.2">
+<h3 data-number="3.12.2" class="anchored" data-anchor-id="the-wrong-architecture-installer-was-downloaded"><span class="header-section-number">3.12.2</span> The wrong architecture installer was downloaded</h3>
+<p>Stop before running it. Compare the filename with <code>uname -m</code>. Apple <code>arm64</code> and Intel <code>x86_64</code> binaries are not interchangeable assumptions.</p>
+</section>
+<section id="java--version-shows-an-unexpected-runtime" class="level3" data-number="3.12.3">
+<h3 data-number="3.12.3" class="anchored" data-anchor-id="java--version-shows-an-unexpected-runtime"><span class="header-section-number">3.12.3</span> <code>java -version</code> shows an unexpected runtime</h3>
+<p>Compare:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> java</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span> <span class="at">-a</span> java</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">"</span><span class="va">$JAVA_HOME</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>type -a</code> can reveal several candidates. Conda activation or a module may have placed another Java earlier in <code>PATH</code>.</p>
+</section>
+<section id="nextflow-says-java-is-missing-or-incompatible" class="level3" data-number="3.12.4">
+<h3 data-number="3.12.4" class="anchored" data-anchor-id="nextflow-says-java-is-missing-or-incompatible"><span class="header-section-number">3.12.4</span> Nextflow says Java is missing or incompatible</h3>
+<p>Run Java independently before debugging Nextflow:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'java_exit=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then record <code>JAVA_HOME</code>, <code>JAVA_CMD</code> and <code>NXF_OPTS</code> only if they are set. Do not paste an entire environment dump into a public issue because it may contain secrets.</p>
+</section>
+<section id="docker---version-works-but-docker-info-fails" class="level3" data-number="3.12.5">
+<h3 data-number="3.12.5" class="anchored" data-anchor-id="docker---version-works-but-docker-info-fails"><span class="header-section-number">3.12.5</span> <code>docker --version</code> works but <code>docker info</code> fails</h3>
+<p>The client exists but cannot reach an engine. On a workstation, start Docker Desktop or the approved Docker service. On HPC, stop: a Docker daemon may be intentionally unavailable.</p>
+</section>
+<section id="conda-appears-twice" class="level3" data-number="3.12.6">
+<h3 data-number="3.12.6" class="anchored" data-anchor-id="conda-appears-twice"><span class="header-section-number">3.12.6</span> Conda appears twice</h3>
+<p>Inspect all resolutions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span> <span class="at">-a</span> conda</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> info <span class="at">--base</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'%s\n'</span> <span class="st">"</span><span class="va">$CONDA_PREFIX</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Multiple installations can create incompatible base libraries and confusing shell initialization. Choose deliberately rather than deleting paths at random.</p>
+</section>
+<section id="a-home-directory-fills-during-setup" class="level3" data-number="3.12.7">
+<h3 data-number="3.12.7" class="anchored" data-anchor-id="a-home-directory-fills-during-setup"><span class="header-section-number">3.12.7</span> A home directory fills during setup</h3>
+<p>Caches can be large. Inspect usage with site-approved commands and move caches only to an approved project or scratch path. Chapter 4 covers quotas and the real DLDCC failure in which Nextflow’s downloaded JAR was truncated.</p>
+</section>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="3.13">
+<h2 data-number="3.13" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">3.13</span> Verification checkpoint</h2>
+<p>From the Chapter 3 practice directory, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="at">-s</span> setup-check.txt</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'report_nonempty=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^os='</span> setup-check.txt</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'os_recorded=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^architecture='</span> setup-check.txt</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'architecture_recorded=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^=== COMMAND LOCATIONS ==='</span> setup-check.txt</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'locations_recorded=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">'^=== RESPONSIBILITY DECISIONS ==='</span> setup-check.txt</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'decisions_recorded=%s\n'</span> <span class="st">"</span><span class="va">$?</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>All five values should be zero. Finally, inspect the report manually:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">less</span> setup-check.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Confirm that it contains no access tokens, passwords, private keys, full environment dump or patient information.</p>
+</section>
+<section id="hands-on-exercise-audit-a-second-execution-context" class="level2" data-number="3.14">
+<h2 data-number="3.14" class="anchored" data-anchor-id="hands-on-exercise-audit-a-second-execution-context"><span class="header-section-number">3.14</span> Hands-on exercise: audit a second execution context</h2>
+<p>Create a second report named <code>context-comparison.txt</code>.</p>
+<p>Choose one comparison available to you:</p>
+<ul>
+<li>a new terminal before and after <code>conda activate base</code>;</li>
+<li>the workstation versus an HPC login session;</li>
+<li>an HPC shell before and after loading a Java module; or</li>
+<li>the host shell versus a container shell later in the book.</li>
+</ul>
+<p>For both contexts, record:</p>
+<ol type="1">
+<li><code>uname -s</code> and <code>uname -m</code>;</li>
+<li><code>$SHELL</code> and <code>$0</code>;</li>
+<li><code>command -v</code> for Git, Conda, Java and Nextflow;</li>
+<li>the first three lines of <code>java -version</code>;</li>
+<li><code>conda info --base</code> when Conda exists;</li>
+<li>whether Docker, Singularity/Apptainer and SLURM are expected there; and</li>
+<li>one sentence explaining every changed executable path.</li>
+</ol>
+<p>Finish with this conclusion template:</p>
+<pre class="text"><code>Context A is responsible for:
+Context B is responsible for:
+The most important PATH change was:
+The change was expected because:
+One missing command that is not an error is:</code></pre>
+<div class="callout callout-style-simple callout-tip callout-titled" title="Exercise verification hints">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Exercise verification hints
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Use labeled command groups rather than copying an unstructured terminal history. Redirect Java’s standard error when capturing it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">'=== CONTEXT A ===\n'</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">command</span> <span class="at">-v</span> java <span class="kw">||</span> <span class="fu">true</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">java</span> <span class="at">-version</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 3</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span> <span class="op">&gt;</span> context-comparison.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>|| true</code> prevents an expected missing command from stopping a larger strict script, but it also discards that failure status. Use it only when absence is explicitly part of the test.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="interview-grill-ten-questions" class="level2" data-number="3.15">
+<h2 data-number="3.15" class="anchored" data-anchor-id="interview-grill-ten-questions"><span class="header-section-number">3.15</span> Interview grill: ten questions</h2>
+<p>Answer aloud before opening the model points.</p>
+<ol type="1">
+<li>What is the difference between software being installed and being on <code>PATH</code>?</li>
+<li>Why do <code>uname -s</code> and <code>uname -m</code> matter before downloading an installer?</li>
+<li>What does <code>command -v</code> prove, and what does it not prove?</li>
+<li>Why keep bioinformatics tools in a project environment instead of installing them globally?</li>
+<li>What is the difference between Conda, Miniforge, an environment and a channel?</li>
+<li>Why can <code>docker --version</code> succeed while <code>docker info</code> fails?</li>
+<li>Why is Docker commonly unavailable on managed HPC systems?</li>
+<li>How can activating Conda or loading a module change which Java runs?</li>
+<li>What evidence would you collect before reporting that Nextflow cannot find Java?</li>
+<li>Why is an unfiltered environment dump unsafe to attach to a public bug report?</li>
+</ol>
+<div class="callout callout-style-simple callout-note callout-titled" title="Model answer points">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Model answer points
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Installed software may exist on disk while its directory is absent from the shell’s search path. <code>PATH</code> controls name resolution, not existence.</li>
+<li>Installers target an operating system and processor architecture. A Darwin ARM binary is not the same artifact as Linux x86-64.</li>
+<li>It proves how the current shell resolves a name. It does not prove that the program runs correctly, that a service is available or that the version is suitable.</li>
+<li>Project isolation records dependencies, reduces conflicts and lets another person reconstruct the analysis without modifying the whole host.</li>
+<li>Conda manages packages/environments; Miniforge bootstraps Conda with conda-forge defaults; an environment is an isolated package prefix; a channel is a package repository.</li>
+<li>The client executable can print its own version without communicating with the Docker engine. <code>docker info</code> requires a reachable, authorized daemon.</li>
+<li>Docker’s daemon and privilege model require host administration and can conflict with multi-user security. HPC sites commonly provide Singularity/Apptainer instead.</li>
+<li>Both can prepend directories to <code>PATH</code> and may set variables such as <code>JAVA_HOME</code>, causing a different executable to resolve first.</li>
+<li>Record the OS/architecture, <code>command -v java</code>, <code>type -a java</code>, <code>java -version</code>, <code>command -v nextflow</code>, <code>nextflow -version</code> output and only relevant Java/Nextflow variables.</li>
+<li>Environment variables may contain tokens, credentials, private endpoints, usernames or other sensitive configuration unrelated to the failure.</li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-remember" class="level2" data-number="3.16">
+<h2 data-number="3.16" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">3.16</span> What to remember</h2>
+<ul>
+<li>Audit first; absence from <code>PATH</code> is only one hypothesis.</li>
+<li>Host tools, project dependencies and HPC services have different owners.</li>
+<li>Match both operating system and architecture before installing.</li>
+<li>Record executable paths as well as versions.</li>
+<li>Missing Docker on HPC or missing SLURM on a laptop can be correct.</li>
+<li>Share focused diagnostics, never secrets or an unfiltered environment dump.</li>
+</ul>
+</section>
+<section id="next-chapter" class="level2" data-number="3.17">
+<h2 data-number="3.17" class="anchored" data-anchor-id="next-chapter"><span class="header-section-number">3.17</span> Next chapter</h2>
+<p>Chapter 4 moves from a personal workstation to the HPC mental model. We will separate login nodes from compute nodes, explore modules and SLURM, understand home/project/scratch storage, and explain exactly how modules interact with a Conda environment through <code>PATH</code>.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -771,12 +1510,12 @@ ul.task-list li input[type="checkbox"] {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../chapters/02-terminal-files-paths.html" class="pagination-link" aria-label="The terminal, files, paths and commands">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../chapters/04-conda-environments.html" class="pagination-link" aria-label="Conda environments">
-        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Conda environments</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Conda environments</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -788,7 +1527,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/03-workstation-setup.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/03-workstation-setup.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

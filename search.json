@@ -4,39 +4,39 @@
     "href": "index.html",
     "title": "From FASTQ to Nextflow",
     "section": "",
-    "text": "0.1 What you will build\nYou can understand modern bioinformatics workflow engineering without already being a programmer. This book starts with ordinary sequencing files and shell commands, then develops one small analysis into a reproducible Nextflow workflow that can run locally or through an HPC scheduler.\nBy the end, you will have followed the reasoning behind:",
+    "text": "From FASTQ to Nextflow\nYou can understand modern bioinformatics workflow engineering without already being a programmer. This book starts with ordinary sequencing files and shell commands, then develops one small analysis into a reproducible Nextflow workflow that can run locally or through an HPC scheduler.\nflowchart LR\n    A[\"Paired FASTQ files\"] --&gt; B[\"Raw FastQC\"]\n    B --&gt; C[\"Trim Galore\"]\n    C --&gt; D[\"Post-trim FastQC\"]\n    C --&gt; E[\"Bowtie2 + SAMtools sort\"]\n    E --&gt; F[\"BAM validation\"]",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+      "From FASTQ to Nextflow"
     ]
   },
   {
     "objectID": "index.html#what-you-will-build",
     "href": "index.html#what-you-will-build",
     "title": "From FASTQ to Nextflow",
-    "section": "",
-    "text": "a pinned Conda environment;\na manually validated NGS workflow;\na strict Bash implementation;\na Docker/OCI container image;\nSingularity execution on an HPC system;\na five-process Nextflow DSL2 workflow;\nlocal and SLURM execution profiles;\nfailure tests, caching and output comparisons; and\na versioned, evidence-backed release.",
+    "section": "What you will build",
+    "text": "What you will build\nBy the end, you will have followed the reasoning behind:\n\na pinned Conda environment;\na manually validated NGS workflow;\na strict Bash implementation;\na Docker/OCI container image;\nSingularity execution on an HPC system;\na five-process Nextflow DSL2 workflow;\nlocal and SLURM execution profiles;\nfailure tests, caching and output comparisons; and\na versioned, evidence-backed release.",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+      "From FASTQ to Nextflow"
     ]
   },
   {
     "objectID": "index.html#who-this-book-is-for",
     "href": "index.html#who-this-book-is-for",
     "title": "From FASTQ to Nextflow",
-    "section": "0.2 Who this book is for",
-    "text": "0.2 Who this book is for\nThis book is written for biologists who can use a web browser but may not yet know what a shell, software channel, container image, workflow channel or job scheduler is. Every new term is introduced before it is relied upon.\n\n\n\n\n\n\nImportantScientific scope\n\n\n\nThe example uses deterministic synthetic paired-end reads derived from human GRCh38 chromosome 22. It contains no patient data. It is a teaching and reproducibility artifact—not a clinical pipeline, a WGBS pipeline or a production-scale biological analysis.",
+    "section": "Who this book is for",
+    "text": "Who this book is for\nThis book is written for biologists who can use a web browser but may not yet know what a shell, software channel, container image, workflow channel or job scheduler is. Every new term is introduced before it is relied upon.\n\n\n\n\n\n\nImportantScientific scope\n\n\n\nThe example uses deterministic synthetic paired-end reads derived from human GRCh38 chromosome 22. It contains no patient data. It is a teaching and reproducibility artifact—not a clinical pipeline, a WGBS pipeline or a production-scale biological analysis.",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+      "From FASTQ to Nextflow"
     ]
   },
   {
     "objectID": "index.html#how-to-use-the-book",
     "href": "index.html#how-to-use-the-book",
     "title": "From FASTQ to Nextflow",
-    "section": "0.3 How to use the book",
-    "text": "0.3 How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.",
+    "section": "How to use the book",
+    "text": "How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>From FASTQ to Nextflow</span>"
+      "From FASTQ to Nextflow"
     ]
   },
   {
@@ -62,782 +62,969 @@
   {
     "objectID": "chapters/01-the-whole-shebang.html",
     "href": "chapters/01-the-whole-shebang.html",
-    "title": "2  The whole shebang",
+    "title": "1  The whole shebang",
     "section": "",
-    "text": "2.1 Why a biologist should care\nImagine that you receive paired-end sequencing reads and answer a biological question with four programs. You record the commands in a notebook. Six months later, one program has changed, a library is missing and the commands run in the wrong order on a new computer. A collaborator cannot reproduce the result. On an HPC cluster, the same commands compete for memory or accidentally run on the login node.\nThe biological logic may have been correct. The engineering around it was not strong enough to preserve and communicate that logic.\nModern bioinformatics therefore has two inseparable responsibilities:\nThis book concentrates on the second responsibility without pretending it can replace the first. A beautifully engineered workflow can still run an inappropriate aligner. A biologically appropriate analysis can still be unreproducible if its software and execution are undocumented. Industry teams need both kinds of judgment.",
+    "text": "1.1 Why a biologist should care\nImagine that you receive paired-end sequencing reads and answer a biological question with four programs. You record the commands in a notebook. Six months later, one program has changed, a library is missing and the commands run in the wrong order on a new computer. A collaborator cannot reproduce the result. On an HPC cluster, the same commands compete for memory or accidentally run on the login node.\nThe biological logic may have been correct. The engineering around it was not strong enough to preserve and communicate that logic.\nModern bioinformatics therefore has two inseparable responsibilities:\nThis book concentrates on the second responsibility without pretending it can replace the first. A beautifully engineered workflow can still run an inappropriate aligner. A biologically appropriate analysis can still be unreproducible if its software and execution are undocumented. Industry teams need both kinds of judgment.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#why-a-biologist-should-care",
     "href": "chapters/01-the-whole-shebang.html#why-a-biologist-should-care",
-    "title": "2  The whole shebang",
+    "title": "1  The whole shebang",
     "section": "",
     "text": "Analytical responsibility: choose methods that are appropriate for the biological question and interpret their outputs correctly.\nEngineering responsibility: make the inputs, software, execution, decisions and outputs traceable, testable and repeatable.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#engineering-objective",
     "href": "chapters/01-the-whole-shebang.html#engineering-objective",
-    "title": "2  The whole shebang",
-    "section": "2.2 Engineering objective",
-    "text": "2.2 Engineering objective\nBefore installing or coding anything, we need a map of the system. You should be able to point to each layer and answer:\n\nWhat problem does this layer solve?\nWhat information enters and leaves it?\nWhich other layer does it depend on?\nWhat evidence tells us that it behaved as intended?\n\nIf these layers are blurred together, troubleshooting becomes guesswork. For example, changing a Conda package cannot fix a SLURM account error, and changing a Nextflow channel cannot repair a corrupt FASTQ file.",
+    "title": "1  The whole shebang",
+    "section": "1.2 Engineering objective",
+    "text": "1.2 Engineering objective\nBefore installing or coding anything, we need a map of the system. You should be able to point to each layer and answer:\n\nWhat problem does this layer solve?\nWhat information enters and leaves it?\nWhich other layer does it depend on?\nWhat evidence tells us that it behaved as intended?\n\nIf these layers are blurred together, troubleshooting becomes guesswork. For example, changing a Conda package cannot fix a SLURM account error, and changing a Nextflow channel cannot repair a corrupt FASTQ file.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#start-with-files-and-transformations",
     "href": "chapters/01-the-whole-shebang.html#start-with-files-and-transformations",
-    "title": "2  The whole shebang",
-    "section": "2.3 Start with files and transformations",
-    "text": "2.3 Start with files and transformations\nMost command-line bioinformatics programs behave like transformations:\ninput files + parameters + software → output files + logs\nIn our teaching project:\n\nFastQC reads FASTQ files and writes quality reports.\nTrim Galore reads paired FASTQ files and writes trimmed paired FASTQ files plus reports.\nBowtie2 reads trimmed FASTQ files and a reference index, then writes SAM alignment records.\nSAMtools sorts, indexes and validates the alignments in BAM format.\n\nEach program is a tool. A tool normally performs one focused operation. Connecting the tools creates a pipeline.\n\n\n\n\n\nflowchart LR\n    R[\"Paired FASTQ\"] --&gt; Q1[\"Raw FastQC\"]\n    R --&gt; T[\"Trim Galore\"]\n    T --&gt; Q2[\"Post-trim FastQC\"]\n    T --&gt; A[\"Bowtie2\"]\n    X[\"Reference index\"] --&gt; A\n    A --&gt; S[\"SAMtools sort\"]\n    S --&gt; V[\"BAM validation\"]\n\n\n The analytical path used throughout the book. Trimming creates two branches: post-trim quality control and alignment. \n\n\n\nNotice that this is not simply a list. Raw FastQC and trimming can begin from the same input. Post-trim FastQC and alignment must wait for trimming. Alignment also needs the reference index. These dependencies form a directed graph.",
+    "title": "1  The whole shebang",
+    "section": "1.3 Start with files and transformations",
+    "text": "1.3 Start with files and transformations\nMost command-line bioinformatics programs behave like transformations:\ninput files + parameters + software → output files + logs\nIn our teaching project:\n\nFastQC reads FASTQ files and writes quality reports.\nTrim Galore reads paired FASTQ files and writes trimmed paired FASTQ files plus reports.\nBowtie2 reads trimmed FASTQ files and a reference index, then writes SAM alignment records.\nSAMtools sorts, indexes and validates the alignments in BAM format.\n\nEach program is a tool. A tool normally performs one focused operation. Connecting the tools creates a pipeline.\n\n\n\n\n\nflowchart LR\n    R[\"Paired FASTQ\"] --&gt; Q1[\"Raw FastQC\"]\n    R --&gt; T[\"Trim Galore\"]\n    T --&gt; Q2[\"Post-trim FastQC\"]\n    T --&gt; A[\"Bowtie2\"]\n    X[\"Reference index\"] --&gt; A\n    A --&gt; S[\"SAMtools sort\"]\n    S --&gt; V[\"BAM validation\"]\n\n\n The analytical path used throughout the book. Trimming creates two branches: post-trim quality control and alignment. \n\n\n\nNotice that this is not simply a list. Raw FastQC and trimming can begin from the same input. Post-trim FastQC and alignment must wait for trimming. Alignment also needs the reference index. These dependencies form a directed graph.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#tool-command-script-pipeline-and-workflow",
     "href": "chapters/01-the-whole-shebang.html#tool-command-script-pipeline-and-workflow",
-    "title": "2  The whole shebang",
-    "section": "2.4 Tool, command, script, pipeline and workflow",
-    "text": "2.4 Tool, command, script, pipeline and workflow\nThese words are related but not interchangeable.\n\n\n\n\n\n\n\n\nTerm\nMeaning in this book\nExample\n\n\n\n\nTool\nA program that performs a focused operation\nsamtools\n\n\nCommand\nOne request to run a program with particular arguments\nsamtools quickcheck sample.bam\n\n\nScript\nA saved text file containing commands and control logic\nrun_manual.sh\n\n\nPipeline\nThe connected analytical steps from input to result\nFASTQ → trim → align → BAM\n\n\nWorkflow\nAn executable model of tasks, dependencies, inputs, outputs and resources\nmain.nf\n\n\nWorkflow run\nOne execution of a workflow with specific inputs, settings and software\nthe five-task chr22 run\n\n\n\nA Bash script can implement a pipeline. A workflow engine adds explicit task contracts, dependency scheduling, isolated work directories, caching, resource requests and alternative execution backends. That does not make Bash obsolete: every Nextflow process in this book ultimately runs shell commands.",
+    "title": "1  The whole shebang",
+    "section": "1.4 Tool, command, script, pipeline and workflow",
+    "text": "1.4 Tool, command, script, pipeline and workflow\nThese words are related but not interchangeable.\n\n\n\n\n\n\n\n\nTerm\nMeaning in this book\nExample\n\n\n\n\nTool\nA program that performs a focused operation\nsamtools\n\n\nCommand\nOne request to run a program with particular arguments\nsamtools quickcheck sample.bam\n\n\nScript\nA saved text file containing commands and control logic\nrun_manual.sh\n\n\nPipeline\nThe connected analytical steps from input to result\nFASTQ → trim → align → BAM\n\n\nWorkflow\nAn executable model of tasks, dependencies, inputs, outputs and resources\nmain.nf\n\n\nWorkflow run\nOne execution of a workflow with specific inputs, settings and software\nthe five-task chr22 run\n\n\n\nA Bash script can implement a pipeline. A workflow engine adds explicit task contracts, dependency scheduling, isolated work directories, caching, resource requests and alternative execution backends. That does not make Bash obsolete: every Nextflow process in this book ultimately runs shell commands.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#the-complete-stack",
     "href": "chapters/01-the-whole-shebang.html#the-complete-stack",
-    "title": "2  The whole shebang",
-    "section": "2.5 The complete stack",
-    "text": "2.5 The complete stack\nOur analytical graph sits inside a larger engineering system.\n\n\n\n\n\nflowchart TB\n    BQ[\"Biological question\"] --&gt; DATA[\"Input data + metadata\"]\n    DATA --&gt; WF[\"Nextflow workflow logic\"]\n    SW[\"Software layer&lt;br/&gt;Conda environment or OCI image\"] --&gt; WF\n    CFG[\"Parameters + configuration\"] --&gt; WF\n    WF --&gt; EX[\"Executor&lt;br/&gt;local or SLURM\"]\n    EX --&gt; RT[\"Task runtime&lt;br/&gt;host, Conda or Singularity\"]\n    RT --&gt; OUT[\"Outputs + logs + reports\"]\n    OUT --&gt; QC[\"Technical and biological review\"]\n    GIT[\"Git + GitHub&lt;br/&gt;history and collaboration\"] -. records .-&gt; WF\n    GIT -. records .-&gt; CFG\n    CI[\"CI/CD automation\"] -. checks and publishes .-&gt; GIT\n\n\n The layers are complementary. Nextflow coordinates commands supplied by an environment or image and launches tasks through an executor. \n\n\n\nThe arrows do not mean that Git executes FastQC or that SLURM installs SAMtools. Each layer has a narrower responsibility.",
+    "title": "1  The whole shebang",
+    "section": "1.5 The complete stack",
+    "text": "1.5 The complete stack\nOur analytical graph sits inside a larger engineering system.\n\n\n\n\n\nflowchart TB\n    BQ[\"Biological question\"] --&gt; DATA[\"Input data + metadata\"]\n    DATA --&gt; WF[\"Nextflow workflow logic\"]\n    SW[\"Software layer&lt;br/&gt;Conda environment or OCI image\"] --&gt; WF\n    CFG[\"Parameters + configuration\"] --&gt; WF\n    WF --&gt; EX[\"Executor&lt;br/&gt;local or SLURM\"]\n    EX --&gt; RT[\"Task runtime&lt;br/&gt;host, Conda or Singularity\"]\n    RT --&gt; OUT[\"Outputs + logs + reports\"]\n    OUT --&gt; QC[\"Technical and biological review\"]\n    GIT[\"Git + GitHub&lt;br/&gt;history and collaboration\"] -. records .-&gt; WF\n    GIT -. records .-&gt; CFG\n    CI[\"CI/CD automation\"] -. checks and publishes .-&gt; GIT\n\n\n The layers are complementary. Nextflow coordinates commands supplied by an environment or image and launches tasks through an executor. \n\n\n\nThe arrows do not mean that Git executes FastQC or that SLURM installs SAMtools. Each layer has a narrower responsibility.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#the-host-operating-system",
     "href": "chapters/01-the-whole-shebang.html#the-host-operating-system",
-    "title": "2  The whole shebang",
-    "section": "2.6 The host operating system",
-    "text": "2.6 The host operating system\nThe host is the computer or compute node on which a process ultimately runs. It supplies the kernel, processors, memory, filesystems and security controls. On a laptop you may administer much of the host. On an institutional cluster, platform administrators control it.\nThis matters because neither Conda nor a container creates CPUs or memory. Containers also share the host kernel; they are not complete virtual machines. Architecture and operating-system compatibility still matter.\nQuestion answered by the host: What machine resources and operating-system services exist?",
+    "title": "1  The whole shebang",
+    "section": "1.6 The host operating system",
+    "text": "1.6 The host operating system\nThe host is the computer or compute node on which a process ultimately runs. It supplies the kernel, processors, memory, filesystems and security controls. On a laptop you may administer much of the host. On an institutional cluster, platform administrators control it.\nThis matters because neither Conda nor a container creates CPUs or memory. Containers also share the host kernel; they are not complete virtual machines. Architecture and operating-system compatibility still matter.\nQuestion answered by the host: What machine resources and operating-system services exist?",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#cluster-modules",
     "href": "chapters/01-the-whole-shebang.html#cluster-modules",
-    "title": "2  The whole shebang",
-    "section": "2.7 Cluster modules",
-    "text": "2.7 Cluster modules\nAn HPC module system lets administrators offer multiple versions of cluster-provided software. Loading a module commonly modifies environment variables such as PATH, which controls where the shell searches for executables.\nExamples might include Java, Singularity or a compiler. Module names and versions are local to the cluster.\nQuestion answered by modules: Which administrator-provided software should this shell session see?\nModules are not Conda environments. A module may expose the Java needed to start Nextflow while a Conda environment supplies FastQC and SAMtools. Because both can modify PATH, they can also conflict. Later we will inspect the active layers rather than assuming which executable is being used.",
+    "title": "1  The whole shebang",
+    "section": "1.7 Cluster modules",
+    "text": "1.7 Cluster modules\nAn HPC module system lets administrators offer multiple versions of cluster-provided software. Loading a module commonly modifies environment variables such as PATH, which controls where the shell searches for executables.\nExamples might include Java, Singularity or a compiler. Module names and versions are local to the cluster.\nQuestion answered by modules: Which administrator-provided software should this shell session see?\nModules are not Conda environments. A module may expose the Java needed to start Nextflow while a Conda environment supplies FastQC and SAMtools. Because both can modify PATH, they can also conflict. Later we will inspect the active layers rather than assuming which executable is being used.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#conda-environments-and-channels",
     "href": "chapters/01-the-whole-shebang.html#conda-environments-and-channels",
-    "title": "2  The whole shebang",
-    "section": "2.8 Conda environments and channels",
-    "text": "2.8 Conda environments and channels\nConda is a package and environment manager. A Conda environment is an isolated directory containing selected programs and their dependencies. For example, SAMtools depends on libraries for compressed genomic file formats. Conda attempts to choose a compatible set.\nA channel is a package repository. It is a source from which Conda obtains package metadata and package files. Bioconda distributes many bioinformatics packages; conda-forge distributes a broad range of supporting software and libraries. Channel order and priority affect which builds the solver may select.\nQuestion answered by Conda: Which package versions and compatible libraries are installed in this environment?\nConda improves control over software, but an environment specification alone does not freeze the host kernel, scheduler, external reference data or every future package build. Reproducibility has multiple layers.",
+    "title": "1  The whole shebang",
+    "section": "1.8 Conda environments and channels",
+    "text": "1.8 Conda environments and channels\nConda is a package and environment manager. A Conda environment is an isolated directory containing selected programs and their dependencies. For example, SAMtools depends on libraries for compressed genomic file formats. Conda attempts to choose a compatible set.\nA channel is a package repository. It is a source from which Conda obtains package metadata and package files. Bioconda distributes many bioinformatics packages; conda-forge distributes a broad range of supporting software and libraries. Channel order and priority affect which builds the solver may select.\nQuestion answered by Conda: Which package versions and compatible libraries are installed in this environment?\nConda improves control over software, but an environment specification alone does not freeze the host kernel, scheduler, external reference data or every future package build. Reproducibility has multiple layers.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#oci-images-docker-and-containers",
     "href": "chapters/01-the-whole-shebang.html#oci-images-docker-and-containers",
-    "title": "2  The whole shebang",
-    "section": "2.9 OCI images, Docker and containers",
-    "text": "2.9 OCI images, Docker and containers\nAn OCI image is a packaged, read-only filesystem plus metadata describing how software should run. OCI refers to open container standards. Docker is one widely used platform for building and running OCI-compatible images.\nA container is a running process created from an image. The distinction is similar to a class recipe versus one instantiated object, or a cake recipe versus one baked cake—although every analogy has limits.\nAn image can contain the Conda-resolved tools, their libraries and selected operating-system files. A registry such as GitHub Container Registry stores and distributes images.\n\n\n\n\n\n\n\n\nConcept\nMutable while building/running?\nRole\n\n\n\n\nDockerfile\nYes, it is source text\nRecipe for building an image\n\n\nImage\nNormally treated as immutable\nPackaged filesystem and metadata\n\n\nTag\nCan be moved to another image\nHuman-friendly name such as v0.1.0\n\n\nDigest\nIdentifies exact image content\nImmutable content address\n\n\nContainer\nHas a writable runtime layer\nA process running from an image\n\n\nRegistry\nStores and distributes images\nGHCR, Docker Hub or another service\n\n\n\nQuestion answered by an image: What packaged userspace and tools should travel with this task?\n\n\n\n\n\n\nWarningA tag is not an immutable identity\n\n\n\nThe label latest can point to different image content tomorrow. A digest identifies exact content. Friendly tags are useful for humans; digests are stronger evidence for an exact runtime.",
+    "title": "1  The whole shebang",
+    "section": "1.9 OCI images, Docker and containers",
+    "text": "1.9 OCI images, Docker and containers\nAn OCI image is a packaged, read-only filesystem plus metadata describing how software should run. OCI refers to open container standards. Docker is one widely used platform for building and running OCI-compatible images.\nA container is a running process created from an image. The distinction is similar to a class recipe versus one instantiated object, or a cake recipe versus one baked cake—although every analogy has limits.\nAn image can contain the Conda-resolved tools, their libraries and selected operating-system files. A registry such as GitHub Container Registry stores and distributes images.\n\n\n\n\n\n\n\n\nConcept\nMutable while building/running?\nRole\n\n\n\n\nDockerfile\nYes, it is source text\nRecipe for building an image\n\n\nImage\nNormally treated as immutable\nPackaged filesystem and metadata\n\n\nTag\nCan be moved to another image\nHuman-friendly name such as v0.1.0\n\n\nDigest\nIdentifies exact image content\nImmutable content address\n\n\nContainer\nHas a writable runtime layer\nA process running from an image\n\n\nRegistry\nStores and distributes images\nGHCR, Docker Hub or another service\n\n\n\nQuestion answered by an image: What packaged userspace and tools should travel with this task?\n\n\n\n\n\n\nWarningA tag is not an immutable identity\n\n\n\nThe label latest can point to different image content tomorrow. A digest identifies exact content. Friendly tags are useful for humans; digests are stronger evidence for an exact runtime.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#singularity-and-apptainer-on-hpc",
     "href": "chapters/01-the-whole-shebang.html#singularity-and-apptainer-on-hpc",
-    "title": "2  The whole shebang",
-    "section": "2.10 Singularity and Apptainer on HPC",
-    "text": "2.10 Singularity and Apptainer on HPC\nDocker normally relies on a long-running privileged service called a daemon. Multi-user HPC centers commonly do not allow users to run that service. They often provide Singularity or Apptainer, which can execute container images using an HPC-oriented security and filesystem model.\nSingularity can pull an OCI image and create a SIF—a Singularity Image Format file. Nextflow can then execute individual tasks inside that SIF while SLURM assigns the compute node.\nDocker and Singularity therefore are not two words for the same operation in our project:\n\nGitHub Actions uses a Docker-oriented build process to create the OCI image.\nDLDCC uses Singularity to run the resulting image as a SIF.\n\nQuestion answered by Singularity: How should this HPC task enter and run the packaged container environment?",
+    "title": "1  The whole shebang",
+    "section": "1.10 Singularity and Apptainer on HPC",
+    "text": "1.10 Singularity and Apptainer on HPC\nDocker normally relies on a long-running privileged service called a daemon. Multi-user HPC centers commonly do not allow users to run that service. They often provide Singularity or Apptainer, which can execute container images using an HPC-oriented security and filesystem model.\nSingularity can pull an OCI image and create a SIF—a Singularity Image Format file. Nextflow can then execute individual tasks inside that SIF while SLURM assigns the compute node.\nDocker and Singularity therefore are not two words for the same operation in our project:\n\nGitHub Actions uses a Docker-oriented build process to create the OCI image.\nDLDCC uses Singularity to run the resulting image as a SIF.\n\nQuestion answered by Singularity: How should this HPC task enter and run the packaged container environment?",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#nextflow-dependency-and-task-orchestration",
     "href": "chapters/01-the-whole-shebang.html#nextflow-dependency-and-task-orchestration",
-    "title": "2  The whole shebang",
-    "section": "2.11 Nextflow: dependency and task orchestration",
-    "text": "2.11 Nextflow: dependency and task orchestration\nNextflow is a workflow engine. We describe processes with input and output contracts. Channels carry values—such as sample identifiers and file paths—to processes. When all required inputs are available, Nextflow creates a task.\nNextflow can:\n\nstage task inputs into an isolated work directory;\nlaunch ready tasks without waiting unnecessarily for unrelated tasks;\nrequest CPUs, memory and time;\nrun a task with Conda or inside a container;\nsubmit tasks locally, to SLURM or to other executors;\nrecord logs, traces, timelines and reports; and\nreuse a matching successful task with -resume.\n\nNextflow does not decide whether Bowtie2 is biologically appropriate. It also does not replace Bowtie2: it coordinates the command that runs Bowtie2.\nQuestion answered by Nextflow: Which task is ready, what are its inputs and outputs, what resources/runtime does it require, and can prior work be reused?",
+    "title": "1  The whole shebang",
+    "section": "1.11 Nextflow: dependency and task orchestration",
+    "text": "1.11 Nextflow: dependency and task orchestration\nNextflow is a workflow engine. We describe processes with input and output contracts. Channels carry values—such as sample identifiers and file paths—to processes. When all required inputs are available, Nextflow creates a task.\nNextflow can:\n\nstage task inputs into an isolated work directory;\nlaunch ready tasks without waiting unnecessarily for unrelated tasks;\nrequest CPUs, memory and time;\nrun a task with Conda or inside a container;\nsubmit tasks locally, to SLURM or to other executors;\nrecord logs, traces, timelines and reports; and\nreuse a matching successful task with -resume.\n\nNextflow does not decide whether Bowtie2 is biologically appropriate. It also does not replace Bowtie2: it coordinates the command that runs Bowtie2.\nQuestion answered by Nextflow: Which task is ready, what are its inputs and outputs, what resources/runtime does it require, and can prior work be reused?",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#executors-and-slurm",
     "href": "chapters/01-the-whole-shebang.html#executors-and-slurm",
-    "title": "2  The whole shebang",
-    "section": "2.12 Executors and SLURM",
-    "text": "2.12 Executors and SLURM\nAn executor is the Nextflow component that decides how tasks are launched. With the local executor, tasks run on the current machine. With the SLURM executor, Nextflow writes job wrappers and submits them to the cluster scheduler.\nSLURM is a workload manager. It places jobs on shared compute resources according to requested CPUs, memory, time, partition, account and site policy. It tracks queued, running, completed and failed jobs.\nSLURM does not understand that trimming must precede alignment. Nextflow knows the data dependency and submits the alignment task only when its inputs exist. Nextflow does not decide which physical node is free. SLURM does.\nQuestion answered by the executor and scheduler: How, where and when should this ready task run?",
+    "title": "1  The whole shebang",
+    "section": "1.12 Executors and SLURM",
+    "text": "1.12 Executors and SLURM\nAn executor is the Nextflow component that decides how tasks are launched. With the local executor, tasks run on the current machine. With the SLURM executor, Nextflow writes job wrappers and submits them to the cluster scheduler.\nSLURM is a workload manager. It places jobs on shared compute resources according to requested CPUs, memory, time, partition, account and site policy. It tracks queued, running, completed and failed jobs.\nSLURM does not understand that trimming must precede alignment. Nextflow knows the data dependency and submits the alignment task only when its inputs exist. Nextflow does not decide which physical node is free. SLURM does.\nQuestion answered by the executor and scheduler: How, where and when should this ready task run?",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#git-and-github-traceable-change-and-collaboration",
     "href": "chapters/01-the-whole-shebang.html#git-and-github-traceable-change-and-collaboration",
-    "title": "2  The whole shebang",
-    "section": "2.13 Git and GitHub: traceable change and collaboration",
-    "text": "2.13 Git and GitHub: traceable change and collaboration\nGit records snapshots of selected files and the relationships between those snapshots. It lets a team inspect what changed, why it changed and which exact revision was used. Branches allow work to be reviewed before it becomes part of the main history. Tags can name releases.\nGitHub hosts Git repositories and adds collaboration services such as issues, pull requests, reviews, releases and automation.\nGit should track source and small evidence artifacts:\n\nNextflow and Bash source;\nenvironment specifications;\nDockerfiles;\nconfiguration without secrets;\ntests and documentation; and\nsmall reports needed to support claims.\n\nGit is generally a poor home for large FASTQ, BAM, index, cache and container files. Sensitive data must never be placed in a public repository.\nQuestion answered by Git: Which source revision and documented decisions produced this project state?",
+    "title": "1  The whole shebang",
+    "section": "1.13 Git and GitHub: traceable change and collaboration",
+    "text": "1.13 Git and GitHub: traceable change and collaboration\nGit records snapshots of selected files and the relationships between those snapshots. It lets a team inspect what changed, why it changed and which exact revision was used. Branches allow work to be reviewed before it becomes part of the main history. Tags can name releases.\nGitHub hosts Git repositories and adds collaboration services such as issues, pull requests, reviews, releases and automation.\nGit should track source and small evidence artifacts:\n\nNextflow and Bash source;\nenvironment specifications;\nDockerfiles;\nconfiguration without secrets;\ntests and documentation; and\nsmall reports needed to support claims.\n\nGit is generally a poor home for large FASTQ, BAM, index, cache and container files. Sensitive data must never be placed in a public repository.\nQuestion answered by Git: Which source revision and documented decisions produced this project state?",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#cicd-automated-feedback-and-delivery",
     "href": "chapters/01-the-whole-shebang.html#cicd-automated-feedback-and-delivery",
-    "title": "2  The whole shebang",
-    "section": "2.14 CI/CD: automated feedback and delivery",
-    "text": "2.14 CI/CD: automated feedback and delivery\nContinuous integration (CI) means automatically integrating and checking small changes frequently. A CI workflow may lint files, render documentation, run a small test and verify that a container contains required tools.\nContinuous delivery means keeping a tested artifact ready to release or publishing it through a controlled process. Continuous deployment goes further: a passing change is automatically deployed to its target environment.\nIn our work:\n\nGitHub Actions building and smoke-checking an image is CI plus artifact delivery.\nGitHub Actions publishing this Quarto book to GitHub Pages is automated deployment of documentation.\nRunning a research pipeline on new samples is not automatically “CI/CD.” It is a workflow execution and may require separate authorization, review and data controls.\n\nAutomation supplies evidence; it does not create scientific truth. A green check means the configured checks passed—not that every biological or clinical requirement has been validated.\nQuestion answered by CI/CD: Which checks and publication actions should happen automatically when source changes or a release is created?",
+    "title": "1  The whole shebang",
+    "section": "1.14 CI/CD: automated feedback and delivery",
+    "text": "1.14 CI/CD: automated feedback and delivery\nContinuous integration (CI) means automatically integrating and checking small changes frequently. A CI workflow may lint files, render documentation, run a small test and verify that a container contains required tools.\nContinuous delivery means keeping a tested artifact ready to release or publishing it through a controlled process. Continuous deployment goes further: a passing change is automatically deployed to its target environment.\nIn our work:\n\nGitHub Actions building and smoke-checking an image is CI plus artifact delivery.\nGitHub Actions publishing this Quarto book to GitHub Pages is automated deployment of documentation.\nRunning a research pipeline on new samples is not automatically “CI/CD.” It is a workflow execution and may require separate authorization, review and data controls.\n\nAutomation supplies evidence; it does not create scientific truth. A green check means the configured checks passed—not that every biological or clinical requirement has been validated.\nQuestion answered by CI/CD: Which checks and publication actions should happen automatically when source changes or a release is created?",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#trace-one-sample-through-the-stack",
     "href": "chapters/01-the-whole-shebang.html#trace-one-sample-through-the-stack",
-    "title": "2  The whole shebang",
-    "section": "2.15 Trace one sample through the stack",
-    "text": "2.15 Trace one sample through the stack\nConsider the sample identifier sim_chr22.\n\nTwo FASTQ files and sample metadata describe the input.\nGit identifies the exact workflow, configuration, environment and container recipe revision.\nNextflow creates the raw-QC and trimming tasks because both can consume the original read pair.\nThe selected profile tells Nextflow to use the local or SLURM executor and a Conda environment or Singularity image.\nOn DLDCC, Nextflow submits a job wrapper to SLURM.\nSLURM assigns a compute node with the requested resources.\nSingularity starts the task inside the project SIF and makes required host paths visible through bind mounts.\nFastQC or Trim Galore runs with the inputs staged by Nextflow.\nThe task writes output and logs in its isolated work directory.\nNextflow records task status, publishes selected results and enables cache reuse.\nTechnical checks confirm that files exist, are readable and have expected summaries.\nA qualified analyst still decides whether the results are biologically meaningful for the intended use.\n\nNo single technology performs all twelve responsibilities.",
+    "title": "1  The whole shebang",
+    "section": "1.15 Trace one sample through the stack",
+    "text": "1.15 Trace one sample through the stack\nConsider the sample identifier sim_chr22.\n\nTwo FASTQ files and sample metadata describe the input.\nGit identifies the exact workflow, configuration, environment and container recipe revision.\nNextflow creates the raw-QC and trimming tasks because both can consume the original read pair.\nThe selected profile tells Nextflow to use the local or SLURM executor and a Conda environment or Singularity image.\nOn DLDCC, Nextflow submits a job wrapper to SLURM.\nSLURM assigns a compute node with the requested resources.\nSingularity starts the task inside the project SIF and makes required host paths visible through bind mounts.\nFastQC or Trim Galore runs with the inputs staged by Nextflow.\nThe task writes output and logs in its isolated work directory.\nNextflow records task status, publishes selected results and enables cache reuse.\nTechnical checks confirm that files exist, are readable and have expected summaries.\nA qualified analyst still decides whether the results are biologically meaningful for the intended use.\n\nNo single technology performs all twelve responsibilities.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#three-kinds-of-reproducibility",
     "href": "chapters/01-the-whole-shebang.html#three-kinds-of-reproducibility",
-    "title": "2  The whole shebang",
-    "section": "2.16 Three kinds of reproducibility",
-    "text": "2.16 Three kinds of reproducibility\nThe word reproducible is often used too broadly. In this book we separate:\n\nComputational repeatability: rerunning the same inputs, code, parameters and runtime produces acceptably equivalent outputs.\nComputational reproducibility: another person can reconstruct the analysis from recorded source, software, data provenance and instructions.\nScientific reproducibility: independent evidence supports the same scientific conclusion.\n\nThis project primarily demonstrates the first two on a small synthetic test fixture. It does not demonstrate clinical validation or independent scientific replication.\n\n\n\n\n\n\nImportantEngineering evidence has a scope\n\n\n\nA successful Nextflow run proves that configured tasks completed. A valid BAM proves that the file passes selected structural checks. A container digest identifies image content. None of these facts alone proves that a method is appropriate for diagnosis, that a biological conclusion is correct or that the workflow is production-ready.",
+    "title": "1  The whole shebang",
+    "section": "1.16 Three kinds of reproducibility",
+    "text": "1.16 Three kinds of reproducibility\nThe word reproducible is often used too broadly. In this book we separate:\n\nComputational repeatability: rerunning the same inputs, code, parameters and runtime produces acceptably equivalent outputs.\nComputational reproducibility: another person can reconstruct the analysis from recorded source, software, data provenance and instructions.\nScientific reproducibility: independent evidence supports the same scientific conclusion.\n\nThis project primarily demonstrates the first two on a small synthetic test fixture. It does not demonstrate clinical validation or independent scientific replication.\n\n\n\n\n\n\nImportantEngineering evidence has a scope\n\n\n\nA successful Nextflow run proves that configured tasks completed. A valid BAM proves that the file passes selected structural checks. A container digest identifies image content. None of these facts alone proves that a method is appropriate for diagnosis, that a biological conclusion is correct or that the workflow is production-ready.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#common-misconceptions",
     "href": "chapters/01-the-whole-shebang.html#common-misconceptions",
-    "title": "2  The whole shebang",
-    "section": "2.17 Common misconceptions",
-    "text": "2.17 Common misconceptions\n\n2.17.1 “Conda and Docker do the same thing”\nBoth help control software, but at different boundaries. Conda manages packages inside an environment. An OCI image packages a broader userspace and metadata. We will use Conda to resolve tools and then package that environment in an image.\n\n\n2.17.2 “Nextflow runs the cluster”\nNextflow models and submits work. SLURM manages shared cluster resources. The Nextflow SLURM executor connects the two.\n\n\n2.17.3 “The container includes my input data”\nOur image contains software, not the large analysis inputs. At runtime, files are normally mounted or staged into the container.\n\n\n2.17.4 “If CI is green, the pipeline is validated”\nCI reports only the checks we encoded. Validation requires defined intended use, requirements, acceptance criteria, evidence and—where applicable—formal quality or regulatory processes.\n\n\n2.17.5 “GitHub is Git”\nGit is the version-control system. GitHub is a hosting and collaboration platform built around Git repositories. Git works without GitHub.",
+    "title": "1  The whole shebang",
+    "section": "1.17 Common misconceptions",
+    "text": "1.17 Common misconceptions\n\n1.17.1 “Conda and Docker do the same thing”\nBoth help control software, but at different boundaries. Conda manages packages inside an environment. An OCI image packages a broader userspace and metadata. We will use Conda to resolve tools and then package that environment in an image.\n\n\n1.17.2 “Nextflow runs the cluster”\nNextflow models and submits work. SLURM manages shared cluster resources. The Nextflow SLURM executor connects the two.\n\n\n1.17.3 “The container includes my input data”\nOur image contains software, not the large analysis inputs. At runtime, files are normally mounted or staged into the container.\n\n\n1.17.4 “If CI is green, the pipeline is validated”\nCI reports only the checks we encoded. Validation requires defined intended use, requirements, acceptance criteria, evidence and—where applicable—formal quality or regulatory processes.\n\n\n1.17.5 “GitHub is Git”\nGit is the version-control system. GitHub is a hosting and collaboration platform built around Git repositories. Git works without GitHub.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#chapter-artifact-your-architecture-map",
     "href": "chapters/01-the-whole-shebang.html#chapter-artifact-your-architecture-map",
-    "title": "2  The whole shebang",
-    "section": "2.18 Chapter artifact: your architecture map",
-    "text": "2.18 Chapter artifact: your architecture map\nWithout looking back, complete the final column.\n\n\n\nLayer\nPrimary responsibility\nYour one-sentence explanation\n\n\n\n\nBioinformatics tool\nPerform one analytical operation\n\n\n\nModule system\nExpose administrator-provided cluster software\n\n\n\nConda\nResolve and install package environments\n\n\n\nOCI image\nPackage software and userspace\n\n\n\nSingularity\nExecute the packaged environment on HPC\n\n\n\nNextflow\nCoordinate tasks and data dependencies\n\n\n\nSLURM\nSchedule jobs and allocate cluster resources\n\n\n\nGit/GitHub\nRecord, share and review source changes\n\n\n\nCI/CD\nAutomatically check and deliver defined artifacts\n\n\n\n\nSave this table in your learning notes. At the end of the book, revise each sentence using the evidence you created.",
+    "title": "1  The whole shebang",
+    "section": "1.18 Chapter artifact: your architecture map",
+    "text": "1.18 Chapter artifact: your architecture map\nWithout looking back, complete the final column.\n\n\n\nLayer\nPrimary responsibility\nYour one-sentence explanation\n\n\n\n\nBioinformatics tool\nPerform one analytical operation\n\n\n\nModule system\nExpose administrator-provided cluster software\n\n\n\nConda\nResolve and install package environments\n\n\n\nOCI image\nPackage software and userspace\n\n\n\nSingularity\nExecute the packaged environment on HPC\n\n\n\nNextflow\nCoordinate tasks and data dependencies\n\n\n\nSLURM\nSchedule jobs and allocate cluster resources\n\n\n\nGit/GitHub\nRecord, share and review source changes\n\n\n\nCI/CD\nAutomatically check and deliver defined artifacts\n\n\n\n\nSave this table in your learning notes. At the end of the book, revise each sentence using the evidence you created.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#verification-checkpoint",
     "href": "chapters/01-the-whole-shebang.html#verification-checkpoint",
-    "title": "2  The whole shebang",
-    "section": "2.19 Verification checkpoint",
-    "text": "2.19 Verification checkpoint\nMatch each scenario to its primary layer. Some scenarios involve several layers; choose the one that owns the stated decision.\n\nSAMtools 1.19.2 and its libraries must be installed together.\nTrimming must finish before alignment begins.\nFive ready tasks are waiting for available compute nodes.\nAn HPC task must enter the project SIF before running FastQC.\nA reviewer wants to inspect the exact source change that introduced a new parameter.\nA pushed pull request should automatically render the documentation and run a smoke test.\nA collaborator wants the exact image content rather than whatever latest means today.\nAn analyst must decide whether Bowtie2 is appropriate for bisulfite-treated reads.\n\n\n\n\n\n\n\nTipShow the answers\n\n\n\n\n\n\nConda/package environment.\nNextflow workflow dependency.\nSLURM scheduler.\nSingularity/Apptainer runtime.\nGit history and GitHub review.\nCI automation.\nOCI image digest.\nBiological/methodological judgment—not the workflow engine.\n\n\n\n\nYou are ready to continue when you can explain why each answer is different, not merely recite the product names.",
+    "title": "1  The whole shebang",
+    "section": "1.19 Verification checkpoint",
+    "text": "1.19 Verification checkpoint\nMatch each scenario to its primary layer. Some scenarios involve several layers; choose the one that owns the stated decision.\n\nSAMtools 1.19.2 and its libraries must be installed together.\nTrimming must finish before alignment begins.\nFive ready tasks are waiting for available compute nodes.\nAn HPC task must enter the project SIF before running FastQC.\nA reviewer wants to inspect the exact source change that introduced a new parameter.\nA pushed pull request should automatically render the documentation and run a smoke test.\nA collaborator wants the exact image content rather than whatever latest means today.\nAn analyst must decide whether Bowtie2 is appropriate for bisulfite-treated reads.\n\n\n\n\n\n\n\nTipShow the answers\n\n\n\n\n\n\nConda/package environment.\nNextflow workflow dependency.\nSLURM scheduler.\nSingularity/Apptainer runtime.\nGit history and GitHub review.\nCI automation.\nOCI image digest.\nBiological/methodological judgment—not the workflow engine.\n\n\n\n\nYou are ready to continue when you can explain why each answer is different, not merely recite the product names.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#try-it-yourself",
     "href": "chapters/01-the-whole-shebang.html#try-it-yourself",
-    "title": "2  The whole shebang",
-    "section": "2.20 Try it yourself",
-    "text": "2.20 Try it yourself\nDraw the stack for one analysis you already know. It can be an R script, a microscopy workflow or a sequencing analysis. Identify:\n\ninput data;\nanalytical tools;\nsoftware environment;\nordering/dependencies;\nexecution location;\noutputs and logs;\nversion-control evidence; and\nacceptance criteria.\n\nIf a layer is absent, write “not yet controlled” rather than inventing it. That gap is useful information.",
+    "title": "1  The whole shebang",
+    "section": "1.20 Try it yourself",
+    "text": "1.20 Try it yourself\nDraw the stack for one analysis you already know. It can be an R script, a microscopy workflow or a sequencing analysis. Identify:\n\ninput data;\nanalytical tools;\nsoftware environment;\nordering/dependencies;\nexecution location;\noutputs and logs;\nversion-control evidence; and\nacceptance criteria.\n\nIf a layer is absent, write “not yet controlled” rather than inventing it. That gap is useful information.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#what-to-remember",
     "href": "chapters/01-the-whole-shebang.html#what-to-remember",
-    "title": "2  The whole shebang",
-    "section": "2.21 What to remember",
-    "text": "2.21 What to remember\n\nBiological validity and engineering reproducibility support one another but are not the same claim.\nA tool performs an operation; a workflow engine coordinates operations and their dependencies.\nModules, Conda, containers, Nextflow and SLURM solve different problems and can be used together.\nDocker/OCI builds and distributes the image; Singularity/Apptainer executes that packaged environment on our HPC system.\nGit records source history; GitHub supports collaboration; CI/CD automates explicitly defined checks and delivery.\nEvery green check, checksum and report has a limited meaning. Good engineers state that meaning accurately.",
+    "title": "1  The whole shebang",
+    "section": "1.21 What to remember",
+    "text": "1.21 What to remember\n\nBiological validity and engineering reproducibility support one another but are not the same claim.\nA tool performs an operation; a workflow engine coordinates operations and their dependencies.\nModules, Conda, containers, Nextflow and SLURM solve different problems and can be used together.\nDocker/OCI builds and distributes the image; Singularity/Apptainer executes that packaged environment on our HPC system.\nGit records source history; GitHub supports collaboration; CI/CD automates explicitly defined checks and delivery.\nEvery green check, checksum and report has a limited meaning. Good engineers state that meaning accurately.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/01-the-whole-shebang.html#next-chapter",
     "href": "chapters/01-the-whole-shebang.html#next-chapter",
-    "title": "2  The whole shebang",
-    "section": "2.22 Next chapter",
-    "text": "2.22 Next chapter\nChapter 2 turns this architecture map into a verified workstation inventory. You will check what is installed, distinguish required local tools from cluster-provided tools and record the starting state before modifying it.",
+    "title": "1  The whole shebang",
+    "section": "1.22 Next chapter",
+    "text": "1.22 Next chapter\nChapter 2 turns this architecture map into a verified workstation inventory. You will check what is installed, distinguish required local tools from cluster-provided tools and record the starting state before modifying it.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The whole shebang</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>The whole shebang</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html",
     "href": "chapters/02-terminal-files-paths.html",
-    "title": "3  The terminal, files, paths and commands",
+    "title": "2  The terminal, files, paths and commands",
     "section": "",
-    "text": "3.1 Why a biologist should care\nGraphical applications hide many implementation details. That is convenient for interactive work, but it makes a procedure difficult to record exactly. The command line turns an action into text that can be reviewed, saved in a script, placed under version control and executed by a workflow engine.\nFor example, “I clicked the alignment button” omits the program version, reference, input files and parameters. A command can make those choices explicit:\nYou do not need to understand this Bowtie2 command yet. Notice only that it is text. Later, the same text can be tested manually, saved in Bash and placed inside a Nextflow process.\nThe terminal is powerful because it exposes exact actions. It is risky for the same reason: the shell will attempt exactly what you request, including a badly targeted deletion. Safe command-line work begins with orientation and verification, not speed.",
+    "text": "2.1 Why a biologist should care\nGraphical applications hide many implementation details. That is convenient for interactive work, but it makes a procedure difficult to record exactly. The command line turns an action into text that can be reviewed, saved in a script, placed under version control and executed by a workflow engine.\nFor example, “I clicked the alignment button” omits the program version, reference, input files and parameters. A command can make those choices explicit:\nYou do not need to understand this Bowtie2 command yet. Notice only that it is text. Later, the same text can be tested manually, saved in Bash and placed inside a Nextflow process.\nThe terminal is powerful because it exposes exact actions. It is risky for the same reason: the shell will attempt exactly what you request, including a badly targeted deletion. Safe command-line work begins with orientation and verification, not speed.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#why-a-biologist-should-care",
     "href": "chapters/02-terminal-files-paths.html#why-a-biologist-should-care",
-    "title": "3  The terminal, files, paths and commands",
+    "title": "2  The terminal, files, paths and commands",
     "section": "",
     "text": "bowtie2 -x ref/index/chr22 -1 reads_R1.fastq -2 reads_R2.fastq",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#engineering-objective",
     "href": "chapters/02-terminal-files-paths.html#engineering-objective",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.2 Engineering objective",
-    "text": "3.2 Engineering objective\nThis chapter builds a disposable practice workspace and a small evidence file. Nothing touches the bioinformatics pipeline yet. The goals are to:\n\nknow where you are;\nknow what a command will target;\ninspect the result;\npreserve error information; and\nleave a reproducible record.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.2 Engineering objective",
+    "text": "2.2 Engineering objective\nThis chapter builds a disposable practice workspace and a small evidence file. Nothing touches the bioinformatics pipeline yet. The goals are to:\n\nknow where you are;\nknow what a command will target;\ninspect the result;\npreserve error information; and\nleave a reproducible record.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#terminal-shell-and-prompt",
     "href": "chapters/02-terminal-files-paths.html#terminal-shell-and-prompt",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.3 Terminal, shell and prompt",
-    "text": "3.3 Terminal, shell and prompt\nA terminal is the application window that displays text and sends your keystrokes. Terminal.app, iTerm2, a VS Code terminal and an SSH terminal are examples.\nA shell is the program that reads and interprets commands. Common shells include Bash and Zsh. macOS commonly starts Zsh; many Linux and HPC systems use Bash.\nA prompt is the text the shell displays when it is ready. It may contain a username, computer name, directory or active Conda environment.\n(base) [alex@compute-1 project]$\nDo not copy the prompt into a command. In this book:\npwd\nmeans type only pwd, then press Return or Enter. The fenced block is not part of the command either.\n\n\n\n\n\n\nWarningDo not copy prompt characters\n\n\n\nDocumentation sometimes shows commands beginning with $. That symbol usually represents the prompt, not text to type. Our copyable command blocks omit it. Expected output is displayed in separate text blocks.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.3 Terminal, shell and prompt",
+    "text": "2.3 Terminal, shell and prompt\nA terminal is the application window that displays text and sends your keystrokes. Terminal.app, iTerm2, a VS Code terminal and an SSH terminal are examples.\nA shell is the program that reads and interprets commands. Common shells include Bash and Zsh. macOS commonly starts Zsh; many Linux and HPC systems use Bash.\nA prompt is the text the shell displays when it is ready. It may contain a username, computer name, directory or active Conda environment.\n(base) [alex@compute-1 project]$\nDo not copy the prompt into a command. In this book:\npwd\nmeans type only pwd, then press Return or Enter. The fenced block is not part of the command either.\n\n\n\n\n\n\nWarningDo not copy prompt characters\n\n\n\nDocumentation sometimes shows commands beginning with $. That symbol usually represents the prompt, not text to type. Our copyable command blocks omit it. Expected output is displayed in separate text blocks.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#command-arguments-and-options",
     "href": "chapters/02-terminal-files-paths.html#command-arguments-and-options",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.4 Command, arguments and options",
-    "text": "3.4 Command, arguments and options\nConsider:\nwc -l notes.txt\nThe pieces are:\n\n\n\nPiece\nRole\n\n\n\n\nwc\ncommand/program name\n\n\n-l\noption requesting a line count\n\n\nnotes.txt\nargument naming the input file\n\n\n\nOptions often begin with one hyphen for a short form or two hyphens for a long form. This is a convention, not an absolute law. Each program defines its own interface. -h may mean help in one tool and something else in another.\nNever guess a destructive option. Read the program’s help or official documentation.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.4 Command, arguments and options",
+    "text": "2.4 Command, arguments and options\nConsider:\nwc -l notes.txt\nThe pieces are:\n\n\n\nPiece\nRole\n\n\n\n\nwc\ncommand/program name\n\n\n-l\noption requesting a line count\n\n\nnotes.txt\nargument naming the input file\n\n\n\nOptions often begin with one hyphen for a short form or two hyphens for a long form. This is a convention, not an absolute law. Each program defines its own interface. -h may mean help in one tool and something else in another.\nNever guess a destructive option. Read the program’s help or official documentation.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#before-you-type-identify-your-shell-and-location",
     "href": "chapters/02-terminal-files-paths.html#before-you-type-identify-your-shell-and-location",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.5 Before you type: identify your shell and location",
-    "text": "3.5 Before you type: identify your shell and location\nRun:\nprintf 'shell=%s\\n' \"$SHELL\"\npwd\nThe first command prints your configured login shell. pwd means print working directory.\nExample output on macOS:\nshell=/bin/zsh\n/Users/alex\nExample output on Linux or an HPC system:\nshell=/bin/bash\n/home/alex\nYour output will differ. A different username or home path is not a failure.\n\n3.5.1 Read the first command\nprintf 'shell=%s\\n' \"$SHELL\"\n│      │             └─ expand the SHELL environment variable safely\n│      └─ format: text, a string placeholder, then a newline\n└─ print formatted text\nDouble quotes preserve the expanded value as one argument. We will return to quoting later.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.5 Before you type: identify your shell and location",
+    "text": "2.5 Before you type: identify your shell and location\nRun:\nprintf 'shell=%s\\n' \"$SHELL\"\npwd\nThe first command prints your configured login shell. pwd means print working directory.\nExample output on macOS:\nshell=/bin/zsh\n/Users/alex\nExample output on Linux or an HPC system:\nshell=/bin/bash\n/home/alex\nYour output will differ. A different username or home path is not a failure.\n\n2.5.1 Read the first command\nprintf 'shell=%s\\n' \"$SHELL\"\n│      │             └─ expand the SHELL environment variable safely\n│      └─ format: text, a string placeholder, then a newline\n└─ print formatted text\nDouble quotes preserve the expanded value as one argument. We will return to quoting later.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#paths-addresses-in-the-filesystem",
     "href": "chapters/02-terminal-files-paths.html#paths-addresses-in-the-filesystem",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.6 Paths: addresses in the filesystem",
-    "text": "3.6 Paths: addresses in the filesystem\nA path identifies a filesystem location.\nAn absolute path begins at the filesystem root:\n/Users/alex/project/data/reads.fastq\n/home/alex/project/data/reads.fastq\nA relative path begins from the current working directory:\ndata/reads.fastq\n../reference/chr22.fa\nSpecial path components:\n\n\n\nSymbol\nMeaning\n\n\n\n\n/\nfilesystem root and path separator on Unix-like systems\n\n\n.\ncurrent directory\n\n\n..\nparent directory\n\n\n~\nyour home directory when expanded by the shell\n\n\n$HOME\nenvironment variable containing your home path\n\n\n\n~ is convenient interactively. In scripts, a quoted \"$HOME\" is often more explicit. Do not replace HOME with a project directory; many programs depend on its real meaning.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.6 Paths: addresses in the filesystem",
+    "text": "2.6 Paths: addresses in the filesystem\nA path identifies a filesystem location.\nAn absolute path begins at the filesystem root:\n/Users/alex/project/data/reads.fastq\n/home/alex/project/data/reads.fastq\nA relative path begins from the current working directory:\ndata/reads.fastq\n../reference/chr22.fa\nSpecial path components:\n\n\n\nSymbol\nMeaning\n\n\n\n\n/\nfilesystem root and path separator on Unix-like systems\n\n\n.\ncurrent directory\n\n\n..\nparent directory\n\n\n~\nyour home directory when expanded by the shell\n\n\n$HOME\nenvironment variable containing your home path\n\n\n\n~ is convenient interactively. In scripts, a quoted \"$HOME\" is often more explicit. Do not replace HOME with a project directory; many programs depend on its real meaning.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#build-a-safe-practice-workspace",
     "href": "chapters/02-terminal-files-paths.html#build-a-safe-practice-workspace",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.7 Build a safe practice workspace",
-    "text": "3.7 Build a safe practice workspace\nFirst, inspect the intended parent:\nprintf 'home=%s\\n' \"$HOME\"\nls -ld \"$HOME\"\nThen create a new, narrowly named directory:\nmkdir -p \"$HOME/nextflow-for-biologists-practice/chapter-02\"\ncd \"$HOME/nextflow-for-biologists-practice/chapter-02\"\npwd\nmkdir creates a directory. -p also creates missing parent directories and does not fail if the directory already exists. cd changes the shell’s current directory.\nExpected final line, with your home path:\n/Users/alex/nextflow-for-biologists-practice/chapter-02\nor:\n/home/alex/nextflow-for-biologists-practice/chapter-02\n\n\n\n\n\n\nImportantThe working-directory rule\n\n\n\nBefore a command creates, moves or changes files, run pwd and inspect the target path. Most “the command ran but I cannot find the file” problems begin with an incorrect working directory.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.7 Build a safe practice workspace",
+    "text": "2.7 Build a safe practice workspace\nFirst, inspect the intended parent:\nprintf 'home=%s\\n' \"$HOME\"\nls -ld \"$HOME\"\nThen create a new, narrowly named directory:\nmkdir -p \"$HOME/nextflow-for-biologists-practice/chapter-02\"\ncd \"$HOME/nextflow-for-biologists-practice/chapter-02\"\npwd\nmkdir creates a directory. -p also creates missing parent directories and does not fail if the directory already exists. cd changes the shell’s current directory.\nExpected final line, with your home path:\n/Users/alex/nextflow-for-biologists-practice/chapter-02\nor:\n/home/alex/nextflow-for-biologists-practice/chapter-02\n\n\n\n\n\n\nImportantThe working-directory rule\n\n\n\nBefore a command creates, moves or changes files, run pwd and inspect the target path. Most “the command ran but I cannot find the file” problems begin with an incorrect working directory.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#list-files-including-hidden-files",
     "href": "chapters/02-terminal-files-paths.html#list-files-including-hidden-files",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.8 List files, including hidden files",
-    "text": "3.8 List files, including hidden files\nRun:\nls\nls -la\nls lists directory entries. -l requests a long format. -a includes names beginning with ., which are hidden from a normal listing.\nAn empty practice directory still contains two special directory entries in the -a view:\n.\n..\nThey mean current directory and parent directory; they are not ordinary files to remove.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.8 List files, including hidden files",
+    "text": "2.8 List files, including hidden files\nRun:\nls\nls -la\nls lists directory entries. -l requests a long format. -a includes names beginning with ., which are hidden from a normal listing.\nAn empty practice directory still contains two special directory entries in the -a view:\n.\n..\nThey mean current directory and parent directory; they are not ordinary files to remove.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#create-predictable-text-files",
     "href": "chapters/02-terminal-files-paths.html#create-predictable-text-files",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.9 Create predictable text files",
-    "text": "3.9 Create predictable text files\nUse printf rather than an interactive editor so the starting content is exact:\nprintf 'sample\\tcondition\\nS01\\tcontrol\\nS02\\ttreated\\n' &gt; samples.tsv\nprintf 'quality-control notes\\n' &gt; notes.txt\nThe &gt; operator redirects standard output into a file. It creates the file if needed and replaces its contents if it already exists.\nInspect before and after using redirection. Do not casually redirect into a valuable file.\nList the result:\nls -lh\n-h asks ls to show human-readable sizes when used with -l.\nExpected names:\nnotes.txt\nsamples.tsv",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.9 Create predictable text files",
+    "text": "2.9 Create predictable text files\nUse printf rather than an interactive editor so the starting content is exact:\nprintf 'sample\\tcondition\\nS01\\tcontrol\\nS02\\ttreated\\n' &gt; samples.tsv\nprintf 'quality-control notes\\n' &gt; notes.txt\nThe &gt; operator redirects standard output into a file. It creates the file if needed and replaces its contents if it already exists.\nInspect before and after using redirection. Do not casually redirect into a valuable file.\nList the result:\nls -lh\n-h asks ls to show human-readable sizes when used with -l.\nExpected names:\nnotes.txt\nsamples.tsv",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#inspect-content-without-editing-it",
     "href": "chapters/02-terminal-files-paths.html#inspect-content-without-editing-it",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.10 Inspect content without editing it",
-    "text": "3.10 Inspect content without editing it\nRun:\ncat notes.txt\nhead -n 3 samples.tsv\ntail -n 1 samples.tsv\nwc -l samples.tsv\nWhat they do:\n\ncat writes complete file content to standard output. Use it only for small text files.\nhead -n 3 writes the first three lines.\ntail -n 1 writes the final line.\nwc -l counts newline characters, which normally corresponds to line count for a well-formed text file.\n\nExpected output includes:\nquality-control notes\nsample  condition\nS01 control\nS02 treated\nS02 treated\n3 samples.tsv\nFor a large log or report, use less filename to page through content without loading everything into an editor. Press q to leave less.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.10 Inspect content without editing it",
+    "text": "2.10 Inspect content without editing it\nRun:\ncat notes.txt\nhead -n 3 samples.tsv\ntail -n 1 samples.tsv\nwc -l samples.tsv\nWhat they do:\n\ncat writes complete file content to standard output. Use it only for small text files.\nhead -n 3 writes the first three lines.\ntail -n 1 writes the final line.\nwc -l counts newline characters, which normally corresponds to line count for a well-formed text file.\n\nExpected output includes:\nquality-control notes\nsample  condition\nS01 control\nS02 treated\nS02 treated\n3 samples.tsv\nFor a large log or report, use less filename to page through content without loading everything into an editor. Press q to leave less.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#file-extensions-are-names-not-guarantees",
     "href": "chapters/02-terminal-files-paths.html#file-extensions-are-names-not-guarantees",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.11 File extensions are names, not guarantees",
-    "text": "3.11 File extensions are names, not guarantees\nsamples.tsv suggests tab-separated values, but the extension does not enforce the format. The content and the consuming program determine whether the file is valid.\nLikewise, renaming notes.txt to notes.fastq would not turn it into FASTQ. This is why later chapters use structural checks rather than trusting names.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.11 File extensions are names, not guarantees",
+    "text": "2.11 File extensions are names, not guarantees\nsamples.tsv suggests tab-separated values, but the extension does not enforce the format. The content and the consuming program determine whether the file is valid.\nLikewise, renaming notes.txt to notes.fastq would not turn it into FASTQ. This is why later chapters use structural checks rather than trusting names.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#copy-and-move-safely",
     "href": "chapters/02-terminal-files-paths.html#copy-and-move-safely",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.12 Copy and move safely",
-    "text": "3.12 Copy and move safely\nCreate two subdirectories:\nmkdir -p input archive\nCopy the sample sheet:\ncp samples.tsv input/samples.tsv\nMove the notes:\nmv notes.txt archive/notes.txt\nVerify:\nfind . -maxdepth 2 -type f -print\nExpected paths:\n./archive/notes.txt\n./input/samples.tsv\n./samples.tsv\ncp creates another file. mv changes a name or location; on the same filesystem it does not make a second independent copy.\nWe supplied explicit destination filenames. That makes the intended result clearer than relying on implicit directory behavior.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.12 Copy and move safely",
+    "text": "2.12 Copy and move safely\nCreate two subdirectories:\nmkdir -p input archive\nCopy the sample sheet:\ncp samples.tsv input/samples.tsv\nMove the notes:\nmv notes.txt archive/notes.txt\nVerify:\nfind . -maxdepth 2 -type f -print\nExpected paths:\n./archive/notes.txt\n./input/samples.tsv\n./samples.tsv\ncp creates another file. mv changes a name or location; on the same filesystem it does not make a second independent copy.\nWe supplied explicit destination filenames. That makes the intended result clearer than relying on implicit directory behavior.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#standard-input-output-and-error",
     "href": "chapters/02-terminal-files-paths.html#standard-input-output-and-error",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.13 Standard input, output and error",
-    "text": "3.13 Standard input, output and error\nA command-line process normally has three standard streams:\n\n\n\n\n\n\n\n\nStream\nNumber\nDefault destination/purpose\n\n\n\n\nstandard input\n0\ndata entering the process, often the keyboard\n\n\nstandard output\n1\nexpected program output, normally the terminal\n\n\nstandard error\n2\ndiagnostics and errors, normally the terminal\n\n\n\nSeparating output from diagnostics lets us save a clean result while retaining an error log.\nRun a successful listing and redirect standard output:\nls input &gt; input-files.txt\nNow deliberately request a missing directory and redirect standard error:\nls missing-directory 2&gt; expected-error.txt\nThe second command should print nothing to the terminal because its error was redirected. Inspect it:\ncat expected-error.txt\nThe exact wording varies, but it should say that missing-directory does not exist.\nUseful forms:\n\n\n\n\n\n\n\nSyntax\nEffect\n\n\n\n\n&gt; file\nreplace file with standard output\n\n\n&gt;&gt; file\nappend standard output to file\n\n\n2&gt; file\nreplace file with standard error\n\n\n2&gt;&1\nsend standard error to the current standard-output destination\n\n\n\nRedirection is handled by the shell before the program starts. The program may not know that its output is going to a file.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.13 Standard input, output and error",
+    "text": "2.13 Standard input, output and error\nA command-line process normally has three standard streams:\n\n\n\n\n\n\n\n\nStream\nNumber\nDefault destination/purpose\n\n\n\n\nstandard input\n0\ndata entering the process, often the keyboard\n\n\nstandard output\n1\nexpected program output, normally the terminal\n\n\nstandard error\n2\ndiagnostics and errors, normally the terminal\n\n\n\nSeparating output from diagnostics lets us save a clean result while retaining an error log.\nRun a successful listing and redirect standard output:\nls input &gt; input-files.txt\nNow deliberately request a missing directory and redirect standard error:\nls missing-directory 2&gt; expected-error.txt\nThe second command should print nothing to the terminal because its error was redirected. Inspect it:\ncat expected-error.txt\nThe exact wording varies, but it should say that missing-directory does not exist.\nUseful forms:\n\n\n\n\n\n\n\nSyntax\nEffect\n\n\n\n\n&gt; file\nreplace file with standard output\n\n\n&gt;&gt; file\nappend standard output to file\n\n\n2&gt; file\nreplace file with standard error\n\n\n2&gt;&1\nsend standard error to the current standard-output destination\n\n\n\nRedirection is handled by the shell before the program starts. The program may not know that its output is going to a file.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#exit-status-success-is-a-number",
     "href": "chapters/02-terminal-files-paths.html#exit-status-success-is-a-number",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.14 Exit status: success is a number",
-    "text": "3.14 Exit status: success is a number\nWhen a command finishes, it returns an integer exit status. By Unix convention:\n\n0 means success;\na nonzero value means some kind of failure or special condition.\n\nImmediately after the deliberate failed ls, run:\nprintf 'exit_status=%s\\n' \"$?\"\nYou should see a nonzero value such as:\nexit_status=1\nNow run:\nls input\nprintf 'exit_status=%s\\n' \"$?\"\nExpected final line:\nexit_status=0\n$? contains only the status of the most recently completed foreground pipeline. Even echo or printf replaces it. Capture or inspect it immediately.\n\n\n\n\n\n\nWarningOutput is not the same as success\n\n\n\nA program can write warnings and still exit zero. A program can also produce a partial output before failing. Check exit status and validate important outputs.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.14 Exit status: success is a number",
+    "text": "2.14 Exit status: success is a number\nWhen a command finishes, it returns an integer exit status. By Unix convention:\n\n0 means success;\na nonzero value means some kind of failure or special condition.\n\nImmediately after the deliberate failed ls, run:\nprintf 'exit_status=%s\\n' \"$?\"\nYou should see a nonzero value such as:\nexit_status=1\nNow run:\nls input\nprintf 'exit_status=%s\\n' \"$?\"\nExpected final line:\nexit_status=0\n$? contains only the status of the most recently completed foreground pipeline. Even echo or printf replaces it. Capture or inspect it immediately.\n\n\n\n\n\n\nWarningOutput is not the same as success\n\n\n\nA program can write warnings and still exit zero. A program can also produce a partial output before failing. Check exit status and validate important outputs.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#pipes-connect-processes",
     "href": "chapters/02-terminal-files-paths.html#pipes-connect-processes",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.15 Pipes connect processes",
-    "text": "3.15 Pipes connect processes\nThe pipe operator | connects the standard output of the command on the left to the standard input of the command on the right.\nfind . -maxdepth 2 -type f -print | sort\nfind emits paths. sort receives those paths and prints them in order.\nAnother example:\nprintf 'alpha\\nbeta\\ngamma\\n' | wc -l\nExpected output:\n3\nA pipe passes data; it does not automatically create an intermediate file. In Chapter 13 we will see why a failure on the left side of a pipeline can be hidden unless Bash pipefail behavior is enabled.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.15 Pipes connect processes",
+    "text": "2.15 Pipes connect processes\nThe pipe operator | connects the standard output of the command on the left to the standard input of the command on the right.\nfind . -maxdepth 2 -type f -print | sort\nfind emits paths. sort receives those paths and prints them in order.\nAnother example:\nprintf 'alpha\\nbeta\\ngamma\\n' | wc -l\nExpected output:\n3\nA pipe passes data; it does not automatically create an intermediate file. In Chapter 13 we will see why a failure on the left side of a pipeline can be hidden unless Bash pipefail behavior is enabled.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#quoting-prevents-accidental-reinterpretation",
     "href": "chapters/02-terminal-files-paths.html#quoting-prevents-accidental-reinterpretation",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.16 Quoting prevents accidental reinterpretation",
-    "text": "3.16 Quoting prevents accidental reinterpretation\nThe shell performs expansions before launching a program. Spaces can divide one intended path into multiple arguments.\nCreate a file whose name contains a space:\nprintf 'temporary example\\n' &gt; \"name with spaces.txt\"\nRead it correctly:\ncat \"name with spaces.txt\"\nDouble quotes allow variable expansion while preserving the result as one argument:\npractice_dir=\"$HOME/nextflow-for-biologists-practice/chapter-02\"\nprintf 'practice_dir=%s\\n' \"$practice_dir\"\nSingle quotes preserve literal text:\nprintf '%s\\n' '$HOME is written literally inside single quotes'\nExpected output begins with the characters $HOME; the variable is not expanded.\nThe safe default is to double-quote variable expansions unless you have a specific, understood reason not to.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.16 Quoting prevents accidental reinterpretation",
+    "text": "2.16 Quoting prevents accidental reinterpretation\nThe shell performs expansions before launching a program. Spaces can divide one intended path into multiple arguments.\nCreate a file whose name contains a space:\nprintf 'temporary example\\n' &gt; \"name with spaces.txt\"\nRead it correctly:\ncat \"name with spaces.txt\"\nDouble quotes allow variable expansion while preserving the result as one argument:\npractice_dir=\"$HOME/nextflow-for-biologists-practice/chapter-02\"\nprintf 'practice_dir=%s\\n' \"$practice_dir\"\nSingle quotes preserve literal text:\nprintf '%s\\n' '$HOME is written literally inside single quotes'\nExpected output begins with the characters $HOME; the variable is not expanded.\nThe safe default is to double-quote variable expansions unless you have a specific, understood reason not to.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#wildcards-expand-to-matching-pathnames",
     "href": "chapters/02-terminal-files-paths.html#wildcards-expand-to-matching-pathnames",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.17 Wildcards expand to matching pathnames",
-    "text": "3.17 Wildcards expand to matching pathnames\nCreate three small files:\nprintf 'R1\\n' &gt; sample_R1.fastq\nprintf 'R2\\n' &gt; sample_R2.fastq\nprintf 'report\\n' &gt; sample_report.txt\nInspect a wildcard before using it in a command that modifies files:\nprintf '%s\\n' sample_*.fastq\nExpected matches:\nsample_R1.fastq\nsample_R2.fastq\nThe shell expands * before starting printf. Quoting the pattern changes the meaning:\nprintf '%s\\n' 'sample_*.fastq'\nThis prints the literal asterisk.\n\n\n\n\n\n\nImportantInspect globs before modifying files\n\n\n\nNever assume a wildcard matches only the intended files. Print or list the matches first. An empty or overly broad match can cause surprising behavior.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.17 Wildcards expand to matching pathnames",
+    "text": "2.17 Wildcards expand to matching pathnames\nCreate three small files:\nprintf 'R1\\n' &gt; sample_R1.fastq\nprintf 'R2\\n' &gt; sample_R2.fastq\nprintf 'report\\n' &gt; sample_report.txt\nInspect a wildcard before using it in a command that modifies files:\nprintf '%s\\n' sample_*.fastq\nExpected matches:\nsample_R1.fastq\nsample_R2.fastq\nThe shell expands * before starting printf. Quoting the pattern changes the meaning:\nprintf '%s\\n' 'sample_*.fastq'\nThis prints the literal asterisk.\n\n\n\n\n\n\nImportantInspect globs before modifying files\n\n\n\nNever assume a wildcard matches only the intended files. Print or list the matches first. An empty or overly broad match can cause surprising behavior.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#hidden-files-and-configuration",
     "href": "chapters/02-terminal-files-paths.html#hidden-files-and-configuration",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.18 Hidden files and configuration",
-    "text": "3.18 Hidden files and configuration\nNames beginning with . are conventionally hidden:\nprintf 'practice configuration\\n' &gt; .practice-config\nls\nls -la\nThe first listing normally omits .practice-config; the second includes it.\nGit metadata lives in a hidden .git directory. Conda, Nextflow, Docker and other tools also use hidden files or directories. “Hidden” does not mean unimportant or secure.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.18 Hidden files and configuration",
+    "text": "2.18 Hidden files and configuration\nNames beginning with . are conventionally hidden:\nprintf 'practice configuration\\n' &gt; .practice-config\nls\nls -la\nThe first listing normally omits .practice-config; the second includes it.\nGit metadata lives in a hidden .git directory. Conda, Nextflow, Docker and other tools also use hidden files or directories. “Hidden” does not mean unimportant or secure.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#command-history-and-sensitive-information",
     "href": "chapters/02-terminal-files-paths.html#command-history-and-sensitive-information",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.19 Command history and sensitive information",
-    "text": "3.19 Command history and sensitive information\nMost interactive shells store command history. This helps repeat and audit work, but it creates a security risk if a command includes a password, token or private URL.\nNever paste secrets directly into commands merely because a tutorial shows an environment variable. Use the authentication mechanism recommended by the service, and treat terminal transcripts as potentially sensitive.\nWe will never commit secrets, patient paths or credentials to the public tutorial repository.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.19 Command history and sensitive information",
+    "text": "2.19 Command history and sensitive information\nMost interactive shells store command history. This helps repeat and audit work, but it creates a security risk if a command includes a password, token or private URL.\nNever paste secrets directly into commands merely because a tutorial shows an environment variable. Use the authentication mechanism recommended by the service, and treat terminal transcripts as potentially sensitive.\nWe will never commit secrets, patient paths or credentials to the public tutorial repository.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#investigate-before-deleting",
     "href": "chapters/02-terminal-files-paths.html#investigate-before-deleting",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.20 Investigate before deleting",
-    "text": "3.20 Investigate before deleting\nThis chapter does not require rm. That is deliberate.\nBefore any future deletion:\n\nprint the working directory;\nresolve the exact target;\nlist the target;\nconfirm that it contains only disposable material; and\nprefer a recoverable trash operation when practical.\n\nNever use a recursive deletion command with /, ~, $HOME, an unresolved variable, a broad project root or an uninspected wildcard.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.20 Investigate before deleting",
+    "text": "2.20 Investigate before deleting\nThis chapter does not require rm. That is deliberate.\nBefore any future deletion:\n\nprint the working directory;\nresolve the exact target;\nlist the target;\nconfirm that it contains only disposable material; and\nprefer a recoverable trash operation when practical.\n\nNever use a recursive deletion command with /, ~, $HOME, an unresolved variable, a broad project root or an uninspected wildcard.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#what-changed-on-disk",
     "href": "chapters/02-terminal-files-paths.html#what-changed-on-disk",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.21 What changed on disk",
-    "text": "3.21 What changed on disk\nThe practice directory should now contain files similar to:\nchapter-02/\n├── .practice-config\n├── archive/\n│   └── notes.txt\n├── expected-error.txt\n├── input/\n│   └── samples.tsv\n├── input-files.txt\n├── name with spaces.txt\n├── sample_R1.fastq\n├── sample_R2.fastq\n├── sample_report.txt\n└── samples.tsv\nVerify with:\nfind . -maxdepth 2 -print | sort\nYour timestamps, ownership and absolute home path may differ. The relative structure and file contents are the acceptance criteria.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.21 What changed on disk",
+    "text": "2.21 What changed on disk\nThe practice directory should now contain files similar to:\nchapter-02/\n├── .practice-config\n├── archive/\n│   └── notes.txt\n├── expected-error.txt\n├── input/\n│   └── samples.tsv\n├── input-files.txt\n├── name with spaces.txt\n├── sample_R1.fastq\n├── sample_R2.fastq\n├── sample_report.txt\n└── samples.tsv\nVerify with:\nfind . -maxdepth 2 -print | sort\nYour timestamps, ownership and absolute home path may differ. The relative structure and file contents are the acceptance criteria.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#common-failures-and-how-to-reason-about-them",
     "href": "chapters/02-terminal-files-paths.html#common-failures-and-how-to-reason-about-them",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.22 Common failures and how to reason about them",
-    "text": "3.22 Common failures and how to reason about them\n\n3.22.1 “No such file or directory”\nFirst ask:\npwd\nls -la\nThen inspect the parent directory and spelling. Do not immediately create a new file with the missing name; you may simply be in the wrong directory.\n\n\n3.22.2 “Permission denied”\nInspect the path and permissions:\nls -ld .\nls -l samples.tsv\nDo not solve every permission error with sudo or broad write permissions. On an HPC system, the correct solution may be to use project storage or ask an administrator.\n\n\n3.22.3 A command appears to hang\nIt may be waiting for input, processing a large file or displaying through a pager. Read the screen. q exits less; Control-C requests interruption of a foreground command. Interruption may leave partial files, which must be validated before reuse.\n\n\n3.22.4 A wildcard prints literally\nEither it was quoted or no path matched and the shell preserved the pattern. Check the working directory and list candidate names.\n\n\n3.22.5 $? unexpectedly says zero\nYou probably ran another successful command before inspecting it. Exit status must be captured immediately after the command of interest.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.22 Common failures and how to reason about them",
+    "text": "2.22 Common failures and how to reason about them\n\n2.22.1 “No such file or directory”\nFirst ask:\npwd\nls -la\nThen inspect the parent directory and spelling. Do not immediately create a new file with the missing name; you may simply be in the wrong directory.\n\n\n2.22.2 “Permission denied”\nInspect the path and permissions:\nls -ld .\nls -l samples.tsv\nDo not solve every permission error with sudo or broad write permissions. On an HPC system, the correct solution may be to use project storage or ask an administrator.\n\n\n2.22.3 A command appears to hang\nIt may be waiting for input, processing a large file or displaying through a pager. Read the screen. q exits less; Control-C requests interruption of a foreground command. Interruption may leave partial files, which must be validated before reuse.\n\n\n2.22.4 A wildcard prints literally\nEither it was quoted or no path matched and the shell preserved the pattern. Check the working directory and list candidate names.\n\n\n2.22.5 $? unexpectedly says zero\nYou probably ran another successful command before inspecting it. Exit status must be captured immediately after the command of interest.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#verification-checkpoint",
     "href": "chapters/02-terminal-files-paths.html#verification-checkpoint",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.23 Verification checkpoint",
-    "text": "3.23 Verification checkpoint\nFrom the chapter practice directory, run:\npwd\ntest -s samples.tsv\nprintf 'samples_nonempty=%s\\n' \"$?\"\ntest \"$(wc -l &lt; samples.tsv)\" -eq 3\nprintf 'samples_three_lines=%s\\n' \"$?\"\ntest -f archive/notes.txt\nprintf 'archived_notes_exists=%s\\n' \"$?\"\ntest -f input/samples.tsv\nprintf 'input_copy_exists=%s\\n' \"$?\"\nThis is the one place in the chapter where command substitution appears: $(wc -l &lt; samples.tsv) runs the count and substitutes its output into the test expression. Chapter 13 explains the syntax in depth.\nAll four printed values should be zero:\nsamples_nonempty=0\nsamples_three_lines=0\narchived_notes_exists=0\ninput_copy_exists=0\nThe test command usually produces no text. Its exit status is the result.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.23 Verification checkpoint",
+    "text": "2.23 Verification checkpoint\nFrom the chapter practice directory, run:\npwd\ntest -s samples.tsv\nprintf 'samples_nonempty=%s\\n' \"$?\"\ntest \"$(wc -l &lt; samples.tsv)\" -eq 3\nprintf 'samples_three_lines=%s\\n' \"$?\"\ntest -f archive/notes.txt\nprintf 'archived_notes_exists=%s\\n' \"$?\"\ntest -f input/samples.tsv\nprintf 'input_copy_exists=%s\\n' \"$?\"\nThis is the one place in the chapter where command substitution appears: $(wc -l &lt; samples.tsv) runs the count and substitutes its output into the test expression. Chapter 13 explains the syntax in depth.\nAll four printed values should be zero:\nsamples_nonempty=0\nsamples_three_lines=0\narchived_notes_exists=0\ninput_copy_exists=0\nThe test command usually produces no text. Its exit status is the result.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#hands-on-exercise-create-a-miniature-sequencing-intake",
     "href": "chapters/02-terminal-files-paths.html#hands-on-exercise-create-a-miniature-sequencing-intake",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.24 Hands-on exercise: create a miniature sequencing intake",
-    "text": "3.24 Hands-on exercise: create a miniature sequencing intake\nWork inside:\n$HOME/nextflow-for-biologists-practice/chapter-02/exercise\nCreate this structure using commands from the chapter:\nexercise/\n├── incoming/\n│   ├── patient-free_demo_R1.fastq\n│   └── patient-free_demo_R2.fastq\n├── metadata/\n│   └── samples.tsv\n├── logs/\n│   └── intake.log\n└── README.txt\nRequirements:\n\nEach FASTQ practice file contains exactly four lines. The content may be a clearly labeled synthetic placeholder; do not use patient data.\nsamples.tsv contains a header and one sample row.\nREADME.txt states that the fixture is synthetic and for shell practice.\nintake.log contains the absolute exercise path and a sorted list of the files.\nCapture one deliberate missing-file error in logs/expected-error.log.\nVerify every required file is nonempty.\n\nDo not use an editor for the initial version; construct the files with printf, redirection and commands introduced here.\n\n\n\n\n\n\nTipExercise verification hints\n\n\n\n\n\nUseful commands include:\nfind . -maxdepth 3 -type f -print | sort\nwc -l incoming/*.fastq\ntest -s metadata/samples.tsv\ntest -s README.txt\nThe two FASTQ placeholders should total eight lines. Every test -s command should return exit status zero.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.24 Hands-on exercise: create a miniature sequencing intake",
+    "text": "2.24 Hands-on exercise: create a miniature sequencing intake\nWork inside:\n$HOME/nextflow-for-biologists-practice/chapter-02/exercise\nCreate this structure using commands from the chapter:\nexercise/\n├── incoming/\n│   ├── patient-free_demo_R1.fastq\n│   └── patient-free_demo_R2.fastq\n├── metadata/\n│   └── samples.tsv\n├── logs/\n│   └── intake.log\n└── README.txt\nRequirements:\n\nEach FASTQ practice file contains exactly four lines. The content may be a clearly labeled synthetic placeholder; do not use patient data.\nsamples.tsv contains a header and one sample row.\nREADME.txt states that the fixture is synthetic and for shell practice.\nintake.log contains the absolute exercise path and a sorted list of the files.\nCapture one deliberate missing-file error in logs/expected-error.log.\nVerify every required file is nonempty.\n\nDo not use an editor for the initial version; construct the files with printf, redirection and commands introduced here.\n\n\n\n\n\n\nTipExercise verification hints\n\n\n\n\n\nUseful commands include:\nfind . -maxdepth 3 -type f -print | sort\nwc -l incoming/*.fastq\ntest -s metadata/samples.tsv\ntest -s README.txt\nThe two FASTQ placeholders should total eight lines. Every test -s command should return exit status zero.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#interview-grill-ten-questions",
     "href": "chapters/02-terminal-files-paths.html#interview-grill-ten-questions",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.25 Interview grill: ten questions",
-    "text": "3.25 Interview grill: ten questions\nTry answering aloud before opening the model points. A strong answer explains behavior and risk; it does not merely expand an acronym.\n\nWhat is the difference between a terminal and a shell?\nWhat is the difference between an absolute and a relative path?\nWhy should a script quote a variable such as \"$input_file\"?\nWhat is the difference between &gt; and &gt;&gt;?\nWhat do standard input, standard output and standard error represent?\nWhat does exit status zero mean, and what does it not prove?\nWhat does a pipe do, and why can pipelines complicate error detection?\nWho expands *.fastq: the shell or the bioinformatics program?\nHow would you investigate “No such file or directory” safely?\nWhy is placing a password or token directly in a shell command dangerous?\n\n\n\n\n\n\n\nNoteModel answer points\n\n\n\n\n\n\nA terminal is the interface; a shell interprets commands.\nAn absolute path starts at root; a relative path is resolved from the current directory.\nQuoting prevents whitespace and wildcard characters in the expanded value from becoming unintended argument boundaries or pathname expansions.\n&gt; replaces a file with redirected output; &gt;&gt; appends.\nThey are the process’s conventional input, expected output and diagnostic streams, numbered 0, 1 and 2.\nZero means the program reported success. It does not prove that outputs are complete, scientifically sensible or appropriate for the intended use.\nA pipe connects one process’s output to another’s input. Without appropriate shell settings, the final command’s status can hide an earlier failure.\nThe shell normally expands an unquoted wildcard before launching the program.\nCheck pwd, list the directory, inspect spelling and parent paths, then determine whether the file is absent or the working directory is wrong.\nCommands may be stored in history, logs, process listings or transcripts. Use purpose-built credential storage and scoped secrets instead.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.25 Interview grill: ten questions",
+    "text": "2.25 Interview grill: ten questions\nTry answering aloud before opening the model points. A strong answer explains behavior and risk; it does not merely expand an acronym.\n\nWhat is the difference between a terminal and a shell?\nWhat is the difference between an absolute and a relative path?\nWhy should a script quote a variable such as \"$input_file\"?\nWhat is the difference between &gt; and &gt;&gt;?\nWhat do standard input, standard output and standard error represent?\nWhat does exit status zero mean, and what does it not prove?\nWhat does a pipe do, and why can pipelines complicate error detection?\nWho expands *.fastq: the shell or the bioinformatics program?\nHow would you investigate “No such file or directory” safely?\nWhy is placing a password or token directly in a shell command dangerous?\n\n\n\n\n\n\n\nNoteModel answer points\n\n\n\n\n\n\nA terminal is the interface; a shell interprets commands.\nAn absolute path starts at root; a relative path is resolved from the current directory.\nQuoting prevents whitespace and wildcard characters in the expanded value from becoming unintended argument boundaries or pathname expansions.\n&gt; replaces a file with redirected output; &gt;&gt; appends.\nThey are the process’s conventional input, expected output and diagnostic streams, numbered 0, 1 and 2.\nZero means the program reported success. It does not prove that outputs are complete, scientifically sensible or appropriate for the intended use.\nA pipe connects one process’s output to another’s input. Without appropriate shell settings, the final command’s status can hide an earlier failure.\nThe shell normally expands an unquoted wildcard before launching the program.\nCheck pwd, list the directory, inspect spelling and parent paths, then determine whether the file is absent or the working directory is wrong.\nCommands may be stored in history, logs, process listings or transcripts. Use purpose-built credential storage and scoped secrets instead.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#what-to-remember",
     "href": "chapters/02-terminal-files-paths.html#what-to-remember",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.26 What to remember",
-    "text": "3.26 What to remember\n\nAlways establish the working directory and exact target before changing files.\nThe shell interprets quoting, variables, wildcards, pipes and redirection before or while launching programs.\nStandard output and standard error can be recorded separately, and exit status must be checked immediately.\nA zero exit status is necessary evidence of reported success, not sufficient evidence of a valid scientific result.\nInspect first. Use narrow paths. Avoid destructive shortcuts.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.26 What to remember",
+    "text": "2.26 What to remember\n\nAlways establish the working directory and exact target before changing files.\nThe shell interprets quoting, variables, wildcards, pipes and redirection before or while launching programs.\nStandard output and standard error can be recorded separately, and exit status must be checked immediately.\nA zero exit status is necessary evidence of reported success, not sufficient evidence of a valid scientific result.\nInspect first. Use narrow paths. Avoid destructive shortcuts.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/02-terminal-files-paths.html#next-chapter",
     "href": "chapters/02-terminal-files-paths.html#next-chapter",
-    "title": "3  The terminal, files, paths and commands",
-    "section": "3.27 Next chapter",
-    "text": "3.27 Next chapter\nChapter 3 uses these command-line skills to inventory and set up the learning workstation. We will distinguish what belongs on a personal machine from what an HPC environment provides, verify every executable path and record the result before installing project packages.",
+    "title": "2  The terminal, files, paths and commands",
+    "section": "2.27 Next chapter",
+    "text": "2.27 Next chapter\nChapter 3 uses these command-line skills to inventory and set up the learning workstation. We will distinguish what belongs on a personal machine from what an HPC environment provides, verify every executable path and record the result before installing project packages.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
     "objectID": "chapters/03-workstation-setup.html",
     "href": "chapters/03-workstation-setup.html",
-    "title": "4  Set up the learning workstation",
+    "title": "3  Set up and audit the learning workstation",
     "section": "",
-    "text": "This chapter will establish a safe local workstation for the exercises and verify the required software before any project packages are installed.\nThe complete chapter will be developed and tested next.",
+    "text": "3.1 Why a biologist should care\nMost installation trouble is not caused by biology. It comes from answering the wrong question.\n“Is Nextflow installed?” sounds simple, but it can mean several different things:\nA reliable setup records evidence for each layer. That habit prevents hours of guessing later and produces useful information when asking a colleague or administrator for help.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Set up the learning workstation</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#why-a-biologist-should-care",
+    "href": "chapters/03-workstation-setup.html#why-a-biologist-should-care",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "",
+    "text": "Does a file named nextflow exist somewhere?\nCan this shell find it?\nIs its Java runtime compatible?\nCan it write to its cache directory?\nIs this the same executable that worked yesterday?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#engineering-objective",
+    "href": "chapters/03-workstation-setup.html#engineering-objective",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.2 Engineering objective",
+    "text": "3.2 Engineering objective\nThe objective is not to install everything everywhere. It is to establish a known starting state:\nmachine identity\n      ↓\nexecutable location\n      ↓\nversion and runtime check\n      ↓\nresponsibility decision\n      ↓\ninstall, request, defer or mark optional\n      ↓\nrecorded setup evidence\nWe will create setup-check.txt. It is an inventory, not a guarantee that every future pipeline will run.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#three-software-layers",
+    "href": "chapters/03-workstation-setup.html#three-software-layers",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.3 Three software layers",
+    "text": "3.3 Three software layers\nTreat the tools in this book as three different layers.\n\n\n\n\n\n\n\n\n\nLayer\nExamples\nWho normally manages it?\nWhy it belongs there\n\n\n\n\nHost/workstation\nGit, Java, Nextflow launcher, Docker, Quarto, editor\nYou or desktop IT\nStarts projects and provides system-level services\n\n\nProject environment\nFastQC, Trim Galore, Bowtie2, SAMtools\nConda or a container recipe\nMust be reproducible per analysis\n\n\nHPC site\nJava module, Singularity/Apptainer, SLURM\nCluster administrators\nIntegrates with shared hardware and policy\n\n\n\nInstalling Bowtie2 globally on your laptop is not necessary for this book. We will declare it in a project environment. Installing Docker inside a Conda environment would not create the privileged container service Docker needs.\n\n\n\n\n\n\nImportantOne machine is enough\n\n\n\nYou do not need both a workstation and an HPC account to understand the book. A workstation can complete the local path. An HPC reader can perform the audit and mark workstation-only tools as unavailable or deferred.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#the-vocabulary-distribution-package-manager-environment-and-channel",
+    "href": "chapters/03-workstation-setup.html#the-vocabulary-distribution-package-manager-environment-and-channel",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.4 The vocabulary: distribution, package manager, environment and channel",
+    "text": "3.4 The vocabulary: distribution, package manager, environment and channel\nThese names are easy to blur together.\n\nConda is a package and environment manager.\nA Conda distribution is a bootstrap installation containing Conda and supporting files.\nMiniforge is a small Conda distribution configured for the community-run conda-forge package channel.\nAnaconda Distribution is a larger commercial distribution containing many packages and additional products.\nA package is an installable unit such as samtools plus metadata.\nAn environment is an isolated directory containing a selected collection of packages.\nA channel is a repository from which Conda obtains packages and metadata.\n\nThis book recommends Miniforge for a new personal installation because it is a small, community-focused entry point. It does not require replacing a working, institutionally managed Conda installation.\nThe official Miniforge project publishes installers for supported operating systems and architectures. Always recheck that page because filenames and requirements change.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#audit-before-installing",
+    "href": "chapters/03-workstation-setup.html#audit-before-installing",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.5 Audit before installing",
+    "text": "3.5 Audit before installing\nOpen a new terminal. Do not activate a project environment yet.\n\n3.5.1 Identify the shell\nprintf 'login_shell=%s\\n' \"$SHELL\"\nprintf 'current_process=%s\\n' \"$0\"\n$SHELL usually records your configured login shell. $0 describes the current shell or script. They can differ—for example, a Bash script can run from an interactive Zsh session.\n\n\n3.5.2 Identify the operating system and architecture\nCommands and installer files are platform-specific:\nuname -s\nuname -m\nCommon results include:\n\n\n\nuname -s\nuname -m\nMeaning\n\n\n\n\nDarwin\narm64\nmacOS on Apple silicon\n\n\nDarwin\nx86_64\nmacOS on an Intel processor\n\n\nLinux\nx86_64\n64-bit Intel/AMD Linux\n\n\nLinux\naarch64\n64-bit ARM Linux\n\n\n\nOn macOS, add:\nsw_vers\nOn Linux, inspect the distribution metadata:\ncat /etc/os-release\nDo not run macOS installation commands merely because they appear above Linux commands on a webpage. First match both the operating system and architecture.\n\n\n3.5.3 Understand PATH\nWhen you type a command without a slash, the shell searches directories listed in PATH, from left to right:\nprintf '%s\\n' \"$PATH\" | tr ':' '\\n'\nIf two directories contain java, the first matching path wins. Conda activation and HPC modules work partly by changing this search order.\nUse the shell’s own lookup command:\ncommand -v java\ncommand -v conda\ncommand -v git\nPossible interpretations:\n\na path: the shell found an executable;\nan alias or function description: the name is being intercepted by the shell;\nno output with a nonzero status: the shell cannot currently resolve it.\n\nwhich is widely available, but command -v is a shell builtin with more predictable behavior for scripts.\n\n\n\n\n\n\nWarningNot found does not mean not installed\n\n\n\nIf command -v tool prints nothing, the tool may be absent, installed outside PATH, available only after loading an HPC module, or provided only inside a container. Investigate before installing another copy.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#build-a-read-only-inventory",
+    "href": "chapters/03-workstation-setup.html#build-a-read-only-inventory",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.6 Build a read-only inventory",
+    "text": "3.6 Build a read-only inventory\nCreate a practice directory:\nmkdir -p \"$HOME/nextflow-for-biologists-practice/chapter-03\"\ncd \"$HOME/nextflow-for-biologists-practice/chapter-03\"\npwd\nStart the report without including environment variables, which may contain tokens or credentials:\n{\n  printf '=== WORKSTATION IDENTITY ===\\n'\n  date\n  printf 'os=%s\\n' \"$(uname -s)\"\n  printf 'architecture=%s\\n' \"$(uname -m)\"\n  printf 'login_shell=%s\\n' \"$SHELL\"\n  printf 'working_directory=%s\\n' \"$PWD\"\n} &gt; setup-check.txt\nThe braces group several commands so one redirection captures their combined standard output. $(...) is command substitution: the shell runs the inner command and inserts its output.\nInspect before continuing:\ncat setup-check.txt",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#a-reusable-audit-function",
+    "href": "chapters/03-workstation-setup.html#a-reusable-audit-function",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.7 A reusable audit function",
+    "text": "3.7 A reusable audit function\nTyping the same test seven times invites inconsistency. Define a small function for the current shell:\ncheck_command() {\n  command_name=\"$1\"\n\n  if command -v \"$command_name\" &gt;/dev/null 2&gt;&1; then\n    printf '%-12s FOUND  %s\\n' \\\n      \"$command_name\" \\\n      \"$(command -v \"$command_name\")\"\n  else\n    printf '%-12s MISSING_OR_NOT_ON_PATH\\n' \"$command_name\"\n  fi\n}\nUse it:\n{\n  printf '\\n=== COMMAND LOCATIONS ===\\n'\n  check_command git\n  check_command conda\n  check_command mamba\n  check_command java\n  check_command nextflow\n  check_command docker\n  check_command quarto\n  check_command code\n  check_command singularity\n  check_command apptainer\n  check_command sbatch\n} &gt;&gt; setup-check.txt\nThis function reports state; it does not modify the machine.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#tool-by-tool-decisions",
+    "href": "chapters/03-workstation-setup.html#tool-by-tool-decisions",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.8 Tool-by-tool decisions",
+    "text": "3.8 Tool-by-tool decisions\n\n3.8.1 Git: required on a workstation\nGit records changes to the book project and pipeline repository. Chapter 5 teaches its mental model; here we only verify the executable.\ncommand -v git\ngit --version\nIf Git is absent:\n\nmacOS: follow the official Git installation guidance, which describes the Xcode Command Line Tools and official installer paths;\nDebian/Ubuntu workstation: use the distribution package manager only if you administer the machine;\nFedora/RHEL workstation: use the documented distribution package manager;\nmanaged HPC: ask whether Git is already installed or available as a module. Do not use sudo.\n\nExample commands for a personally administered Linux workstation are:\n# Debian or Ubuntu workstation only\nsudo apt update\nsudo apt install git\n\n# Fedora workstation only\nsudo dnf install git\nDo not copy both branches. Choose the one matching your distribution.\n\n\n3.8.2 Conda through Miniforge: required for the local Conda path\nAudit both the command and its base installation:\ncommand -v conda\nconda --version\nconda info --base\nIf those commands work, keep the installation for now. Record it. Do not stack a second Miniforge installation on top.\nFor a new personal macOS or Linux installation, use the installer appropriate to uname -s and uname -m from the official Miniforge releases. The interactive shell installer pattern documented by Miniforge is:\ncurl -L -O \\\n  \"https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh\"\n\nls -lh \"Miniforge3-$(uname)-$(uname -m).sh\"\nbash \"Miniforge3-$(uname)-$(uname -m).sh\"\nThe installer asks where to install and whether to initialize Conda for the current shell. Read each prompt. After installation, close and reopen the terminal, then verify:\nconda --version\nconda info --base\nOn a shared HPC system, first ask whether Conda is provided and where personal environments should live. Home quotas are often too small for large package caches.\n\n\n\n\n\n\nNoteMiniforge, Miniconda and Anaconda\n\n\n\nAll can provide the conda command. Seeing (base) in a prompt means a base environment is active; it does not identify the distribution reliably. Use conda info --base and institutional documentation instead of guessing.\n\n\n\n\n3.8.3 Java: required to launch Nextflow\nNextflow is a Java application. Its current official installation guidance requires Java 17 or later. Verify the executable and read the first lines of its diagnostic output:\ncommand -v java\njava -version\nJava traditionally writes version information to standard error, so this is normal:\njava -version &gt; java-version.txt 2&gt;&1\nhead -n 3 java-version.txt\nDo not assume a larger Java version number is always safer. A workflow may be validated against a supported range, and an HPC build may behave differently from a desktop build. Record the exact runtime.\nOn HPC, Java is commonly selected through a module:\nmodule avail java\nmodule load java/&lt;site-version&gt;\njava -version\n&lt;site-version&gt; is a placeholder. Never type angle-bracket placeholders literally. Chapter 4 explains modules and the DLDCC Java workaround from the companion project.\n\n\n3.8.4 Nextflow: required, but keep the launcher separate\nVerify:\ncommand -v nextflow\nnextflow -version\nThe launcher and workflow dependencies solve different problems. Nextflow can live in a user-controlled bin directory while FastQC and Bowtie2 live in a Conda environment or container.\nFor a personal Unix-like workstation, consult the official Nextflow installation page and verify Java first. A cautious form of the official bootstrap process is:\nmkdir -p \"$HOME/.local/bin\"\nmkdir -p \"$HOME/nextflow-download\"\ncd \"$HOME/nextflow-download\"\n\ncurl -fsSLo get-nextflow.sh https://get.nextflow.io\nless get-nextflow.sh\nbash get-nextflow.sh\nchmod u+x nextflow\nmv nextflow \"$HOME/.local/bin/nextflow\"\nThen ensure the user bin directory is on PATH for the current session:\nexport PATH=\"$HOME/.local/bin:$PATH\"\ncommand -v nextflow\nnextflow -version\nPersisting the PATH change belongs in the startup file for your actual shell, such as ~/.zshrc or ~/.bashrc. Do not edit both blindly.\nThe companion project uses a repository-local launcher at ./bin/nextflow so the execution evidence refers to a known project entry point.\n\n\n3.8.5 Docker: required only for building locally\ndocker --version verifies the client program, but not the engine:\ncommand -v docker\ndocker --version\ndocker info\nInterpret them separately:\n\ndocker --version can succeed while Docker Desktop or the daemon is stopped;\ndocker info must communicate with the engine;\ndocker run --rm hello-world additionally tests pulling and executing an image, which requires network access on the first run.\n\nOn macOS, follow Docker’s official Docker Desktop installation guide and choose the Apple-silicon or Intel download that matches uname -m. Check your organization’s Docker Desktop licensing policy before professional use.\nOn a personally administered Linux workstation, follow the official Docker Engine instructions for your distribution. Do not copy a package recipe for a different Linux distribution.\nDocker is commonly unavailable on multi-user HPC compute nodes because its daemon and privilege model require site-level administration. This is not a defect in the cluster. We build an OCI image on an appropriate workstation or CI runner, then run it through Singularity/Apptainer in Chapter 19.\n\n\n\n\n\n\nWarningThe Docker group is security-sensitive\n\n\n\nOn Linux, membership in the docker group can confer root-equivalent control of the host. Do not change groups, socket permissions or daemon configuration on a managed system. Follow local security policy.\n\n\n\n\n3.8.6 Quarto: required only for writing this book\nReaders following the bioinformatics workflow do not need Quarto. Authors and contributors use it to render the tutorial:\ncommand -v quarto\nquarto --version\nInstallers and current platform requirements are on the official Quarto download page. Treat Quarto as documentation tooling, not a biological dependency.\n\n\n3.8.7 A text editor: required; an IDE is optional\nAny plain-text editor is sufficient. Visual Studio Code is a convenient option because the Nextflow project provides an official extension, but the concepts do not depend on it.\nIf the code command is configured:\ncommand -v code\ncode --version\nThe graphical editor may be installed even when its terminal command is not on PATH. That is another example of “not found” not proving “not installed.”\nNever use a word processor that silently adds rich-text formatting to .nf, .yml, .sh or .md files.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#workstation-linux-and-hpc-decision-paths",
+    "href": "chapters/03-workstation-setup.html#workstation-linux-and-hpc-decision-paths",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.9 Workstation, Linux and HPC decision paths",
+    "text": "3.9 Workstation, Linux and HPC decision paths\n\n3.9.1 Personal macOS workstation\n\nIdentify arm64 versus x86_64.\nVerify or install Git.\nInstall Miniforge only if Conda is absent or intentionally being replaced.\nInstall a supported Java runtime.\ninstall the Nextflow launcher in a user bin directory.\nInstall and start Docker Desktop if you will build images locally.\nInstall Quarto only if you will render the book.\nRecord all paths and versions.\n\n\n\n3.9.2 Personal Linux workstation\n\nIdentify the distribution and architecture.\nPrefer its package manager for host tools such as Git and Java.\nUse the official Miniforge installer for the matching architecture.\nInstall Nextflow in a user bin directory.\nFollow Docker’s distribution-specific repository instructions.\nRecord both Docker client and daemon checks.\n\n\n\n3.9.3 Managed HPC system\n\nDo not use sudo or install a system daemon.\nInventory commands and available modules.\nAsk which storage area should hold Conda caches and Nextflow work files.\nUse administrator-provided Java, scheduler and Singularity/Apptainer.\nUse a user-managed Conda environment only where policy permits.\nBuild Docker images elsewhere and transfer or pull an approved artifact.\nRecord missing workstation-only tools as NOT_REQUIRED_ON_HPC.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#complete-the-setup-report",
+    "href": "chapters/03-workstation-setup.html#complete-the-setup-report",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.10 Complete the setup report",
+    "text": "3.10 Complete the setup report\nAppend version evidence only for commands that exist:\n{\n  printf '\\n=== VERSION EVIDENCE ===\\n'\n\n  if command -v git &gt;/dev/null 2&gt;&1; then\n    git --version\n  fi\n\n  if command -v conda &gt;/dev/null 2&gt;&1; then\n    conda --version\n    printf 'conda_base=%s\\n' \"$(conda info --base)\"\n  fi\n\n  if command -v java &gt;/dev/null 2&gt;&1; then\n    java -version 2&gt;&1 | head -n 3\n  fi\n\n  if command -v nextflow &gt;/dev/null 2&gt;&1; then\n    nextflow -version\n  fi\n\n  if command -v docker &gt;/dev/null 2&gt;&1; then\n    docker --version\n  fi\n\n  if command -v quarto &gt;/dev/null 2&gt;&1; then\n    quarto --version\n  fi\n} &gt;&gt; setup-check.txt\nAdd a responsibility table using your editor or printf:\n=== RESPONSIBILITY DECISIONS ===\ngit=REQUIRED_HOST\nconda=REQUIRED_LOCAL_PROFILE\njava=REQUIRED_NEXTFLOW_RUNTIME\nnextflow=REQUIRED_WORKFLOW_ENGINE\ndocker=OPTIONAL_IF_BUILDING_ELSE_CI\nquarto=OPTIONAL_BOOK_AUTHORING\nsingularity_or_apptainer=HPC_ADMIN_PROVIDED\nslurm=HPC_ADMIN_PROVIDED\nbioinformatics_tools=PROJECT_ENVIRONMENT_LATER",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#expected-evidence-not-expected-versions",
+    "href": "chapters/03-workstation-setup.html#expected-evidence-not-expected-versions",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.11 Expected evidence, not expected versions",
+    "text": "3.11 Expected evidence, not expected versions\nExact version numbers change. A valid report resembles:\n=== WORKSTATION IDENTITY ===\n...\nos=Darwin\narchitecture=arm64\nlogin_shell=/bin/zsh\nworking_directory=/Users/learner/nextflow-for-biologists-practice/chapter-03\n\n=== COMMAND LOCATIONS ===\ngit          FOUND  /usr/bin/git\nconda        FOUND  /Users/learner/miniforge3/condabin/conda\njava         FOUND  /usr/bin/java\nnextflow     FOUND  /Users/learner/.local/bin/nextflow\ndocker       FOUND  /usr/local/bin/docker\nquarto       FOUND  /usr/local/bin/quarto\nsingularity  MISSING_OR_NOT_ON_PATH\nsbatch       MISSING_OR_NOT_ON_PATH\nA missing Singularity or SLURM command on a laptop is expected. A missing Docker daemon on HPC is expected. Context determines whether absence is a problem.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#common-failures-and-how-to-reason-about-them",
+    "href": "chapters/03-workstation-setup.html#common-failures-and-how-to-reason-about-them",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.12 Common failures and how to reason about them",
+    "text": "3.12 Common failures and how to reason about them\n\n3.12.1 command not found after installation\nOpen a new terminal, identify the current shell, inspect PATH, and locate the installation directory. Do not reinstall immediately.\nprintf 'shell=%s\\n' \"$SHELL\"\nprintf '%s\\n' \"$PATH\" | tr ':' '\\n'\n\n\n3.12.2 The wrong architecture installer was downloaded\nStop before running it. Compare the filename with uname -m. Apple arm64 and Intel x86_64 binaries are not interchangeable assumptions.\n\n\n3.12.3 java -version shows an unexpected runtime\nCompare:\ncommand -v java\ntype -a java\nprintf '%s\\n' \"$JAVA_HOME\"\ntype -a can reveal several candidates. Conda activation or a module may have placed another Java earlier in PATH.\n\n\n3.12.4 Nextflow says Java is missing or incompatible\nRun Java independently before debugging Nextflow:\njava -version\nprintf 'java_exit=%s\\n' \"$?\"\nThen record JAVA_HOME, JAVA_CMD and NXF_OPTS only if they are set. Do not paste an entire environment dump into a public issue because it may contain secrets.\n\n\n3.12.5 docker --version works but docker info fails\nThe client exists but cannot reach an engine. On a workstation, start Docker Desktop or the approved Docker service. On HPC, stop: a Docker daemon may be intentionally unavailable.\n\n\n3.12.6 Conda appears twice\nInspect all resolutions:\ntype -a conda\nconda info --base\nprintf '%s\\n' \"$CONDA_PREFIX\"\nMultiple installations can create incompatible base libraries and confusing shell initialization. Choose deliberately rather than deleting paths at random.\n\n\n3.12.7 A home directory fills during setup\nCaches can be large. Inspect usage with site-approved commands and move caches only to an approved project or scratch path. Chapter 4 covers quotas and the real DLDCC failure in which Nextflow’s downloaded JAR was truncated.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#verification-checkpoint",
+    "href": "chapters/03-workstation-setup.html#verification-checkpoint",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.13 Verification checkpoint",
+    "text": "3.13 Verification checkpoint\nFrom the Chapter 3 practice directory, run:\ntest -s setup-check.txt\nprintf 'report_nonempty=%s\\n' \"$?\"\n\ngrep -q '^os=' setup-check.txt\nprintf 'os_recorded=%s\\n' \"$?\"\n\ngrep -q '^architecture=' setup-check.txt\nprintf 'architecture_recorded=%s\\n' \"$?\"\n\ngrep -q '^=== COMMAND LOCATIONS ===' setup-check.txt\nprintf 'locations_recorded=%s\\n' \"$?\"\n\ngrep -q '^=== RESPONSIBILITY DECISIONS ===' setup-check.txt\nprintf 'decisions_recorded=%s\\n' \"$?\"\nAll five values should be zero. Finally, inspect the report manually:\nless setup-check.txt\nConfirm that it contains no access tokens, passwords, private keys, full environment dump or patient information.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#hands-on-exercise-audit-a-second-execution-context",
+    "href": "chapters/03-workstation-setup.html#hands-on-exercise-audit-a-second-execution-context",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.14 Hands-on exercise: audit a second execution context",
+    "text": "3.14 Hands-on exercise: audit a second execution context\nCreate a second report named context-comparison.txt.\nChoose one comparison available to you:\n\na new terminal before and after conda activate base;\nthe workstation versus an HPC login session;\nan HPC shell before and after loading a Java module; or\nthe host shell versus a container shell later in the book.\n\nFor both contexts, record:\n\nuname -s and uname -m;\n$SHELL and $0;\ncommand -v for Git, Conda, Java and Nextflow;\nthe first three lines of java -version;\nconda info --base when Conda exists;\nwhether Docker, Singularity/Apptainer and SLURM are expected there; and\none sentence explaining every changed executable path.\n\nFinish with this conclusion template:\nContext A is responsible for:\nContext B is responsible for:\nThe most important PATH change was:\nThe change was expected because:\nOne missing command that is not an error is:\n\n\n\n\n\n\nTipExercise verification hints\n\n\n\n\n\nUse labeled command groups rather than copying an unstructured terminal history. Redirect Java’s standard error when capturing it:\n{\n  printf '=== CONTEXT A ===\\n'\n  command -v java || true\n  java -version 2&gt;&1 | head -n 3\n} &gt; context-comparison.txt\n|| true prevents an expected missing command from stopping a larger strict script, but it also discards that failure status. Use it only when absence is explicitly part of the test.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#interview-grill-ten-questions",
+    "href": "chapters/03-workstation-setup.html#interview-grill-ten-questions",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.15 Interview grill: ten questions",
+    "text": "3.15 Interview grill: ten questions\nAnswer aloud before opening the model points.\n\nWhat is the difference between software being installed and being on PATH?\nWhy do uname -s and uname -m matter before downloading an installer?\nWhat does command -v prove, and what does it not prove?\nWhy keep bioinformatics tools in a project environment instead of installing them globally?\nWhat is the difference between Conda, Miniforge, an environment and a channel?\nWhy can docker --version succeed while docker info fails?\nWhy is Docker commonly unavailable on managed HPC systems?\nHow can activating Conda or loading a module change which Java runs?\nWhat evidence would you collect before reporting that Nextflow cannot find Java?\nWhy is an unfiltered environment dump unsafe to attach to a public bug report?\n\n\n\n\n\n\n\nNoteModel answer points\n\n\n\n\n\n\nInstalled software may exist on disk while its directory is absent from the shell’s search path. PATH controls name resolution, not existence.\nInstallers target an operating system and processor architecture. A Darwin ARM binary is not the same artifact as Linux x86-64.\nIt proves how the current shell resolves a name. It does not prove that the program runs correctly, that a service is available or that the version is suitable.\nProject isolation records dependencies, reduces conflicts and lets another person reconstruct the analysis without modifying the whole host.\nConda manages packages/environments; Miniforge bootstraps Conda with conda-forge defaults; an environment is an isolated package prefix; a channel is a package repository.\nThe client executable can print its own version without communicating with the Docker engine. docker info requires a reachable, authorized daemon.\nDocker’s daemon and privilege model require host administration and can conflict with multi-user security. HPC sites commonly provide Singularity/Apptainer instead.\nBoth can prepend directories to PATH and may set variables such as JAVA_HOME, causing a different executable to resolve first.\nRecord the OS/architecture, command -v java, type -a java, java -version, command -v nextflow, nextflow -version output and only relevant Java/Nextflow variables.\nEnvironment variables may contain tokens, credentials, private endpoints, usernames or other sensitive configuration unrelated to the failure.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#what-to-remember",
+    "href": "chapters/03-workstation-setup.html#what-to-remember",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.16 What to remember",
+    "text": "3.16 What to remember\n\nAudit first; absence from PATH is only one hypothesis.\nHost tools, project dependencies and HPC services have different owners.\nMatch both operating system and architecture before installing.\nRecord executable paths as well as versions.\nMissing Docker on HPC or missing SLURM on a laptop can be correct.\nShare focused diagnostics, never secrets or an unfiltered environment dump.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html#next-chapter",
+    "href": "chapters/03-workstation-setup.html#next-chapter",
+    "title": "3  Set up and audit the learning workstation",
+    "section": "3.17 Next chapter",
+    "text": "3.17 Next chapter\nChapter 4 moves from a personal workstation to the HPC mental model. We will separate login nodes from compute nodes, explore modules and SLURM, understand home/project/scratch storage, and explain exactly how modules interact with a Conda environment through PATH.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Set up and audit the learning workstation</span>"
     ]
   },
   {
     "objectID": "chapters/04-conda-environments.html",
     "href": "chapters/04-conda-environments.html",
-    "title": "5  Conda environments",
+    "title": "4  Conda environments",
     "section": "",
     "text": "This chapter explains packages, dependencies, environments, channels, channel priority and version pinning. It then builds the tool environment and uses version commands to prove which executables are active.",
     "crumbs": [
       "Part II — Build a trusted manual workflow",
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Conda environments</span>"
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Conda environments</span>"
     ]
   },
   {
     "objectID": "chapters/05-test-data.html",
     "href": "chapters/05-test-data.html",
-    "title": "6  A deterministic test fixture",
+    "title": "5  A deterministic test fixture",
     "section": "",
     "text": "This chapter downloads GRCh38 chromosome 22, generates deterministic synthetic paired reads and records SHA-256 checksums. It explains why small, non-sensitive test data are essential for rapid development and public reproducibility.",
     "crumbs": [
       "Part II — Build a trusted manual workflow",
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>A deterministic test fixture</span>"
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>A deterministic test fixture</span>"
     ]
   },
   {
     "objectID": "chapters/06-manual-pipeline.html",
     "href": "chapters/06-manual-pipeline.html",
-    "title": "7  Establish a trusted manual pipeline",
+    "title": "6  Establish a trusted manual pipeline",
     "section": "",
     "text": "This chapter runs raw QC, paired trimming, post-trim QC, alignment, sorting, indexing and BAM validation one operation at a time. The manual result becomes the baseline against which automation is judged.",
     "crumbs": [
       "Part II — Build a trusted manual workflow",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Establish a trusted manual pipeline</span>"
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Establish a trusted manual pipeline</span>"
     ]
   },
   {
     "objectID": "chapters/07-strict-bash.html",
     "href": "chapters/07-strict-bash.html",
-    "title": "8  Turn commands into strict Bash",
+    "title": "7  Turn commands into strict Bash",
     "section": "",
     "text": "This chapter combines validated commands into a script and explains set -euo pipefail one option at a time. Checksums and biological summary statistics are used to confirm that automation preserved the baseline result.",
     "crumbs": [
       "Part II — Build a trusted manual workflow",
-      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Turn commands into strict Bash</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Turn commands into strict Bash</span>"
     ]
   },
   {
     "objectID": "chapters/08-container-mental-model.html",
     "href": "chapters/08-container-mental-model.html",
-    "title": "9  Container mental model",
+    "title": "8  Container mental model",
     "section": "",
     "text": "This chapter distinguishes an image, a running container, a registry, an image tag and an immutable digest. It also explains what containers do—and do not—do for reproducibility.",
     "crumbs": [
       "Part III — Make the software portable",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Container mental model</span>"
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Container mental model</span>"
     ]
   },
   {
     "objectID": "chapters/09-build-the-image.html",
     "href": "chapters/09-build-the-image.html",
-    "title": "10  Build the project image",
+    "title": "9  Build the project image",
     "section": "",
     "text": "This chapter reads the Dockerfile from top to bottom, builds the OCI image with GitHub Actions and records evidence about its contents. Special attention is given to layers, executable paths and pinned packages.",
     "crumbs": [
       "Part III — Make the software portable",
-      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Build the project image</span>"
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Build the project image</span>"
     ]
   },
   {
     "objectID": "chapters/10-singularity-on-hpc.html",
     "href": "chapters/10-singularity-on-hpc.html",
-    "title": "11  Run the image with Singularity",
+    "title": "10  Run the image with Singularity",
     "section": "",
     "text": "This chapter pulls the OCI image into a SIF file and runs tools with singularity exec --cleanenv. It uses the real PATH and ps failures to show how container-runtime assumptions can differ between Docker and HPC execution.",
     "crumbs": [
       "Part III — Make the software portable",
-      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Run the image with Singularity</span>"
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Run the image with Singularity</span>"
     ]
   },
   {
     "objectID": "chapters/11-nextflow-mental-model.html",
     "href": "chapters/11-nextflow-mental-model.html",
-    "title": "12  Nextflow mental model",
+    "title": "11  Nextflow mental model",
     "section": "",
     "text": "This chapter introduces processes, channels, values, paths, task working directories, dataflow and publishDir without yet constructing the complete workflow.",
     "crumbs": [
       "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Nextflow mental model</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Nextflow mental model</span>"
     ]
   },
   {
     "objectID": "chapters/12-first-nextflow-process.html",
     "href": "chapters/12-first-nextflow-process.html",
-    "title": "13  Your first Nextflow process",
+    "title": "12  Your first Nextflow process",
     "section": "",
     "text": "This chapter builds a minimal DSL2 workflow, examines .command.sh, .command.run, .command.log and .exitcode, then ports raw FastQC as the first real process.",
     "crumbs": [
       "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Your first Nextflow process</span>"
     ]
   },
   {
     "objectID": "chapters/13-complete-dsl2-workflow.html",
     "href": "chapters/13-complete-dsl2-workflow.html",
-    "title": "14  Complete the DSL2 workflow",
+    "title": "13  Complete the DSL2 workflow",
     "section": "",
     "text": "This chapter adds paired trimming, post-trim QC, alignment and BAM validation. Each input/output declaration is related back to the corresponding manual files so readers can see how a shell pipeline becomes a dataflow graph.",
     "crumbs": [
       "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
     ]
   },
   {
     "objectID": "chapters/14-profiles-and-runtimes.html",
     "href": "chapters/14-profiles-and-runtimes.html",
-    "title": "15  Profiles and software runtimes",
+    "title": "14  Profiles and software runtimes",
     "section": "",
     "text": "This chapter defines Conda-local, Singularity-local and SLURM-Singularity profiles. It explains the separation between workflow logic, software runtime and execution platform.",
     "crumbs": [
       "Part IV — Port the workflow to Nextflow",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
     ]
   },
   {
     "objectID": "chapters/15-slurm-execution.html",
     "href": "chapters/15-slurm-execution.html",
-    "title": "16  Submit tasks through SLURM",
+    "title": "15  Submit tasks through SLURM",
     "section": "",
     "text": "This chapter examines the SLURM executor, resource requests and generated #SBATCH directives. It verifies that each of the five processes ran as a scheduled job inside the intended container.",
     "crumbs": [
       "Part V — Execute and prove it",
-      "<span class='chapter-number'>16</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
     ]
   },
   {
     "objectID": "chapters/16-testing-and-resume.html",
     "href": "chapters/16-testing-and-resume.html",
-    "title": "17  Failure tests and resume caching",
+    "title": "16  Failure tests and resume caching",
     "section": "",
     "text": "This chapter deliberately supplies a missing input pattern, checks the nonzero exit code and interprets the error. It then uses -resume and a trace file to prove that all five completed tasks were restored from cache.",
     "crumbs": [
       "Part V — Execute and prove it",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
     ]
   },
   {
     "objectID": "chapters/17-reproducibility.html",
     "href": "chapters/17-reproducibility.html",
-    "title": "18  What reproducibility really means",
+    "title": "17  What reproducibility really means",
     "section": "",
     "text": "This chapter compares Conda and container outputs. It explains why whole BAM hashes differed because provenance headers recorded different executable paths, while headerless alignment records, flagstat and idxstats remained identical.",
     "crumbs": [
       "Part V — Execute and prove it",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>What reproducibility really means</span>"
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>What reproducibility really means</span>"
     ]
   },
   {
     "objectID": "chapters/18-release-and-evidence.html",
     "href": "chapters/18-release-and-evidence.html",
-    "title": "19  Release an evidence-backed project",
+    "title": "18  Release an evidence-backed project",
     "section": "",
     "text": "This chapter cleans the repository, creates a semantic version tag and connects each engineering claim to a reviewable artifact. It also teaches readers how to describe limitations without weakening the work.",
     "crumbs": [
       "Part V — Execute and prove it",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Release an evidence-backed project</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Release an evidence-backed project</span>"
     ]
   },
   {
     "objectID": "appendices/glossary.html",
     "href": "appendices/glossary.html",
-    "title": "20  Glossary",
+    "title": "19  Glossary",
     "section": "",
     "text": "Channel\nA Nextflow dataflow object that carries values between workflow components.\nConda environment\nAn isolated collection of software packages and their dependencies.\nContainer image\nAn immutable package of files and metadata used to create a container runtime.\nExecutor\nThe Nextflow component that determines how tasks are launched, such as locally or through SLURM.\nProcess\nA Nextflow definition describing a repeatable unit of work, its inputs, outputs and command script.\nSLURM\nA workload manager that schedules jobs and allocates shared cluster resources.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Glossary</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Glossary</span>"
     ]
   },
   {
     "objectID": "appendices/troubleshooting.html",
     "href": "appendices/troubleshooting.html",
-    "title": "21  Troubleshooting",
+    "title": "20  Troubleshooting",
     "section": "",
     "text": "The final appendix will organize the real failures from the companion project by symptom, diagnostic observation, root cause, fix and durable lesson.\nInitial cases include Java G1 initialization failure, home-directory quota exhaustion, Conda dependency solving, missing container PATH entries, missing ps, invalid SAMtools options and misleading whole-file BAM hashes.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Troubleshooting</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Troubleshooting</span>"
     ]
   },
   {
     "objectID": "appendices/command-reference.html",
     "href": "appendices/command-reference.html",
-    "title": "22  Command reference",
+    "title": "21  Command reference",
     "section": "",
     "text": "This appendix will collect the small set of shell, Git, Conda, Singularity, Nextflow and SLURM commands introduced in the lessons. It is a memory aid, not a replacement for understanding the commands in context.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Command reference</span>"
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Command reference</span>"
     ]
   },
   {
     "objectID": "appendices/next-steps.html",
     "href": "appendices/next-steps.html",
-    "title": "23  Next steps",
+    "title": "22  Next steps",
     "section": "",
     "text": "After completing the book, readers will be directed toward Nextflow training, nf-core conventions, larger test suites, workflow modules, continuous integration and domain-appropriate aligners. These are presented as future skills rather than accomplishments of the teaching pipeline.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Next steps</span>"
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Next steps</span>"
     ]
   }
 ]
