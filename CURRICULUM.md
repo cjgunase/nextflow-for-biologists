@@ -53,6 +53,12 @@ Every practical chapter will contain these sections in this order:
 14. **Interview grill** — ten questions that test explanation and judgment,
     not memorized product slogans.
 
+From Chapter 4 onward, examples assume that AI may draft much of the syntax.
+The learner must still be able to explain the execution model, inspect every
+assumption, predict failure modes, verify outputs and reject unsafe or
+scientifically invalid suggestions. Interview questions therefore emphasize
+scenarios, tradeoffs and debugging evidence over command recall.
+
 Commands will never silently assume a working directory. Destructive commands
 will be avoided or fenced with explicit target checks. Site-specific DLDCC
 settings will be labeled and separated from portable concepts.
@@ -130,7 +136,7 @@ Explicitly separate modules from Conda: modules alter cluster-provided software
 and environment variables; Conda activates a user-controlled package
 environment. They can coexist and conflict through `PATH`.
 
-**Artifact:** `hpc-inventory.txt`.  
+**Artifact:** `hpc-inventory.txt`.
 **Pass condition:** identify the Java, Conda, Singularity, scheduler and storage
 layers active in a session.
 

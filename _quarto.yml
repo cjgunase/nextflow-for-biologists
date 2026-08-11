@@ -17,10 +17,10 @@ book:
         - chapters/01-the-whole-shebang.qmd
         - chapters/02-terminal-files-paths.qmd
         - chapters/03-workstation-setup.qmd
-    - part: "Part II — Build a trusted manual workflow"
+        - chapters/04-hpc-mental-model.qmd
+    - part: "Part II — Git, GitHub and collaborative engineering"
       chapters:
-        - chapters/04-conda-environments.qmd
-        - chapters/05-test-data.qmd
+        - chapters/05-git-mental-model.qmd
         - chapters/06-manual-pipeline.qmd
         - chapters/07-strict-bash.qmd
     - part: "Part III — Make the software portable"
