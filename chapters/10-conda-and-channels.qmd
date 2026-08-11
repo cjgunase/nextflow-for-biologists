@@ -1,0 +1,4 @@
+# Dependencies, Conda and channels
+
+This planned chapter will explain packages, dependencies, environments,
+solvers, channels, Bioconda, conda-forge, priority and version pinning.

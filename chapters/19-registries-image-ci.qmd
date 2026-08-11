@@ -1,0 +1,4 @@
+# Registries, image CI and immutable evidence
+
+This planned chapter will use GitHub Actions to build and smoke-test an OCI
+image, publish it to GHCR and record its immutable digest.

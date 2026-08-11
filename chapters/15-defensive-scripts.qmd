@@ -1,0 +1,4 @@
+# Defensive scripts, parameters and logs
+
+This planned chapter will add validation, usage messages, safe temporary-file
+handling, structured logs and portable configuration to the Bash workflow.

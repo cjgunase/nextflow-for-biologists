@@ -1,0 +1,4 @@
+# Where to go next
+
+This planned chapter will help readers build a realistic 30/60/90-day plan for
+nf-core, workflow tests, cloud executors, infrastructure and platform work.

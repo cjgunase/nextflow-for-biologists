@@ -1,0 +1,4 @@
+# Deterministic test data, provenance and checksums
+
+This planned chapter will create the synthetic paired-read fixture, verify its
+reference and checksums, and record reproducible provenance.

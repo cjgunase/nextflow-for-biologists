@@ -22,25 +22,45 @@ book:
     - part: "Part II — Git, GitHub and collaborative engineering"
       chapters:
         - chapters/06-git-mental-model.qmd
+        - chapters/07-safe-daily-git-workflow.qmd
+        - chapters/08-github-collaboration.qmd
+        - chapters/09-versions-tags-releases.qmd
+    - part: "Part III — Environments, data and a trusted analytical baseline"
+      chapters:
+        - chapters/10-conda-and-channels.qmd
+        - chapters/11-build-tool-environment.qmd
+        - chapters/12-test-data-provenance.qmd
         - chapters/06-manual-pipeline.qmd
+    - part: "Part IV — Scripting, configuration, logging and tests"
+      chapters:
         - chapters/07-strict-bash.qmd
-    - part: "Part III — Make the software portable"
+        - chapters/15-defensive-scripts.qmd
+        - chapters/16-software-testing.qmd
+    - part: "Part V — Containerization and portable software"
       chapters:
         - chapters/08-container-mental-model.qmd
         - chapters/09-build-the-image.qmd
+        - chapters/19-registries-image-ci.qmd
         - chapters/10-singularity-on-hpc.qmd
-    - part: "Part IV — Port the workflow to Nextflow"
+    - part: "Part VI — Nextflow DSL2 from first process to complete pipeline"
       chapters:
         - chapters/11-nextflow-mental-model.qmd
         - chapters/12-first-nextflow-process.qmd
+        - chapters/23-channels-tuples-paired-files.qmd
         - chapters/13-complete-dsl2-workflow.qmd
         - chapters/14-profiles-and-runtimes.qmd
-    - part: "Part V — Execute and prove it"
+        - chapters/16-testing-and-resume.qmd
+    - part: "Part VII — Schedulers, CI/CD and reproducible delivery"
       chapters:
         - chapters/15-slurm-execution.qmd
-        - chapters/16-testing-and-resume.qmd
+        - chapters/28-cicd-github-actions.qmd
         - chapters/17-reproducibility.qmd
         - chapters/18-release-and-evidence.qmd
+    - part: "Part VIII — Working safely and effectively in industry"
+      chapters:
+        - chapters/31-security-privacy-regulated-boundaries.qmd
+        - chapters/32-team-practices-operations.qmd
+        - chapters/33-where-to-go-next.qmd
     - part: "Appendices"
       chapters:
         - appendices/glossary.qmd

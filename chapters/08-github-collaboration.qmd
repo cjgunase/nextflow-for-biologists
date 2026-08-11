@@ -1,0 +1,4 @@
+# GitHub, issues, pull requests and code review
+
+This planned chapter will distinguish Git from GitHub and teach remotes,
+authentication, issues, pull requests, review and branch protection.

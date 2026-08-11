@@ -1,0 +1,4 @@
+# Build and audit the tool environment
+
+This planned chapter will create the pinned learning environment and verify
+that every executable and version comes from the intended location.

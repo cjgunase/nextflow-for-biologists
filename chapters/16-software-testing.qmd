@@ -1,0 +1,4 @@
+# Testing bioinformatics software
+
+This planned chapter will distinguish syntax, unit, integration, smoke,
+regression, negative and scientific acceptance tests.

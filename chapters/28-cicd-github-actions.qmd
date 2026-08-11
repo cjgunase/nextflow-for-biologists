@@ -1,0 +1,5 @@
+# CI/CD for a bioinformatics repository with GitHub Actions
+
+This planned chapter will build layered pull-request checks, a miniature
+pipeline smoke test, container and documentation automation, protected release
+publication, deliberate failure diagnosis and least-privilege permissions.

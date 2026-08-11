@@ -1,7 +1,850 @@
 # Git mental model and first repository
 
-This chapter will explain how Git records selected filesystem changes and will
-build the reader's first small, reviewable repository.
+::: {.chapter-goals}
+**By the end of this chapter, you will be able to:**
 
-The complete chapter will be developed and tested after the cloud execution
-chapter.
+- explain the working tree, staging area, repository, commit, branch and
+  `HEAD` without calling Git a backup service;
+- distinguish untracked, tracked, modified, staged and committed content;
+- initialize a repository and create two small, meaningful commits;
+- use `git status`, `git diff`, `git diff --staged`, `git log`, `git show` and
+  `git ls-files` as evidence;
+- design a `.gitignore` without accidentally hiding source or provenance;
+- decide which bioinformatics files belong in Git;
+- inspect AI-generated changes before accepting them; and
+- produce a clean local practice repository that you can explain in an
+  interview.
+:::
+
+## Why a biologist should care
+
+A computational result depends on more than FASTQ files and a tool name. It
+also depends on scripts, workflow definitions, parameters, environment files,
+container recipes and decisions that change over time.
+
+Without version control, files often evolve like this:
+
+```text
+analysis.sh
+analysis_fixed.sh
+analysis_final.sh
+analysis_final_really.sh
+analysis_final_really_2.sh
+```
+
+Those names do not answer:
+
+- what changed;
+- why it changed;
+- who changed it;
+- which version produced a result;
+- whether two files differ; or
+- how to return to a known revision.
+
+Git records deliberate snapshots and the relationships between them. It gives
+software changes a reviewable history. It does not decide whether the biology
+is correct; it makes the exact analytical instructions available for review.
+
+AI increases the need for this discipline. If an assistant edits eight files,
+you need a way to inspect the exact patch, separate useful changes from
+unrelated ones and preserve the accepted state.
+
+## Engineering objective
+
+Build this model before memorizing commands:
+
+```text
+files you can see and edit
+        working tree
+             │
+             │ git add selects content
+             ▼
+      staging area / index
+             │
+             │ git commit records a snapshot
+             ▼
+     local Git repository
+       commits + branches
+             │
+             │ later: git push
+             ▼
+      remote repository
+       such as GitHub
+```
+
+Chapter 6 stops at the local repository. GitHub is introduced in Chapter 8.
+This separation matters: Git works without GitHub, and GitHub is not Git.
+
+## Repository, working tree and `.git`
+
+A **repository** is a project whose history Git manages. In a normal local
+repository you see the project files plus a hidden `.git` directory:
+
+```text
+git-first-repo/
+├── .git/            Git's database and local configuration
+├── .gitignore       tracked rules for intentionally untracked paths
+├── README.md        project explanation
+└── workflow.md      example analytical plan
+```
+
+The **working tree** is the checked-out collection of ordinary files you edit.
+The `.git` directory stores commits, references, configuration and other
+metadata. Deleting `.git` does not delete the visible project files, but it
+removes that local repository's Git history and identity.
+
+::: {.callout-warning title="Do not edit `.git` by hand"}
+Use Git commands to inspect and change repository state. Directly modifying
+files inside `.git` can corrupt or misdirect the repository.
+:::
+
+## The staging area is a proposed next snapshot
+
+The staging area—also called the **index**—is the content currently selected
+for the next commit.
+
+Imagine that you edit `README.md` and `workflow.md`, but only the README is
+ready. You can stage only that file:
+
+```bash
+git add README.md
+```
+
+Now the repository contains three relevant versions:
+
+1. the last committed `README.md`;
+2. the staged README proposed for the next commit; and
+3. any additional unstaged edits in the working tree.
+
+This is why “I saved the file” and “I committed the change” are different.
+
+## The five file states
+
+| State | Meaning | Useful evidence |
+|---|---|---|
+| Untracked | File exists but has never been selected for Git | `git status` |
+| Tracked and unchanged | Working copy matches the selected commit | clean `git status` |
+| Modified | Tracked file differs from the index/commit | `git diff` |
+| Staged | Content is selected for the next commit | `git diff --staged` |
+| Committed | Snapshot is stored in local history | `git log`, `git show` |
+
+A file can have both staged and unstaged changes. For example, you can stage
+one version, edit it again and then see the filename in both sections of
+`git status`.
+
+## Commits are snapshots connected by history
+
+A commit records:
+
+- a snapshot of tracked content;
+- a reference to its parent commit or commits;
+- author and committer information;
+- timestamps; and
+- a message.
+
+Git identifies a commit using a cryptographic object ID. You often see an
+abbreviated form such as:
+
+```text
+a17c42e docs: describe the synthetic test fixture
+```
+
+Changing commit content or metadata produces a different ID. A commit ID is
+therefore more precise than “the latest version,” but an abbreviated ID should
+be long enough to remain unique in the repository.
+
+Git is conceptually snapshot-based, even though commands such as `git diff`
+show changes between snapshots.
+
+## Branches and `HEAD`
+
+A **branch** is a movable name pointing to a commit. `main` is a common default
+branch name. When you create a new commit on `main`, the branch advances to the
+new commit.
+
+`HEAD` normally identifies the branch currently checked out:
+
+```text
+HEAD ──► main ──► newest commit ──► parent commit
+```
+
+This model explains why a branch is cheap: it is primarily a reference, not a
+second full copy of every project file.
+
+Branches, switching and merging are developed in Chapter 7. For now, remain on
+one local branch and learn to inspect it.
+
+## Git identity is not authentication
+
+Every commit stores an author name and email. Configure them for this practice
+repository:
+
+```bash
+git config --local user.name "Your Name"
+git config --local user.email "you@example.org"
+```
+
+`--local` writes configuration for the current repository. It avoids silently
+changing every repository on a shared or institutional machine.
+
+Inspect the result:
+
+```bash
+git config --local --get user.name
+git config --local --get user.email
+```
+
+This identity is attribution, not proof that you can access GitHub. SSH keys,
+HTTPS tokens and federated login are authentication mechanisms discussed in
+Chapter 8.
+
+## What belongs in a bioinformatics repository?
+
+Usually track small, reviewable files that define or explain the analysis:
+
+- Nextflow, Bash, Python or R source;
+- `nextflow.config` and nonsensitive parameter examples;
+- `environment.yml`, lock files and Dockerfiles;
+- small test fixtures when licensing and privacy permit;
+- checksum and provenance manifests;
+- tests, documentation and diagrams;
+- CI/CD workflow definitions; and
+- summary evidence small enough to review.
+
+Usually do not track:
+
+- patient or participant data;
+- credentials, tokens, private keys or `.env` secrets;
+- large FASTQ, BAM, CRAM, index and reference bundles;
+- generated result directories;
+- Nextflow `work/` and `.nextflow/` state;
+- Conda environment directories;
+- Docker or Singularity image files; or
+- temporary/editor operating-system files.
+
+“Git can store it” is not the same as “Git is the correct governed storage
+system for it.”
+
+## `.gitignore` controls untracked discovery
+
+A `.gitignore` file contains patterns for paths Git should normally leave
+untracked. A small workflow project might begin with:
+
+```gitignore
+# Workflow runtime state
+work/
+.nextflow/
+.nextflow.log*
+
+# Generated data and results
+data/
+results/
+*.bam
+*.bai
+*.fastq
+*.fastq.gz
+
+# Local environments and container artifacts
+.conda/
+conda-envs/
+containers/
+*.sif
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Operating-system/editor files
+.DS_Store
+*~
+```
+
+Patterns are project decisions. If `data/` contains a deliberately tiny public
+fixture that should be tracked, ignoring the entire directory would be too
+broad. You might instead ignore `data/raw/` and explicitly retain
+`data/test/mini.fastq`.
+
+Important limitation: `.gitignore` does not make an already tracked file
+untracked, remove it from old commits or protect a secret. If a secret entered
+history, stop using it, revoke/rotate it and follow your organization's incident
+procedure.
+
+Test an ignore decision:
+
+```bash
+git check-ignore -v path/to/file
+```
+
+This prints the matching rule and its source. No output usually means that path
+is not ignored.
+
+## The inspection commands form a safety loop
+
+### `git status`: classify current state
+
+```bash
+git status
+git status --short
+```
+
+The long form teaches what is staged and unstaged. The short form is compact
+once you understand the two status columns.
+
+Examples:
+
+```text
+?? notes.md       untracked
+ M README.md      modified in working tree
+M  workflow.md    staged change
+MM config.yml     staged content plus additional unstaged edits
+```
+
+### `git diff`: inspect unstaged changes
+
+```bash
+git diff
+git diff -- README.md
+```
+
+This compares the working tree with the staging area. It does not show newly
+untracked file contents.
+
+### `git diff --staged`: inspect the proposed commit
+
+```bash
+git diff --staged
+```
+
+This is the final review before `git commit`. If the output contains a key,
+patient identifier, large generated file or unrelated edit, do not commit it.
+
+`--cached` is a synonym:
+
+```bash
+git diff --cached
+```
+
+### `git ls-files`: list what Git tracks
+
+```bash
+git ls-files
+```
+
+This is more reliable than looking at the directory. A file can exist locally
+without being part of the repository.
+
+### `git log` and `git show`: inspect recorded history
+
+```bash
+git log --oneline --decorate
+git show --stat HEAD
+git show HEAD
+```
+
+`git log` shows commit history. `git show` displays one commit's metadata and
+patch. `HEAD` means the currently selected commit.
+
+## Practical: create your first local repository
+
+This exercise creates a disposable repository with no cloud account, remote or
+biological data. Run it somewhere outside another Git repository.
+
+### Step 0 — verify the location
+
+```bash
+pwd
+git --version
+git rev-parse --show-toplevel
+```
+
+For the third command, a failure is desirable if you intend to create a new
+standalone repository. If it prints an existing parent repository, move to a
+different location before continuing.
+
+::: {.callout-warning title="Nested repositories confuse beginners"}
+Running `git init` inside an existing repository creates a nested repository.
+That can be intentional, but it is not this exercise. Always inspect
+`git rev-parse --show-toplevel` first.
+:::
+
+### Step 1 — create and initialize the project
+
+```bash
+mkdir git-first-repo
+cd git-first-repo
+
+git init -b main
+git status
+```
+
+If an older Git version does not support `-b`, use:
+
+```bash
+git init
+git branch -M main
+```
+
+Confirm the repository root and branch:
+
+```bash
+git rev-parse --show-toplevel
+git branch --show-current
+```
+
+Expected branch: `main`.
+
+### Step 2 — configure repository-local attribution
+
+```bash
+git config --local user.name "Your Name"
+git config --local user.email "you@example.org"
+
+git config --local --list
+```
+
+Use your real professional attribution if this repository will later be
+published. The example address is intentionally a placeholder.
+
+### Step 3 — create the initial files
+
+```bash
+printf '%s\n' \
+  '# Mini workflow engineering lab' \
+  '' \
+  'A local Git exercise using synthetic data only.' \
+  > README.md
+
+printf '%s\n' \
+  'work/' \
+  'results/' \
+  '.nextflow/' \
+  '.nextflow.log*' \
+  '.env' \
+  '*.key' \
+  '.DS_Store' \
+  > .gitignore
+```
+
+Create paths that should be ignored:
+
+```bash
+mkdir -p work results
+printf 'temporary task state\n' > work/task.txt
+printf 'generated output\n' > results/result.txt
+```
+
+Inspect:
+
+```bash
+git status --short
+git check-ignore -v work/task.txt results/result.txt
+```
+
+Only `.gitignore` and `README.md` should appear as untracked. The other command
+should identify the ignore rules.
+
+### Step 4 — stage and inspect the first snapshot
+
+Stage explicit files:
+
+```bash
+git add .gitignore README.md
+```
+
+Do not make `git add .` your only habit. It can be appropriate after inspection,
+but explicit paths make the intended scope obvious to a beginner.
+
+Review all three views:
+
+```bash
+git status
+git diff
+git diff --staged
+```
+
+`git diff` should be empty because there are no unstaged edits. The staged diff
+should show the two new files.
+
+### Step 5 — create the first commit
+
+```bash
+git commit -m "chore: initialize the learning repository"
+```
+
+Verify the result:
+
+```bash
+git status
+git log --oneline --decorate
+git show --stat HEAD
+git ls-files
+```
+
+The working tree should be clean, and exactly `.gitignore` and `README.md`
+should be tracked.
+
+### Step 6 — create a focused second change
+
+Add an analytical plan:
+
+```bash
+printf '%s\n' \
+  '# Planned workflow' \
+  '' \
+  '1. Validate paired synthetic FASTQ inputs.' \
+  '2. Run read quality control.' \
+  '3. Trim adapters and low-quality ends.' \
+  '4. Align reads to a declared reference.' \
+  '5. Validate the sorted BAM and summarize mapping.' \
+  > workflow.md
+```
+
+Inspect the state:
+
+```bash
+git status --short
+git diff
+```
+
+`workflow.md` is untracked, so normal `git diff` will not display its content.
+Read it directly, then stage it:
+
+```bash
+cat workflow.md
+git add workflow.md
+git diff --staged
+```
+
+Commit it:
+
+```bash
+git commit -m "docs: add the planned analysis stages"
+```
+
+### Step 7 — prove the acceptance conditions
+
+```bash
+git status --short
+git log --oneline --decorate -2
+git ls-files
+git show --stat HEAD
+git show --stat HEAD~1
+```
+
+Acceptance criteria:
+
+- `git status --short` produces no output;
+- the log contains two meaningful commits;
+- three files are tracked;
+- the newest commit contains only `workflow.md`; and
+- the first commit contains only `.gitignore` and `README.md`.
+
+Save interview evidence without inventing it:
+
+```bash
+{
+  printf '%s\n' '=== STATUS ==='
+  git status
+  printf '%s\n' '=== HISTORY ==='
+  git log --oneline --decorate -2
+  printf '%s\n' '=== TRACKED FILES ==='
+  git ls-files
+  printf '%s\n' '=== LATEST COMMIT ==='
+  git show --stat --oneline HEAD
+} > git-practice-evidence.txt
+```
+
+This evidence file is initially untracked. Decide whether it is a useful small
+project artifact before adding it; do not automatically create a third commit.
+
+## Read a diff rather than merely looking at colors
+
+A simplified patch looks like this:
+
+```diff
+diff --git a/workflow.md b/workflow.md
+new file mode 100644
+--- /dev/null
++++ b/workflow.md
+@@ -0,0 +1,3 @@
++# Planned workflow
++
++1. Validate paired synthetic FASTQ inputs.
+```
+
+Interpretation:
+
+- `a/` and `b/` label the compared sides;
+- `/dev/null` indicates the file did not exist on the old side;
+- `+` lines are additions;
+- `-` lines would be removals; and
+- the hunk header describes affected line ranges.
+
+Green text is not automatically good and red text is not automatically bad.
+Review meaning: a one-line deletion can remove a validation check, and a
+hundred-line addition can be generated noise.
+
+## Commit messages are part of the evidence
+
+A useful message completes this sentence:
+
+> If applied, this commit will …
+
+Examples:
+
+```text
+docs: record synthetic fixture provenance
+fix: fail when paired FASTQ input is incomplete
+test: add missing-reference negative case
+build: pin samtools container digest
+```
+
+Avoid messages such as `stuff`, `changes`, `final`, or `AI update`. The message
+should describe the change, not the mood of the author.
+
+A commit should normally represent one coherent reason for change. Small does
+not mean one line; it means reviewable and conceptually focused.
+
+## What Git does not guarantee
+
+Git does not automatically prove:
+
+- scientific correctness;
+- authenticity of the author's real-world identity;
+- compliance with privacy or regulatory policy;
+- that an external reference URL still serves the same bytes;
+- that ignored data is safely backed up;
+- that a remote copy exists;
+- that a container or result was built from the commit; or
+- that a commit was reviewed.
+
+Those claims need additional controls and evidence: tests, checksums,
+provenance, signed artifacts, code review, governed storage and CI/CD.
+
+## Common beginner failures
+
+### “I committed, but my new file is missing”
+
+`git commit` records staged content, not every visible file. Use:
+
+```bash
+git status
+git ls-files
+```
+
+Then stage the intended file and review `git diff --staged`.
+
+### “I added a pattern, but the file is still tracked”
+
+`.gitignore` mainly affects untracked paths. First determine why the file was
+tracked and whether removing it from future snapshots is appropriate. Do not
+copy an index-removal command without understanding its effect.
+
+### “My result directory disappeared”
+
+Git does not track empty directories, and ignored/generated directories may not
+exist in a fresh clone. Scripts should create required output directories.
+
+### “I initialized Git in the wrong directory”
+
+Stop before committing. Inspect:
+
+```bash
+pwd
+git rev-parse --show-toplevel
+git status
+```
+
+Do not delete an unexpected `.git` directory until you know whether it contains
+valuable history and have confirmed the exact path.
+
+### “Git rejected my commit identity”
+
+Configure a name and email locally, inspect them and retry. This is independent
+of GitHub login.
+
+## Reviewing AI-generated Git instructions
+
+AI often proposes commands that produce a desired final state while destroying
+useful evidence. Be suspicious of unexplained commands containing:
+
+```text
+reset --hard
+clean -fd
+checkout -- <path>
+restore --source ...
+push --force
+filter-repo
+```
+
+These commands have legitimate uses, but they can discard work or rewrite
+history. They are not beginner troubleshooting defaults.
+
+Before running any Git command suggested by AI, require answers to:
+
+1. What repository root will it affect?
+2. Does it modify the working tree, staging area, commits or remote history?
+3. Which exact paths or branches are targeted?
+4. Can uncommitted content be lost?
+5. Is the operation recoverable, and from what evidence?
+6. What read-only command shows the current state first?
+
+Prefer diagnosis with `status`, `diff`, `log`, `show`, `branch` and
+`rev-parse` before mutation.
+
+## Hands-on exercise: audit an AI-authored change
+
+In your practice repository, ask an AI system to propose one paragraph for the
+README explaining why synthetic data is used. Do not let it commit for you.
+
+Then:
+
+1. inspect `git status --short`;
+2. inspect the unstaged patch with `git diff`;
+3. check the text for claims the project does not demonstrate;
+4. edit or reject unsupported claims;
+5. stage only `README.md`;
+6. inspect `git diff --staged`;
+7. write a commit message describing your accepted change; and
+8. prove the final working tree is clean.
+
+Create `ai-change-review.md` outside the practice repository or leave it
+untracked. Record:
+
+```markdown
+# AI change review
+
+## Requested change
+## Files the AI proposed changing
+## Claims independently verified
+## Claims corrected or rejected
+## Final staged scope
+## Commit ID
+## Post-commit status
+```
+
+The important skill is not producing the paragraph. It is controlling scope,
+validating meaning and establishing traceable acceptance.
+
+## Ten interview questions
+
+### 1. What is the difference between the working tree, staging area and repository?
+
+<details><summary>Model answer</summary>
+
+The working tree contains the files currently checked out for editing. The
+staging area holds the exact content proposed for the next commit. The local
+repository stores commits, references and history under `.git`. Saving, staging
+and committing are therefore three different state transitions.
+
+</details>
+
+### 2. Why can `git diff` be empty when `git status` shows a new file?
+
+<details><summary>Model answer</summary>
+
+Normal `git diff` compares tracked working-tree content with the index. An
+untracked file has no indexed version to compare, so its content is not shown.
+I inspect the file directly, stage it intentionally and then use
+`git diff --staged`.
+
+</details>
+
+### 3. What does `git add` actually do?
+
+<details><summary>Model answer</summary>
+
+It copies the selected content into the index as part of the proposed next
+snapshot. It does not create a commit, upload anything to GitHub or permanently
+save all future edits to that file.
+
+</details>
+
+### 4. Is a Git commit a diff or a snapshot?
+
+<details><summary>Model answer</summary>
+
+Git's model is snapshot-based: a commit refers to a complete tree of recorded
+content plus metadata and parent relationships. Git efficiently stores and
+displays differences, which is why users often experience commits as patches.
+
+</details>
+
+### 5. What is a branch, and what does `HEAD` mean?
+
+<details><summary>Model answer</summary>
+
+A branch is a movable reference to a commit. `HEAD` normally identifies the
+currently checked-out branch, which in turn points to the current commit. A new
+commit advances that branch reference.
+
+</details>
+
+### 6. Why is `.gitignore` not a security control?
+
+<details><summary>Model answer</summary>
+
+It only influences which untracked paths Git normally reports or stages. It
+does not encrypt files, prevent another program from reading them, remove
+already tracked content or erase old commits. Exposed credentials must be
+revoked or rotated even if an ignore rule is later added.
+
+</details>
+
+### 7. Which bioinformatics artifacts would you track, and which would you exclude?
+
+<details><summary>Model answer</summary>
+
+I track reviewable source, configuration, environment/container specifications,
+tests, documentation, provenance and small permitted fixtures. I exclude
+sensitive data, secrets, large raw/generated files, workflow caches, local
+environments and container binaries. Exact choices follow governance,
+licensing, reproducibility and repository-size requirements.
+
+</details>
+
+### 8. Does a clean working tree prove the analysis is reproducible?
+
+<details><summary>Model answer</summary>
+
+No. It only says tracked working-tree and staged content match the selected
+commit and there are no reported untracked changes. Reproducibility also needs
+inputs, dependencies, parameters, runtime, references, provenance and
+validation evidence.
+
+</details>
+
+### 9. How would you verify what a commit contains before sharing it?
+
+<details><summary>Model answer</summary>
+
+Before committing I use `git status` and `git diff --staged`. After committing I
+use `git show --stat <commit>` for scope and `git show <commit>` for the patch,
+plus `git ls-files` when tracked-file inventory matters. I also scan for
+secrets, sensitive data and unintended generated files.
+
+</details>
+
+### 10. Why should an AI not automatically stage and commit every change it generates?
+
+<details><summary>Model answer</summary>
+
+Generation is not review. The AI may change unrelated files, include secrets,
+invent claims, misunderstand repository policy or bundle several concerns. A
+human or authorized review process should inspect the patch, test behavior,
+control staged scope and choose a message that accurately records the accepted
+change.
+
+</details>
+
+## What you should now be able to explain
+
+You should be able to point to any visible project file and say whether Git is
+ignoring it, tracking it, staging a change or storing it in a commit. You should
+also be able to prove that your first repository contains two deliberate
+snapshots and no unexplained working-tree changes.
+
+The next chapter turns this static model into a safe daily workflow using
+branches, focused commits, comparisons, restoration and merge-conflict
+reasoning.

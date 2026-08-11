@@ -1,0 +1,5 @@
+# Security, privacy and regulated boundaries
+
+This planned chapter will cover least privilege, secrets, dependency and image
+risk, PHI/PII, auditability and the boundary between demonstration and clinical
+validation.

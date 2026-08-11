@@ -1,0 +1,4 @@
+# A safe daily Git workflow
+
+This planned chapter will teach small commits, branches, comparison, safe
+restoration and conflict resolution without relying on destructive shortcuts.

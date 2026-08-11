@@ -1,0 +1,4 @@
+# Versions, tags, changelogs and releases
+
+This planned chapter will teach semantic versioning, annotated tags,
+changelogs, release notes and immutable release evidence.

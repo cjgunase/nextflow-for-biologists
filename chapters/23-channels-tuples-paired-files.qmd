@@ -1,0 +1,4 @@
+# Channels, tuples and paired files
+
+This planned chapter will teach explicit channel shapes, metadata tuples,
+paired inputs and the operators that connect Nextflow processes safely.

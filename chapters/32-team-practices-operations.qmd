@@ -1,0 +1,4 @@
+# Team practices: documentation, review and operations
+
+This planned chapter will teach ownership, review, decisions, runbooks,
+observability, change control, incidents and blameless postmortems.
