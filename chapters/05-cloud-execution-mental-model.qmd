@@ -1,10 +1,905 @@
 # Cloud execution mental model: AWS and transferable concepts
 
-This chapter will explain how identity, object storage, registries, managed
-batch compute, networking, logging, security and cost fit together when a
-Nextflow pipeline runs in the cloud.
+::: {.chapter-goals}
+**By the end of this chapter, you will be able to:**
 
-AWS will provide the concrete examples, with brief mappings to Azure and Google
-Cloud. No billable cloud account will be required for the learning exercise.
+- explain how identity, object storage, containers, batch compute, networking,
+  logs and billing cooperate in a cloud workflow;
+- distinguish an AWS account, Region, Availability Zone, service and resource;
+- explain why an S3 object is not simply a file on a shared POSIX filesystem;
+- decide what belongs in a container image, an object store and a workflow work
+  directory;
+- map a Nextflow process onto AWS Batch and Fargate without memorizing a
+  vendor diagram;
+- identify security, scientific and cost assumptions that AI-generated cloud
+  code cannot safely make for you;
+- translate the AWS architecture to Azure or Google Cloud concepts; and
+- run and completely remove a miniature, paid AWS experiment using synthetic
+  data and a strict cost checklist.
+:::
 
-The complete reasoning-first chapter will be developed and tested next.
+## Why a biologist should care
+
+On an HPC cluster, an institution has already chosen the machines, network,
+scheduler, storage and much of the security model. In a cloud account, your
+team may be responsible for assembling those pieces—and every running or stored
+resource can become a billable decision.
+
+The cloud is not merely “someone else's computer.” It is an API-driven system
+for creating computers, storage, networks, identities and managed services on
+demand. That flexibility is valuable for burst capacity, collaboration and
+repeatable deployment. It also creates new failure modes:
+
+- a valid access key can still have dangerously broad permissions;
+- a bucket can contain the right bytes but be in the wrong account or Region;
+- a successful task can leave large intermediate files accumulating for
+  months;
+- a container tag can silently point to different software later;
+- downloading data between Regions can cost money;
+- a budget notification can arrive after spending has occurred; and
+- technically correct infrastructure can violate consent, residency or
+  institutional policy.
+
+AI can draft infrastructure commands quickly. Your professional value is being
+able to review the identity boundary, data movement, scientific inputs,
+failure behavior, cleanup and evidence.
+
+## Engineering objective
+
+Build one coherent model of a cloud workflow:
+
+```text
+human or CI identity
+        │ authenticated API requests
+        ▼
+workflow launcher ── submits jobs ──► managed batch scheduler
+        │                                  │
+        │ reads/writes state               │ starts isolated containers
+        ▼                                  ▼
+object storage ◄──────────────────── serverless or VM compute
+ inputs / work / outputs                    │
+        ▲                                   ▼
+        └──────── logs and metrics ◄── logging service
+
+container registry ── immutable image digest ──► compute
+                                    billing ◄── every service used
+```
+
+This diagram has two kinds of traffic:
+
+- the **control plane** creates, configures and schedules resources; and
+- the **data plane** moves reads, references, containers, intermediates and
+  results.
+
+A pipeline can have correct control-plane configuration while reading the
+wrong data. It can produce correct results while wasting money. Engineering
+quality requires both planes plus scientific validation.
+
+## Start with the vocabulary
+
+| Concept | Meaning | Frequent beginner mistake |
+|---|---|---|
+| Cloud account | Administrative and billing boundary | Treating it as only a username |
+| Region | Geographic service area such as `us-east-1` | Assuming every resource is global |
+| Availability Zone | Isolated location within a Region | Treating it as another Region |
+| Service | A capability such as S3, Batch or ECR | Thinking one service is one server |
+| Resource | A created object such as a bucket or job queue | Forgetting resources persist until removed |
+| API/CLI | Programmatic interface to the control plane | Assuming a command runs on the local machine |
+| IAM principal | Human or workload identity making a request | Confusing identity with permission |
+| Policy | Rules allowing or denying actions on resources | Using administrator access for convenience |
+| Role | An assumable identity with temporary credentials | Embedding long-lived keys in code |
+| ARN | AWS resource identifier | Treating a display name as globally unique |
+
+AWS is the concrete example in this chapter. The mental model transfers; the
+names and command syntax do not.
+
+## Accounts, Regions and Availability Zones
+
+An AWS **account** is a security, ownership and billing boundary. A company
+usually separates production, development and security responsibilities across
+multiple accounts rather than placing everything in one account.
+
+A **Region** is where a regional service is operated. Choose it deliberately:
+
+- is the service available there?
+- may the data legally and contractually reside there?
+- are the inputs already there?
+- is compute capacity appropriate?
+- what are that Region's prices and transfer boundaries?
+
+An **Availability Zone** is an isolated location inside a Region. Batch
+services can spread work across zones, but a single-zone filesystem or network
+design can still create dependencies.
+
+::: {.callout-important title="A Region is part of the analysis specification"}
+Record the account alias or sanitized account ID, Region, storage locations,
+image digest and workflow revision. “It ran on AWS” is not enough provenance.
+:::
+
+## Identity is the first dependency
+
+Every cloud operation asks two questions:
+
+1. **Who is making this request?** Authentication establishes an identity.
+2. **May that identity perform this action on this resource?** Authorization
+   evaluates policies.
+
+These are different. A successfully authenticated identity can receive
+`AccessDenied`, and that can be the correct security outcome.
+
+### Human identities and workload identities
+
+Humans should normally enter through organizational federation or IAM Identity
+Center, use multi-factor authentication and obtain temporary credentials.
+Compute should assume a workload role with only the permissions it needs.
+
+Avoid:
+
+- creating access keys for the AWS account root user;
+- committing access keys, session tokens or credential files;
+- placing credentials inside a container image;
+- giving every pipeline `AdministratorAccess`; and
+- sharing one person's credentials with automation.
+
+AWS's [IAM best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
+recommend federation, temporary credentials, MFA and least privilege. The
+[root-user guidance](https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html)
+explicitly recommends minimizing root use and not creating root access keys.
+
+### Least privilege is an iterative engineering process
+
+A useful policy describes:
+
+- actions: for example, read objects but not delete buckets;
+- resources: the exact bucket prefix or job queue;
+- conditions: perhaps the expected account, network path or encryption key;
+- duration: temporary credentials rather than indefinite secrets.
+
+Do not ask AI to “fix AccessDenied” and blindly apply the broader policy it
+returns. First read the denied action and resource, then decide whether the
+workflow should be allowed to perform it.
+
+## Storage: S3 is not a shared directory
+
+Amazon S3 is **object storage**. An object has bytes, a key and metadata inside
+a bucket. A URI such as
+
+```text
+s3://example-bucket/project-a/sample-01/R1.fastq.gz
+```
+
+looks path-like, but `project-a/sample-01/` is a key prefix—not a POSIX
+directory. Traditional assumptions may not apply:
+
+- there is no normal `cd` into an S3 bucket;
+- applications generally access objects through APIs or integrations;
+- rename is commonly implemented as copy plus delete;
+- request count and transfer can affect cost;
+- permissions are evaluated by bucket, key, identity and sometimes encryption
+  key; and
+- placing an output object is not the same as atomically replacing a local
+  file.
+
+For a workflow, separate prefixes deliberately:
+
+```text
+s3://my-lab-bucket/inputs/     immutable test inputs
+s3://my-lab-bucket/work/       recomputable workflow state
+s3://my-lab-bucket/results/    retained deliverables
+s3://my-lab-bucket/logs/       operational evidence, if configured
+```
+
+Use checksums or application-aware validation after transfers. A successful
+upload proves that an API call completed, not that the correct biological file
+was selected.
+
+### Storage cost is more than gigabytes
+
+The [S3 pricing model](https://aws.amazon.com/s3/pricing/) includes storage,
+requests, retrieval for some classes and data transfer. Lifecycle rules can
+expire recomputable work objects or transition retained data, but a deletion
+policy is a scientific and governance decision—not merely a cost optimization.
+
+## Containers and registries
+
+A container image packages executables and runtime dependencies. A registry
+stores and distributes those images. Amazon Elastic Container Registry (ECR)
+is AWS's managed registry.
+
+Keep this boundary clear:
+
+| Put in the image | Do not put in the image |
+|---|---|
+| tools and runtime libraries | patient or participant data |
+| small stable configuration defaults | cloud credentials |
+| entrypoint or helper scripts | large changing reference bundles by default |
+| labels describing source/version | writable workflow outputs |
+
+An image **tag** such as `:latest` is a movable label. An image **digest** such
+as `sha256:...` identifies content. Use tags for human-friendly discovery and
+record or deploy the digest for reproducibility.
+
+Before trusting an image, ask:
+
+- Who built it, from which source revision?
+- Were dependencies pinned?
+- What architecture does it support?
+- Does it run as root?
+- Is it scanned and patched under an explicit policy?
+- Can the exact digest be recovered later?
+
+## Compute: EC2, Fargate and AWS Batch are different layers
+
+### EC2 virtual machines
+
+EC2 provides virtual machines. You choose an instance family and size and are
+responsible for more operational detail. It offers broad flexibility,
+specialized hardware and Spot capacity, but also exposes more infrastructure.
+
+### Fargate serverless container compute
+
+AWS Fargate runs containers without you managing the underlying instances. You
+request CPU, memory and related settings. AWS documents Linux Fargate billing
+per second with a one-minute minimum; other charges such as public IPv4,
+logging and transfer can still apply. Always check the current
+[Fargate pricing page](https://aws.amazon.com/fargate/pricing/) for the chosen
+Region and architecture.
+
+### AWS Batch orchestration
+
+AWS Batch is a managed batch scheduler. Its core objects are:
+
+- **job definition:** the execution blueprint—image, CPU, memory, command,
+  roles and retry-related settings;
+- **job queue:** where submitted jobs wait and how they are routed; and
+- **compute environment:** where Batch can obtain compute, such as Fargate or
+  managed EC2 capacity.
+
+Batch schedules the work; Fargate or EC2 supplies the compute. Saying “the
+pipeline runs on Batch” does not identify the compute model.
+
+## Networking: the hidden architecture
+
+A Virtual Private Cloud (VPC) is a logically isolated network. Subnets divide
+its address space and are associated with Availability Zones. Route tables
+decide where traffic can go. Security groups filter allowed traffic to and from
+resources.
+
+The words **public subnet** and **private subnet** do not themselves prove
+security. Examine routes, addresses, endpoints, security groups and workload
+behavior.
+
+A container may need to reach:
+
+- ECR to pull its image;
+- S3 to read inputs and write work;
+- CloudWatch Logs to send logs;
+- external package or reference servers, if the design permits them.
+
+Private workloads can use service endpoints for some AWS services. A NAT
+gateway provides outbound internet access but can create hourly and
+per-gigabyte charges. A miniature learning lab does not need a NAT gateway.
+
+::: {.callout-warning title="Never copy a production network from a tutorial"}
+Tutorial networking prioritizes comprehensibility and short-lived experiments.
+Production biomedical systems require review by the organization's cloud,
+security, privacy and compliance owners.
+:::
+
+## Logs, metrics and scientific evidence
+
+CloudWatch can collect Batch job logs and operational metrics. Nextflow can
+also produce a trace, report, timeline and DAG. These evidence types answer
+different questions:
+
+| Evidence | Question it helps answer |
+|---|---|
+| Batch job state | Did the cloud scheduler report success? |
+| Container log | What did the application write to stdout/stderr? |
+| Nextflow trace | Which process ran, for how long and with what status? |
+| Object metadata/checksum | Were expected bytes stored or transferred? |
+| FastQC/BAM metrics | Are the scientific outputs plausible? |
+| Cloud billing data | What resource usage generated cost? |
+
+No single green status proves all six.
+
+## How Nextflow maps onto AWS
+
+A common architecture has these roles:
+
+```text
+Nextflow launcher
+  ├── reads workflow code and configuration
+  ├── stages or references data in S3
+  ├── submits each process as an AWS Batch job
+  ├── records workflow state in an S3 work directory
+  └── monitors job states and publishes outputs
+
+AWS Batch job
+  ├── receives CPU, memory, image and command
+  ├── starts a container on Fargate or EC2
+  ├── reads staged inputs
+  ├── writes task outputs and logs
+  └── exits with a status code
+```
+
+Nextflow's AWS integration is supplied by the
+[`nf-amazon` plugin](https://registry.nextflow.io/plugins/nf-amazon/trends).
+Exact configuration changes across Nextflow releases, so use the documentation
+for the version you are running rather than copying an old blog post.
+
+Conceptually, a cloud profile must decide at least:
+
+```groovy
+profiles {
+    aws_batch {
+        process.executor = 'awsbatch'
+        process.queue = '<batch-job-queue>'
+        process.container = '<registry>/<image>@sha256:<digest>'
+        workDir = 's3://<bucket>/work'
+    }
+}
+```
+
+This is an architecture sketch, not a ready-to-run profile. Authentication,
+Region, plugin/version requirements, IAM roles, networking, encryption,
+resource labels and cleanup must be defined for the real environment.
+
+::: {.callout-important title="Conda is not the cloud runtime plan"}
+Nextflow documents that its Conda environment feature is not supported with
+remote object-storage executors such as AWS Batch. Build the required tools
+into an immutable container image instead of attempting to solve a Conda
+environment independently inside every remote task.
+:::
+
+The launcher also matters. It may run on a laptop, a controlled virtual
+machine, a CI runner or a managed orchestration product. It needs durable state,
+network access and permission to submit and monitor jobs. Closing an unmanaged
+laptop halfway through a production workflow is not a reliability design.
+
+## HPC and cloud: translate, do not equate
+
+| HPC idea | Typical AWS analogue | Important difference |
+|---|---|---|
+| User/project account | IAM principal and AWS account/project tags | Identity and billing boundaries are API policy objects |
+| SLURM partition | Batch queue plus compute environment | Capacity can be dynamically provisioned |
+| `sbatch` | Batch `SubmitJob` API | Submission requires cloud IAM and resource identifiers |
+| Compute node | EC2 instance or Fargate task | Lifetime may be minutes rather than years |
+| Shared project filesystem | S3, EFS or FSx depending on semantics | Object storage is not POSIX storage |
+| Module | Usually software inside the container | Host modules are not portable to remote containers |
+| `sacct` and job log | Batch state, CloudWatch and Nextflow trace | Evidence is distributed across services |
+| Allocation limits | Quotas, budgets, policy and account controls | A budget alert is not a scheduler quota |
+
+## The cloud bill is an output of the architecture
+
+Think in components:
+
+```text
+total cost ≈ compute duration
+           + stored bytes × retention
+           + storage/API requests
+           + data transfer
+           + logs and metrics retained
+           + networking resources
+           + managed-service charges
+```
+
+Common surprises include idle virtual machines, unattached disks, old image
+layers, S3 work prefixes, verbose logs, public IPv4 addresses, NAT gateways and
+cross-Region transfer.
+
+Treat each resource choice as a hypothesis. Start with a representative small
+sample, read the trace and billing evidence, then revise CPU, memory and
+parallelism. Cheapest per hour is not necessarily cheapest per completed
+sample, and Spot capacity is not appropriate unless retries and interruption
+behavior are understood.
+
+## Biomedical data raises the stakes
+
+The practical below uses synthetic text only. Before moving real human data,
+answer these questions with institutional owners:
+
+- Does consent permit this use and location?
+- Is the account approved for the data classification?
+- Are agreements such as a BAA required and in place?
+- Which Regions are permitted?
+- How are encryption keys governed?
+- Who can read, copy, share and delete objects?
+- Are access and administrative events logged for the required duration?
+- What are retention, backup and deletion obligations?
+- How are incidents and accidental disclosure handled?
+
+Encryption is necessary but not sufficient. Encrypting a publicly accessible
+or over-permissioned resource does not repair its authorization model.
+
+## Transfer the model to other clouds
+
+| Function | AWS | Azure | Google Cloud |
+|---|---|---|---|
+| Identity/policy | IAM roles and policies | Microsoft Entra ID and Azure RBAC | Cloud IAM and service accounts |
+| Object storage | S3 | Blob Storage | Cloud Storage |
+| Container registry | ECR | Azure Container Registry | Artifact Registry |
+| Managed batch | AWS Batch | Azure Batch | Google Cloud Batch |
+| Logs/metrics | CloudWatch | Azure Monitor | Cloud Logging and Monitoring |
+| Private network | VPC | Virtual Network | VPC |
+
+This table maps responsibilities, not exact features. Nextflow has provider-
+specific executors and plugins; verify current support, authentication and
+storage semantics before translating a configuration.
+
+## Review AI-generated cloud code
+
+Before executing a generated command, Terraform module or Nextflow profile,
+ask:
+
+1. Which account and Region will this change?
+2. Which identity will execute it, and where do credentials come from?
+3. What new resources will persist and incur cost?
+4. Are names, ARNs, subnets, roles and image architecture valid here?
+5. Is any permission broader than the described workflow requires?
+6. Can any input, log or error message expose sensitive information?
+7. Is the container pinned by digest and compatible with the compute type?
+8. Where are work files stored, encrypted and eventually deleted?
+9. What does failure leave behind?
+10. What commands verify success and complete cleanup?
+
+If those answers are absent, the code is an unreviewed proposal.
+
+## Practical 1: a zero-cost architecture review
+
+This practical requires no cloud account.
+
+Create `cloud-architecture-review.md` and analyze this proposal:
+
+> Upload FASTQ files to a public S3 bucket. Put an AWS access key in the
+> Dockerfile. Run Nextflow from a laptop using `:latest`, grant the job
+> administrator access and keep the work directory forever in case it is
+> needed.
+
+Record at least one problem and one corrected decision under each heading:
+
+```markdown
+# Cloud architecture review
+
+## Identity and secrets
+## Data classification and access
+## Container provenance
+## Workflow launcher and recovery
+## Compute and networking
+## Storage lifecycle
+## Cost controls
+## Scientific validation
+## Logging and audit evidence
+## Cleanup and ownership
+```
+
+A defensible review should reject the public bucket and embedded credential;
+separate human and workload roles; pin the image digest; place the launcher in
+a durable managed context; define encrypted storage, retention and deletion;
+and specify scientific and operational acceptance tests.
+
+## Practical 2: miniature paid AWS lab
+
+This optional practical creates real cloud resources and can incur charges. It
+uses synthetic data and has two stages:
+
+1. store and verify one tiny object in S3; and
+2. run the official AWS Batch Fargate hello-world job.
+
+AWS estimates its Fargate CLI tutorial at **less than USD $0.01 if resources
+are removed promptly**, but that is not a guarantee of your total bill. Prices,
+taxes, existing account resources, public IPv4 charges and Regions differ.
+Check current pricing before starting. Set a personal ceiling such as **$5**
+that you are genuinely willing to pay.
+
+::: {.callout-warning title="Budget alerts are delayed, not hard caps"}
+AWS states that budget information can be delayed and is updated only several
+times per day. A $5 alert does not automatically prevent $6 of spending. The
+controls in this lab are tiny inputs, no NAT gateway, short execution,
+immediate teardown and verification.
+:::
+
+### Phase 0 — authorization and guardrails
+
+Use a personal learning account only if you are authorized to create charges.
+Do not use an employer account without approval. Secure the root user with MFA,
+do not create root access keys and use a non-root federated or IAM identity for
+normal work.
+
+In **Billing and Cost Management → Budgets**, create a monthly cost budget. A
+reasonable learning configuration is:
+
+- budget amount: `$5 USD`;
+- actual-cost alerts: `$1`, `$3` and `$5`;
+- alert destination: an email address you actively monitor; and
+- no assumption that the alert terminates resources.
+
+Follow AWS's current
+[cost-budget procedure](https://docs.aws.amazon.com/cost-management/latest/userguide/create-cost-budget.html).
+Also inspect the account's current Cost Explorer/billing view so pre-existing
+costs are not attributed to this lab.
+
+Write down:
+
+```text
+spending ceiling accepted: yes/no
+budget configured: yes/no
+account contains other resources: yes/no/unknown
+chosen Region:
+start time:
+```
+
+Stop if the first two answers are not `yes`.
+
+### Phase 1 — open CloudShell and prove identity
+
+Open AWS CloudShell in the chosen Region. AWS provides CloudShell without an
+additional CloudShell charge, although resources created from it are billable.
+Its browser session supplies temporary credentials, so this exercise does not
+need a local access key.
+
+Set one Region and inspect the caller:
+
+```bash
+export AWS_REGION=us-east-1
+export AWS_DEFAULT_REGION="$AWS_REGION"
+
+aws sts get-caller-identity
+aws configure get region
+```
+
+Replace `us-east-1` if you intentionally selected another Region. Confirm that
+the account and ARN are the learning identity you expected. Do not paste the
+complete account ID into a public repository.
+
+Create collision-resistant lab names from the current account:
+
+```bash
+LAB_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+LAB_SUFFIX="$(date -u +%Y%m%d%H%M%S)"
+LAB_BUCKET="nf-biologist-${LAB_ACCOUNT_ID}-${LAB_SUFFIX}"
+
+printf 'region=%s\nbucket=%s\n' "$AWS_REGION" "$LAB_BUCKET" \
+  > cloud-lab-state.txt
+```
+
+`cloud-lab-state.txt` is your cleanup record. It contains an account-derived
+bucket name, so keep it local rather than committing it.
+
+### Phase 2 — create, verify and remove a tiny S3 object
+
+Create a four-line synthetic FASTQ-like fixture:
+
+```bash
+printf '@synthetic-read-1\nACGTACGT\n+\nFFFFFFFF\n' > mini.fastq
+sha256sum mini.fastq
+```
+
+Create the bucket. `us-east-1` has special bucket-creation syntax:
+
+```bash
+if [ "$AWS_REGION" = "us-east-1" ]; then
+  aws s3api create-bucket --bucket "$LAB_BUCKET" --region "$AWS_REGION"
+else
+  aws s3api create-bucket \
+    --bucket "$LAB_BUCKET" \
+    --region "$AWS_REGION" \
+    --create-bucket-configuration LocationConstraint="$AWS_REGION"
+fi
+```
+
+Block public access explicitly:
+
+```bash
+aws s3api put-public-access-block \
+  --bucket "$LAB_BUCKET" \
+  --public-access-block-configuration \
+  'BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true'
+```
+
+Upload, list and download the object:
+
+```bash
+aws s3 cp mini.fastq "s3://${LAB_BUCKET}/inputs/mini.fastq"
+aws s3 ls "s3://${LAB_BUCKET}/inputs/"
+aws s3 cp "s3://${LAB_BUCKET}/inputs/mini.fastq" mini.downloaded.fastq
+```
+
+Compare the bytes:
+
+```bash
+sha256sum mini.fastq mini.downloaded.fastq
+cmp mini.fastq mini.downloaded.fastq
+echo "cmp_exit_code=$?"
+```
+
+An exit code of `0` and matching hashes prove byte identity. They do not prove
+that a real FASTQ has valid pairing, read counts or biological provenance.
+
+Inspect the controls rather than assuming them:
+
+```bash
+aws s3api get-bucket-location --bucket "$LAB_BUCKET"
+aws s3api get-public-access-block --bucket "$LAB_BUCKET"
+aws s3api head-object --bucket "$LAB_BUCKET" --key inputs/mini.fastq
+```
+
+Now remove only the known object, verify the bucket is empty, then remove it:
+
+```bash
+aws s3api delete-object \
+  --bucket "$LAB_BUCKET" \
+  --key inputs/mini.fastq
+
+aws s3api list-objects-v2 \
+  --bucket "$LAB_BUCKET" \
+  --query 'Contents[].Key'
+
+aws s3api delete-bucket --bucket "$LAB_BUCKET" --region "$AWS_REGION"
+```
+
+The list should return no keys before `delete-bucket`. Verify deletion:
+
+```bash
+aws s3api head-bucket --bucket "$LAB_BUCKET"
+echo "expected_nonzero_after_deletion=$?"
+```
+
+The final call should fail because the bucket no longer exists or is no longer
+accessible. This is an intentional negative test.
+
+### Phase 3 — run one tiny AWS Batch Fargate job
+
+Use AWS's maintained
+[AWS Batch Fargate CLI tutorial](https://docs.aws.amazon.com/batch/latest/userguide/getting-started-with-fargate-using-the-aws-cli.html),
+not a copied third-party command sequence. It takes approximately 15–20
+minutes and walks through:
+
+1. creating the Batch task execution role;
+2. creating a Fargate compute environment;
+3. creating a job queue;
+4. registering a small job definition;
+5. submitting and monitoring one job;
+6. reading its CloudWatch log; and
+7. disabling and deleting the queue and compute environment and removing the
+   remaining tutorial resources.
+
+Before executing each tutorial command, replace its names with a clear prefix
+such as `nf-biologist-lab-` and check that `AWS_REGION` is still correct:
+
+```bash
+aws sts get-caller-identity
+printf 'Region: %s\n' "$AWS_REGION"
+```
+
+Do not add a NAT gateway, large data, GPUs or a long-running service. Choose
+Fargate and use the tutorial's stated CPU, memory and single short hello-world
+command. Fargate accepts only specific CPU/memory combinations; do not enlarge
+the request merely because more capacity sounds safer.
+
+Capture this evidence in `cloud-batch-evidence.txt`:
+
+```text
+Region:
+job name:
+job ID:
+final Batch status:
+container image/tag or digest:
+requested vCPU and memory:
+CloudWatch log group/stream:
+first and last log timestamps:
+job output summary:
+cleanup completion time:
+```
+
+Do not publish raw account IDs, ARNs or logs until you have reviewed them.
+
+### Phase 4 — prove cleanup
+
+Follow the tutorial cleanup in dependency order. Batch generally requires a
+queue or compute environment to be disabled before it can be deleted. Wait for
+the reported state instead of repeatedly issuing deletion commands.
+
+Then inspect, rather than assume:
+
+```bash
+aws batch describe-job-queues
+aws batch describe-compute-environments
+aws batch describe-job-definitions --status ACTIVE
+aws s3api list-buckets --query 'Buckets[].Name'
+```
+
+Filter the output for your `nf-biologist-lab-` prefix. Confirm that no lab
+queue, compute environment, active job definition or bucket remains. Review
+the IAM role and CloudWatch log group created by the tutorial and remove them
+if the tutorial's cleanup did not do so. Do not delete unrelated resources.
+
+Record:
+
+```text
+lab bucket absent: yes/no
+lab queue absent: yes/no
+lab compute environment absent: yes/no
+lab job definition inactive/removed: yes/no
+lab IAM role removed: yes/no
+lab log group retained or removed intentionally:
+end time:
+```
+
+Check the billing dashboard later because cost data is delayed. The goal is not
+to claim a universal exact price; it is to connect each observed charge to a
+resource and prove that no billable lab resource was left running.
+
+### Optional extension — understand ECR without retaining an image
+
+If you already understand Docker and want to practice the registry layer,
+follow the official
+[ECR getting-started procedure](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html)
+with a tiny image. Record both tag and digest, pull by digest, then delete the
+image and repository immediately. Review current ECR storage and transfer
+pricing first. This extension is intentionally optional because Chapter 9
+teaches image construction in depth.
+
+## Practical acceptance checklist
+
+The paid lab is complete only when you can show:
+
+- expected identity and Region were checked before resource creation;
+- a budget and personal spending ceiling were established;
+- only synthetic data was uploaded;
+- public S3 access was blocked;
+- upload/download bytes matched;
+- the Batch job reached `SUCCEEDED` and its log was inspected;
+- requested CPU, memory and image were recorded;
+- every lab resource was enumerated after teardown; and
+- delayed billing was checked later.
+
+## Hands-on exercise: design the next experiment
+
+Design—but do not deploy—a cloud version of this book's five-process pipeline:
+raw FastQC, Trim Galore, trimmed FastQC, Bowtie2 alignment/sort and BAM QC.
+
+In `cloud-nextflow-design.md`, provide:
+
+1. a diagram showing launcher, S3 prefixes, Batch, compute, registry and logs;
+2. separate human, launcher and task identities;
+3. proposed Region and the evidence needed to approve it;
+4. input, work and result retention rules;
+5. an immutable image reference strategy;
+6. CPU and memory hypotheses for each process;
+7. failure, retry and `-resume` behavior;
+8. operational and scientific acceptance tests;
+9. a cost model listing every potentially billable component; and
+10. a teardown or production-ownership plan.
+
+Then ask an AI system to review the design. Add a section titled **AI claims I
+verified**. For every accepted suggestion, identify the authoritative provider
+or Nextflow documentation, version and date checked. Reject suggestions that
+assume permissions, compliance approval or prices without evidence.
+
+## Ten interview questions
+
+### 1. What is the difference between AWS Batch and Fargate?
+
+<details><summary>Model answer</summary>
+
+AWS Batch is the scheduling/orchestration layer: it accepts jobs, evaluates
+queues and places work. Fargate is one compute option that supplies serverless
+container capacity. Batch can also use managed EC2 capacity. A complete answer
+names both layers because they affect cost, capability and operations
+differently.
+
+</details>
+
+### 2. Why is an S3 prefix not a normal directory?
+
+<details><summary>Model answer</summary>
+
+S3 stores objects identified by bucket and key. Slash-separated prefixes give
+keys a hierarchical appearance, but there is no POSIX directory tree with the
+same rename, locking, permissions and random-access semantics. Applications
+must use an object API or an integration that deliberately translates those
+semantics.
+
+</details>
+
+### 3. A Batch job says `SUCCEEDED`. Is the analysis valid?
+
+<details><summary>Model answer</summary>
+
+No. It means the scheduled command reported successful completion. I would
+also verify input identity and checksums, workflow revision, image digest,
+parameters, expected outputs and domain metrics such as read counts, FastQC,
+mapping statistics and sample identity.
+
+</details>
+
+### 4. Why should a workload use an IAM role instead of an access key in its image?
+
+<details><summary>Model answer</summary>
+
+A role provides temporary, rotatable credentials to the workload and can be
+scoped with least-privilege policies. A key baked into an image is long-lived,
+can be copied with every image pull, is difficult to rotate and turns the image
+registry into a credential exposure path.
+
+</details>
+
+### 5. Why does a budget alert not guarantee a spending cap?
+
+<details><summary>Model answer</summary>
+
+Billing data and budget evaluation are delayed, and an alert is ordinarily a
+notification rather than an immediate resource kill switch. Cost control also
+requires quotas and policy where appropriate, small initial tests, bounded
+resources, ownership, monitoring and explicit teardown.
+
+</details>
+
+### 6. Why pin a container digest if the image already has a version tag?
+
+<details><summary>Model answer</summary>
+
+A registry tag is a reference that can be moved to different content. A digest
+is content-addressed and identifies the exact image manifest. I can retain a
+readable version tag for discovery while recording or executing the digest for
+reproducibility.
+
+</details>
+
+### 7. What belongs in the Nextflow S3 work directory, and why does lifecycle matter?
+
+<details><summary>Model answer</summary>
+
+The work directory contains staged task inputs, commands, metadata and outputs
+used for execution and resume. It can grow much larger than final results.
+Deleting it too early breaks resume and audit needs; retaining it indefinitely
+creates cost and governance problems. Retention must reflect recovery,
+reproducibility, policy and whether the data can be recomputed.
+
+</details>
+
+### 8. How would you investigate `AccessDenied` safely?
+
+<details><summary>Model answer</summary>
+
+I would identify the caller, denied API action, exact resource and relevant
+identity/resource/key policies. I would decide whether the action is actually
+required, then grant the narrowest justified permission and retest. I would
+not attach administrator access merely to make the error disappear.
+
+</details>
+
+### 9. Why can data transfer dominate an apparently cheap compute design?
+
+<details><summary>Model answer</summary>
+
+Genomics inputs and intermediates are large. Repeated downloads, cross-Region
+movement, internet egress or traffic through charged networking components can
+outweigh a short compute task. I place compute near approved data, minimize
+unnecessary copies and model storage requests and transfer explicitly.
+
+</details>
+
+### 10. What must you verify before moving human genomic data to a cloud account?
+
+<details><summary>Model answer</summary>
+
+I need institutional approval and evidence for consented use, data
+classification, contracts, permitted account and Region, identity and least
+privilege, encryption/key governance, networking, logging, retention, backup,
+deletion and incident response. Technical encryption alone does not establish
+legal or organizational authorization.
+
+</details>
+
+## What you should now be able to explain
+
+You should be able to narrate a cloud workflow from authenticated submission
+through object access, container resolution, scheduling, execution, logging,
+scientific validation, billing and cleanup. More importantly, you should be
+able to stop an unsafe deployment and name the missing evidence.
+
+The next chapter introduces Git: the system that records changes to the
+workflow, infrastructure, documentation and evidence you have learned to
+reason about.
