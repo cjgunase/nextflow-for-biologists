@@ -1098,7 +1098,249 @@
     "href": "chapters/05-cloud-execution-mental-model.html",
     "title": "5  Cloud execution mental model: AWS and transferable concepts",
     "section": "",
-    "text": "This chapter will explain how identity, object storage, registries, managed batch compute, networking, logging, security and cost fit together when a Nextflow pipeline runs in the cloud.\nAWS will provide the concrete examples, with brief mappings to Azure and Google Cloud. No billable cloud account will be required for the learning exercise.\nThe complete reasoning-first chapter will be developed and tested next.",
+    "text": "5.1 Why a biologist should care\nOn an HPC cluster, an institution has already chosen the machines, network, scheduler, storage and much of the security model. In a cloud account, your team may be responsible for assembling those pieces—and every running or stored resource can become a billable decision.\nThe cloud is not merely “someone else’s computer.” It is an API-driven system for creating computers, storage, networks, identities and managed services on demand. That flexibility is valuable for burst capacity, collaboration and repeatable deployment. It also creates new failure modes:\nAI can draft infrastructure commands quickly. Your professional value is being able to review the identity boundary, data movement, scientific inputs, failure behavior, cleanup and evidence.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#why-a-biologist-should-care",
+    "href": "chapters/05-cloud-execution-mental-model.html#why-a-biologist-should-care",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "",
+    "text": "a valid access key can still have dangerously broad permissions;\na bucket can contain the right bytes but be in the wrong account or Region;\na successful task can leave large intermediate files accumulating for months;\na container tag can silently point to different software later;\ndownloading data between Regions can cost money;\na budget notification can arrive after spending has occurred; and\ntechnically correct infrastructure can violate consent, residency or institutional policy.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#engineering-objective",
+    "href": "chapters/05-cloud-execution-mental-model.html#engineering-objective",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.2 Engineering objective",
+    "text": "5.2 Engineering objective\nBuild one coherent model of a cloud workflow:\nhuman or CI identity\n        │ authenticated API requests\n        ▼\nworkflow launcher ── submits jobs ──► managed batch scheduler\n        │                                  │\n        │ reads/writes state               │ starts isolated containers\n        ▼                                  ▼\nobject storage ◄──────────────────── serverless or VM compute\n inputs / work / outputs                    │\n        ▲                                   ▼\n        └──────── logs and metrics ◄── logging service\n\ncontainer registry ── immutable image digest ──► compute\n                                    billing ◄── every service used\nThis diagram has two kinds of traffic:\n\nthe control plane creates, configures and schedules resources; and\nthe data plane moves reads, references, containers, intermediates and results.\n\nA pipeline can have correct control-plane configuration while reading the wrong data. It can produce correct results while wasting money. Engineering quality requires both planes plus scientific validation.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#start-with-the-vocabulary",
+    "href": "chapters/05-cloud-execution-mental-model.html#start-with-the-vocabulary",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.3 Start with the vocabulary",
+    "text": "5.3 Start with the vocabulary\n\n\n\n\n\n\n\n\nConcept\nMeaning\nFrequent beginner mistake\n\n\n\n\nCloud account\nAdministrative and billing boundary\nTreating it as only a username\n\n\nRegion\nGeographic service area such as us-east-1\nAssuming every resource is global\n\n\nAvailability Zone\nIsolated location within a Region\nTreating it as another Region\n\n\nService\nA capability such as S3, Batch or ECR\nThinking one service is one server\n\n\nResource\nA created object such as a bucket or job queue\nForgetting resources persist until removed\n\n\nAPI/CLI\nProgrammatic interface to the control plane\nAssuming a command runs on the local machine\n\n\nIAM principal\nHuman or workload identity making a request\nConfusing identity with permission\n\n\nPolicy\nRules allowing or denying actions on resources\nUsing administrator access for convenience\n\n\nRole\nAn assumable identity with temporary credentials\nEmbedding long-lived keys in code\n\n\nARN\nAWS resource identifier\nTreating a display name as globally unique\n\n\n\nAWS is the concrete example in this chapter. The mental model transfers; the names and command syntax do not.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#accounts-regions-and-availability-zones",
+    "href": "chapters/05-cloud-execution-mental-model.html#accounts-regions-and-availability-zones",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.4 Accounts, Regions and Availability Zones",
+    "text": "5.4 Accounts, Regions and Availability Zones\nAn AWS account is a security, ownership and billing boundary. A company usually separates production, development and security responsibilities across multiple accounts rather than placing everything in one account.\nA Region is where a regional service is operated. Choose it deliberately:\n\nis the service available there?\nmay the data legally and contractually reside there?\nare the inputs already there?\nis compute capacity appropriate?\nwhat are that Region’s prices and transfer boundaries?\n\nAn Availability Zone is an isolated location inside a Region. Batch services can spread work across zones, but a single-zone filesystem or network design can still create dependencies.\n\n\n\n\n\n\nImportantA Region is part of the analysis specification\n\n\n\nRecord the account alias or sanitized account ID, Region, storage locations, image digest and workflow revision. “It ran on AWS” is not enough provenance.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#identity-is-the-first-dependency",
+    "href": "chapters/05-cloud-execution-mental-model.html#identity-is-the-first-dependency",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.5 Identity is the first dependency",
+    "text": "5.5 Identity is the first dependency\nEvery cloud operation asks two questions:\n\nWho is making this request? Authentication establishes an identity.\nMay that identity perform this action on this resource? Authorization evaluates policies.\n\nThese are different. A successfully authenticated identity can receive AccessDenied, and that can be the correct security outcome.\n\n5.5.1 Human identities and workload identities\nHumans should normally enter through organizational federation or IAM Identity Center, use multi-factor authentication and obtain temporary credentials. Compute should assume a workload role with only the permissions it needs.\nAvoid:\n\ncreating access keys for the AWS account root user;\ncommitting access keys, session tokens or credential files;\nplacing credentials inside a container image;\ngiving every pipeline AdministratorAccess; and\nsharing one person’s credentials with automation.\n\nAWS’s IAM best practices recommend federation, temporary credentials, MFA and least privilege. The root-user guidance explicitly recommends minimizing root use and not creating root access keys.\n\n\n5.5.2 Least privilege is an iterative engineering process\nA useful policy describes:\n\nactions: for example, read objects but not delete buckets;\nresources: the exact bucket prefix or job queue;\nconditions: perhaps the expected account, network path or encryption key;\nduration: temporary credentials rather than indefinite secrets.\n\nDo not ask AI to “fix AccessDenied” and blindly apply the broader policy it returns. First read the denied action and resource, then decide whether the workflow should be allowed to perform it.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#storage-s3-is-not-a-shared-directory",
+    "href": "chapters/05-cloud-execution-mental-model.html#storage-s3-is-not-a-shared-directory",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.6 Storage: S3 is not a shared directory",
+    "text": "5.6 Storage: S3 is not a shared directory\nAmazon S3 is object storage. An object has bytes, a key and metadata inside a bucket. A URI such as\ns3://example-bucket/project-a/sample-01/R1.fastq.gz\nlooks path-like, but project-a/sample-01/ is a key prefix—not a POSIX directory. Traditional assumptions may not apply:\n\nthere is no normal cd into an S3 bucket;\napplications generally access objects through APIs or integrations;\nrename is commonly implemented as copy plus delete;\nrequest count and transfer can affect cost;\npermissions are evaluated by bucket, key, identity and sometimes encryption key; and\nplacing an output object is not the same as atomically replacing a local file.\n\nFor a workflow, separate prefixes deliberately:\ns3://my-lab-bucket/inputs/     immutable test inputs\ns3://my-lab-bucket/work/       recomputable workflow state\ns3://my-lab-bucket/results/    retained deliverables\ns3://my-lab-bucket/logs/       operational evidence, if configured\nUse checksums or application-aware validation after transfers. A successful upload proves that an API call completed, not that the correct biological file was selected.\n\n5.6.1 Storage cost is more than gigabytes\nThe S3 pricing model includes storage, requests, retrieval for some classes and data transfer. Lifecycle rules can expire recomputable work objects or transition retained data, but a deletion policy is a scientific and governance decision—not merely a cost optimization.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#containers-and-registries",
+    "href": "chapters/05-cloud-execution-mental-model.html#containers-and-registries",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.7 Containers and registries",
+    "text": "5.7 Containers and registries\nA container image packages executables and runtime dependencies. A registry stores and distributes those images. Amazon Elastic Container Registry (ECR) is AWS’s managed registry.\nKeep this boundary clear:\n\n\n\n\n\n\n\nPut in the image\nDo not put in the image\n\n\n\n\ntools and runtime libraries\npatient or participant data\n\n\nsmall stable configuration defaults\ncloud credentials\n\n\nentrypoint or helper scripts\nlarge changing reference bundles by default\n\n\nlabels describing source/version\nwritable workflow outputs\n\n\n\nAn image tag such as :latest is a movable label. An image digest such as sha256:... identifies content. Use tags for human-friendly discovery and record or deploy the digest for reproducibility.\nBefore trusting an image, ask:\n\nWho built it, from which source revision?\nWere dependencies pinned?\nWhat architecture does it support?\nDoes it run as root?\nIs it scanned and patched under an explicit policy?\nCan the exact digest be recovered later?",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#compute-ec2-fargate-and-aws-batch-are-different-layers",
+    "href": "chapters/05-cloud-execution-mental-model.html#compute-ec2-fargate-and-aws-batch-are-different-layers",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.8 Compute: EC2, Fargate and AWS Batch are different layers",
+    "text": "5.8 Compute: EC2, Fargate and AWS Batch are different layers\n\n5.8.1 EC2 virtual machines\nEC2 provides virtual machines. You choose an instance family and size and are responsible for more operational detail. It offers broad flexibility, specialized hardware and Spot capacity, but also exposes more infrastructure.\n\n\n5.8.2 Fargate serverless container compute\nAWS Fargate runs containers without you managing the underlying instances. You request CPU, memory and related settings. AWS documents Linux Fargate billing per second with a one-minute minimum; other charges such as public IPv4, logging and transfer can still apply. Always check the current Fargate pricing page for the chosen Region and architecture.\n\n\n5.8.3 AWS Batch orchestration\nAWS Batch is a managed batch scheduler. Its core objects are:\n\njob definition: the execution blueprint—image, CPU, memory, command, roles and retry-related settings;\njob queue: where submitted jobs wait and how they are routed; and\ncompute environment: where Batch can obtain compute, such as Fargate or managed EC2 capacity.\n\nBatch schedules the work; Fargate or EC2 supplies the compute. Saying “the pipeline runs on Batch” does not identify the compute model.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#networking-the-hidden-architecture",
+    "href": "chapters/05-cloud-execution-mental-model.html#networking-the-hidden-architecture",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.9 Networking: the hidden architecture",
+    "text": "5.9 Networking: the hidden architecture\nA Virtual Private Cloud (VPC) is a logically isolated network. Subnets divide its address space and are associated with Availability Zones. Route tables decide where traffic can go. Security groups filter allowed traffic to and from resources.\nThe words public subnet and private subnet do not themselves prove security. Examine routes, addresses, endpoints, security groups and workload behavior.\nA container may need to reach:\n\nECR to pull its image;\nS3 to read inputs and write work;\nCloudWatch Logs to send logs;\nexternal package or reference servers, if the design permits them.\n\nPrivate workloads can use service endpoints for some AWS services. A NAT gateway provides outbound internet access but can create hourly and per-gigabyte charges. A miniature learning lab does not need a NAT gateway.\n\n\n\n\n\n\nWarningNever copy a production network from a tutorial\n\n\n\nTutorial networking prioritizes comprehensibility and short-lived experiments. Production biomedical systems require review by the organization’s cloud, security, privacy and compliance owners.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#logs-metrics-and-scientific-evidence",
+    "href": "chapters/05-cloud-execution-mental-model.html#logs-metrics-and-scientific-evidence",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.10 Logs, metrics and scientific evidence",
+    "text": "5.10 Logs, metrics and scientific evidence\nCloudWatch can collect Batch job logs and operational metrics. Nextflow can also produce a trace, report, timeline and DAG. These evidence types answer different questions:\n\n\n\n\n\n\n\nEvidence\nQuestion it helps answer\n\n\n\n\nBatch job state\nDid the cloud scheduler report success?\n\n\nContainer log\nWhat did the application write to stdout/stderr?\n\n\nNextflow trace\nWhich process ran, for how long and with what status?\n\n\nObject metadata/checksum\nWere expected bytes stored or transferred?\n\n\nFastQC/BAM metrics\nAre the scientific outputs plausible?\n\n\nCloud billing data\nWhat resource usage generated cost?\n\n\n\nNo single green status proves all six.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#how-nextflow-maps-onto-aws",
+    "href": "chapters/05-cloud-execution-mental-model.html#how-nextflow-maps-onto-aws",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.11 How Nextflow maps onto AWS",
+    "text": "5.11 How Nextflow maps onto AWS\nA common architecture has these roles:\nNextflow launcher\n  ├── reads workflow code and configuration\n  ├── stages or references data in S3\n  ├── submits each process as an AWS Batch job\n  ├── records workflow state in an S3 work directory\n  └── monitors job states and publishes outputs\n\nAWS Batch job\n  ├── receives CPU, memory, image and command\n  ├── starts a container on Fargate or EC2\n  ├── reads staged inputs\n  ├── writes task outputs and logs\n  └── exits with a status code\nNextflow’s AWS integration is supplied by the nf-amazon plugin. Exact configuration changes across Nextflow releases, so use the documentation for the version you are running rather than copying an old blog post.\nConceptually, a cloud profile must decide at least:\nprofiles {\n    aws_batch {\n        process.executor = 'awsbatch'\n        process.queue = '&lt;batch-job-queue&gt;'\n        process.container = '&lt;registry&gt;/&lt;image&gt;@sha256:&lt;digest&gt;'\n        workDir = 's3://&lt;bucket&gt;/work'\n    }\n}\nThis is an architecture sketch, not a ready-to-run profile. Authentication, Region, plugin/version requirements, IAM roles, networking, encryption, resource labels and cleanup must be defined for the real environment.\n\n\n\n\n\n\nImportantConda is not the cloud runtime plan\n\n\n\nNextflow documents that its Conda environment feature is not supported with remote object-storage executors such as AWS Batch. Build the required tools into an immutable container image instead of attempting to solve a Conda environment independently inside every remote task.\n\n\nThe launcher also matters. It may run on a laptop, a controlled virtual machine, a CI runner or a managed orchestration product. It needs durable state, network access and permission to submit and monitor jobs. Closing an unmanaged laptop halfway through a production workflow is not a reliability design.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#hpc-and-cloud-translate-do-not-equate",
+    "href": "chapters/05-cloud-execution-mental-model.html#hpc-and-cloud-translate-do-not-equate",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.12 HPC and cloud: translate, do not equate",
+    "text": "5.12 HPC and cloud: translate, do not equate\n\n\n\n\n\n\n\n\nHPC idea\nTypical AWS analogue\nImportant difference\n\n\n\n\nUser/project account\nIAM principal and AWS account/project tags\nIdentity and billing boundaries are API policy objects\n\n\nSLURM partition\nBatch queue plus compute environment\nCapacity can be dynamically provisioned\n\n\nsbatch\nBatch SubmitJob API\nSubmission requires cloud IAM and resource identifiers\n\n\nCompute node\nEC2 instance or Fargate task\nLifetime may be minutes rather than years\n\n\nShared project filesystem\nS3, EFS or FSx depending on semantics\nObject storage is not POSIX storage\n\n\nModule\nUsually software inside the container\nHost modules are not portable to remote containers\n\n\nsacct and job log\nBatch state, CloudWatch and Nextflow trace\nEvidence is distributed across services\n\n\nAllocation limits\nQuotas, budgets, policy and account controls\nA budget alert is not a scheduler quota",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#the-cloud-bill-is-an-output-of-the-architecture",
+    "href": "chapters/05-cloud-execution-mental-model.html#the-cloud-bill-is-an-output-of-the-architecture",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.13 The cloud bill is an output of the architecture",
+    "text": "5.13 The cloud bill is an output of the architecture\nThink in components:\ntotal cost ≈ compute duration\n           + stored bytes × retention\n           + storage/API requests\n           + data transfer\n           + logs and metrics retained\n           + networking resources\n           + managed-service charges\nCommon surprises include idle virtual machines, unattached disks, old image layers, S3 work prefixes, verbose logs, public IPv4 addresses, NAT gateways and cross-Region transfer.\nTreat each resource choice as a hypothesis. Start with a representative small sample, read the trace and billing evidence, then revise CPU, memory and parallelism. Cheapest per hour is not necessarily cheapest per completed sample, and Spot capacity is not appropriate unless retries and interruption behavior are understood.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#biomedical-data-raises-the-stakes",
+    "href": "chapters/05-cloud-execution-mental-model.html#biomedical-data-raises-the-stakes",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.14 Biomedical data raises the stakes",
+    "text": "5.14 Biomedical data raises the stakes\nThe practical below uses synthetic text only. Before moving real human data, answer these questions with institutional owners:\n\nDoes consent permit this use and location?\nIs the account approved for the data classification?\nAre agreements such as a BAA required and in place?\nWhich Regions are permitted?\nHow are encryption keys governed?\nWho can read, copy, share and delete objects?\nAre access and administrative events logged for the required duration?\nWhat are retention, backup and deletion obligations?\nHow are incidents and accidental disclosure handled?\n\nEncryption is necessary but not sufficient. Encrypting a publicly accessible or over-permissioned resource does not repair its authorization model.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#transfer-the-model-to-other-clouds",
+    "href": "chapters/05-cloud-execution-mental-model.html#transfer-the-model-to-other-clouds",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.15 Transfer the model to other clouds",
+    "text": "5.15 Transfer the model to other clouds\n\n\n\n\n\n\n\n\n\nFunction\nAWS\nAzure\nGoogle Cloud\n\n\n\n\nIdentity/policy\nIAM roles and policies\nMicrosoft Entra ID and Azure RBAC\nCloud IAM and service accounts\n\n\nObject storage\nS3\nBlob Storage\nCloud Storage\n\n\nContainer registry\nECR\nAzure Container Registry\nArtifact Registry\n\n\nManaged batch\nAWS Batch\nAzure Batch\nGoogle Cloud Batch\n\n\nLogs/metrics\nCloudWatch\nAzure Monitor\nCloud Logging and Monitoring\n\n\nPrivate network\nVPC\nVirtual Network\nVPC\n\n\n\nThis table maps responsibilities, not exact features. Nextflow has provider- specific executors and plugins; verify current support, authentication and storage semantics before translating a configuration.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#review-ai-generated-cloud-code",
+    "href": "chapters/05-cloud-execution-mental-model.html#review-ai-generated-cloud-code",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.16 Review AI-generated cloud code",
+    "text": "5.16 Review AI-generated cloud code\nBefore executing a generated command, Terraform module or Nextflow profile, ask:\n\nWhich account and Region will this change?\nWhich identity will execute it, and where do credentials come from?\nWhat new resources will persist and incur cost?\nAre names, ARNs, subnets, roles and image architecture valid here?\nIs any permission broader than the described workflow requires?\nCan any input, log or error message expose sensitive information?\nIs the container pinned by digest and compatible with the compute type?\nWhere are work files stored, encrypted and eventually deleted?\nWhat does failure leave behind?\nWhat commands verify success and complete cleanup?\n\nIf those answers are absent, the code is an unreviewed proposal.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#practical-1-a-zero-cost-architecture-review",
+    "href": "chapters/05-cloud-execution-mental-model.html#practical-1-a-zero-cost-architecture-review",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.17 Practical 1: a zero-cost architecture review",
+    "text": "5.17 Practical 1: a zero-cost architecture review\nThis practical requires no cloud account.\nCreate cloud-architecture-review.md and analyze this proposal:\n\nUpload FASTQ files to a public S3 bucket. Put an AWS access key in the Dockerfile. Run Nextflow from a laptop using :latest, grant the job administrator access and keep the work directory forever in case it is needed.\n\nRecord at least one problem and one corrected decision under each heading:\n# Cloud architecture review\n\n## Identity and secrets\n## Data classification and access\n## Container provenance\n## Workflow launcher and recovery\n## Compute and networking\n## Storage lifecycle\n## Cost controls\n## Scientific validation\n## Logging and audit evidence\n## Cleanup and ownership\nA defensible review should reject the public bucket and embedded credential; separate human and workload roles; pin the image digest; place the launcher in a durable managed context; define encrypted storage, retention and deletion; and specify scientific and operational acceptance tests.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#practical-2-miniature-paid-aws-lab",
+    "href": "chapters/05-cloud-execution-mental-model.html#practical-2-miniature-paid-aws-lab",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.18 Practical 2: miniature paid AWS lab",
+    "text": "5.18 Practical 2: miniature paid AWS lab\nThis optional practical creates real cloud resources and can incur charges. It uses synthetic data and has two stages:\n\nstore and verify one tiny object in S3; and\nrun the official AWS Batch Fargate hello-world job.\n\nAWS estimates its Fargate CLI tutorial at less than USD $0.01 if resources are removed promptly, but that is not a guarantee of your total bill. Prices, taxes, existing account resources, public IPv4 charges and Regions differ. Check current pricing before starting. Set a personal ceiling such as $5 that you are genuinely willing to pay.\n\n\n\n\n\n\nWarningBudget alerts are delayed, not hard caps\n\n\n\nAWS states that budget information can be delayed and is updated only several times per day. A $5 alert does not automatically prevent $6 of spending. The controls in this lab are tiny inputs, no NAT gateway, short execution, immediate teardown and verification.\n\n\n\n5.18.1 Phase 0 — authorization and guardrails\nUse a personal learning account only if you are authorized to create charges. Do not use an employer account without approval. Secure the root user with MFA, do not create root access keys and use a non-root federated or IAM identity for normal work.\nIn Billing and Cost Management → Budgets, create a monthly cost budget. A reasonable learning configuration is:\n\nbudget amount: $5 USD;\nactual-cost alerts: $1, $3 and $5;\nalert destination: an email address you actively monitor; and\nno assumption that the alert terminates resources.\n\nFollow AWS’s current cost-budget procedure. Also inspect the account’s current Cost Explorer/billing view so pre-existing costs are not attributed to this lab.\nWrite down:\nspending ceiling accepted: yes/no\nbudget configured: yes/no\naccount contains other resources: yes/no/unknown\nchosen Region:\nstart time:\nStop if the first two answers are not yes.\n\n\n5.18.2 Phase 1 — open CloudShell and prove identity\nOpen AWS CloudShell in the chosen Region. AWS provides CloudShell without an additional CloudShell charge, although resources created from it are billable. Its browser session supplies temporary credentials, so this exercise does not need a local access key.\nSet one Region and inspect the caller:\nexport AWS_REGION=us-east-1\nexport AWS_DEFAULT_REGION=\"$AWS_REGION\"\n\naws sts get-caller-identity\naws configure get region\nReplace us-east-1 if you intentionally selected another Region. Confirm that the account and ARN are the learning identity you expected. Do not paste the complete account ID into a public repository.\nCreate collision-resistant lab names from the current account:\nLAB_ACCOUNT_ID=\"$(aws sts get-caller-identity --query Account --output text)\"\nLAB_SUFFIX=\"$(date -u +%Y%m%d%H%M%S)\"\nLAB_BUCKET=\"nf-biologist-${LAB_ACCOUNT_ID}-${LAB_SUFFIX}\"\n\nprintf 'region=%s\\nbucket=%s\\n' \"$AWS_REGION\" \"$LAB_BUCKET\" \\\n  &gt; cloud-lab-state.txt\ncloud-lab-state.txt is your cleanup record. It contains an account-derived bucket name, so keep it local rather than committing it.\n\n\n5.18.3 Phase 2 — create, verify and remove a tiny S3 object\nCreate a four-line synthetic FASTQ-like fixture:\nprintf '@synthetic-read-1\\nACGTACGT\\n+\\nFFFFFFFF\\n' &gt; mini.fastq\nsha256sum mini.fastq\nCreate the bucket. us-east-1 has special bucket-creation syntax:\nif [ \"$AWS_REGION\" = \"us-east-1\" ]; then\n  aws s3api create-bucket --bucket \"$LAB_BUCKET\" --region \"$AWS_REGION\"\nelse\n  aws s3api create-bucket \\\n    --bucket \"$LAB_BUCKET\" \\\n    --region \"$AWS_REGION\" \\\n    --create-bucket-configuration LocationConstraint=\"$AWS_REGION\"\nfi\nBlock public access explicitly:\naws s3api put-public-access-block \\\n  --bucket \"$LAB_BUCKET\" \\\n  --public-access-block-configuration \\\n  'BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true'\nUpload, list and download the object:\naws s3 cp mini.fastq \"s3://${LAB_BUCKET}/inputs/mini.fastq\"\naws s3 ls \"s3://${LAB_BUCKET}/inputs/\"\naws s3 cp \"s3://${LAB_BUCKET}/inputs/mini.fastq\" mini.downloaded.fastq\nCompare the bytes:\nsha256sum mini.fastq mini.downloaded.fastq\ncmp mini.fastq mini.downloaded.fastq\necho \"cmp_exit_code=$?\"\nAn exit code of 0 and matching hashes prove byte identity. They do not prove that a real FASTQ has valid pairing, read counts or biological provenance.\nInspect the controls rather than assuming them:\naws s3api get-bucket-location --bucket \"$LAB_BUCKET\"\naws s3api get-public-access-block --bucket \"$LAB_BUCKET\"\naws s3api head-object --bucket \"$LAB_BUCKET\" --key inputs/mini.fastq\nNow remove only the known object, verify the bucket is empty, then remove it:\naws s3api delete-object \\\n  --bucket \"$LAB_BUCKET\" \\\n  --key inputs/mini.fastq\n\naws s3api list-objects-v2 \\\n  --bucket \"$LAB_BUCKET\" \\\n  --query 'Contents[].Key'\n\naws s3api delete-bucket --bucket \"$LAB_BUCKET\" --region \"$AWS_REGION\"\nThe list should return no keys before delete-bucket. Verify deletion:\naws s3api head-bucket --bucket \"$LAB_BUCKET\"\necho \"expected_nonzero_after_deletion=$?\"\nThe final call should fail because the bucket no longer exists or is no longer accessible. This is an intentional negative test.\n\n\n5.18.4 Phase 3 — run one tiny AWS Batch Fargate job\nUse AWS’s maintained AWS Batch Fargate CLI tutorial, not a copied third-party command sequence. It takes approximately 15–20 minutes and walks through:\n\ncreating the Batch task execution role;\ncreating a Fargate compute environment;\ncreating a job queue;\nregistering a small job definition;\nsubmitting and monitoring one job;\nreading its CloudWatch log; and\ndisabling and deleting the queue and compute environment and removing the remaining tutorial resources.\n\nBefore executing each tutorial command, replace its names with a clear prefix such as nf-biologist-lab- and check that AWS_REGION is still correct:\naws sts get-caller-identity\nprintf 'Region: %s\\n' \"$AWS_REGION\"\nDo not add a NAT gateway, large data, GPUs or a long-running service. Choose Fargate and use the tutorial’s stated CPU, memory and single short hello-world command. Fargate accepts only specific CPU/memory combinations; do not enlarge the request merely because more capacity sounds safer.\nCapture this evidence in cloud-batch-evidence.txt:\nRegion:\njob name:\njob ID:\nfinal Batch status:\ncontainer image/tag or digest:\nrequested vCPU and memory:\nCloudWatch log group/stream:\nfirst and last log timestamps:\njob output summary:\ncleanup completion time:\nDo not publish raw account IDs, ARNs or logs until you have reviewed them.\n\n\n5.18.5 Phase 4 — prove cleanup\nFollow the tutorial cleanup in dependency order. Batch generally requires a queue or compute environment to be disabled before it can be deleted. Wait for the reported state instead of repeatedly issuing deletion commands.\nThen inspect, rather than assume:\naws batch describe-job-queues\naws batch describe-compute-environments\naws batch describe-job-definitions --status ACTIVE\naws s3api list-buckets --query 'Buckets[].Name'\nFilter the output for your nf-biologist-lab- prefix. Confirm that no lab queue, compute environment, active job definition or bucket remains. Review the IAM role and CloudWatch log group created by the tutorial and remove them if the tutorial’s cleanup did not do so. Do not delete unrelated resources.\nRecord:\nlab bucket absent: yes/no\nlab queue absent: yes/no\nlab compute environment absent: yes/no\nlab job definition inactive/removed: yes/no\nlab IAM role removed: yes/no\nlab log group retained or removed intentionally:\nend time:\nCheck the billing dashboard later because cost data is delayed. The goal is not to claim a universal exact price; it is to connect each observed charge to a resource and prove that no billable lab resource was left running.\n\n\n5.18.6 Optional extension — understand ECR without retaining an image\nIf you already understand Docker and want to practice the registry layer, follow the official ECR getting-started procedure with a tiny image. Record both tag and digest, pull by digest, then delete the image and repository immediately. Review current ECR storage and transfer pricing first. This extension is intentionally optional because Chapter 9 teaches image construction in depth.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#practical-acceptance-checklist",
+    "href": "chapters/05-cloud-execution-mental-model.html#practical-acceptance-checklist",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.19 Practical acceptance checklist",
+    "text": "5.19 Practical acceptance checklist\nThe paid lab is complete only when you can show:\n\nexpected identity and Region were checked before resource creation;\na budget and personal spending ceiling were established;\nonly synthetic data was uploaded;\npublic S3 access was blocked;\nupload/download bytes matched;\nthe Batch job reached SUCCEEDED and its log was inspected;\nrequested CPU, memory and image were recorded;\nevery lab resource was enumerated after teardown; and\ndelayed billing was checked later.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#hands-on-exercise-design-the-next-experiment",
+    "href": "chapters/05-cloud-execution-mental-model.html#hands-on-exercise-design-the-next-experiment",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.20 Hands-on exercise: design the next experiment",
+    "text": "5.20 Hands-on exercise: design the next experiment\nDesign—but do not deploy—a cloud version of this book’s five-process pipeline: raw FastQC, Trim Galore, trimmed FastQC, Bowtie2 alignment/sort and BAM QC.\nIn cloud-nextflow-design.md, provide:\n\na diagram showing launcher, S3 prefixes, Batch, compute, registry and logs;\nseparate human, launcher and task identities;\nproposed Region and the evidence needed to approve it;\ninput, work and result retention rules;\nan immutable image reference strategy;\nCPU and memory hypotheses for each process;\nfailure, retry and -resume behavior;\noperational and scientific acceptance tests;\na cost model listing every potentially billable component; and\na teardown or production-ownership plan.\n\nThen ask an AI system to review the design. Add a section titled AI claims I verified. For every accepted suggestion, identify the authoritative provider or Nextflow documentation, version and date checked. Reject suggestions that assume permissions, compliance approval or prices without evidence.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#ten-interview-questions",
+    "href": "chapters/05-cloud-execution-mental-model.html#ten-interview-questions",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.21 Ten interview questions",
+    "text": "5.21 Ten interview questions\n\n5.21.1 1. What is the difference between AWS Batch and Fargate?\n\n\nModel answer\n\nAWS Batch is the scheduling/orchestration layer: it accepts jobs, evaluates queues and places work. Fargate is one compute option that supplies serverless container capacity. Batch can also use managed EC2 capacity. A complete answer names both layers because they affect cost, capability and operations differently.\n\n\n\n5.21.2 2. Why is an S3 prefix not a normal directory?\n\n\nModel answer\n\nS3 stores objects identified by bucket and key. Slash-separated prefixes give keys a hierarchical appearance, but there is no POSIX directory tree with the same rename, locking, permissions and random-access semantics. Applications must use an object API or an integration that deliberately translates those semantics.\n\n\n\n5.21.3 3. A Batch job says SUCCEEDED. Is the analysis valid?\n\n\nModel answer\n\nNo. It means the scheduled command reported successful completion. I would also verify input identity and checksums, workflow revision, image digest, parameters, expected outputs and domain metrics such as read counts, FastQC, mapping statistics and sample identity.\n\n\n\n5.21.4 4. Why should a workload use an IAM role instead of an access key in its image?\n\n\nModel answer\n\nA role provides temporary, rotatable credentials to the workload and can be scoped with least-privilege policies. A key baked into an image is long-lived, can be copied with every image pull, is difficult to rotate and turns the image registry into a credential exposure path.\n\n\n\n5.21.5 5. Why does a budget alert not guarantee a spending cap?\n\n\nModel answer\n\nBilling data and budget evaluation are delayed, and an alert is ordinarily a notification rather than an immediate resource kill switch. Cost control also requires quotas and policy where appropriate, small initial tests, bounded resources, ownership, monitoring and explicit teardown.\n\n\n\n5.21.6 6. Why pin a container digest if the image already has a version tag?\n\n\nModel answer\n\nA registry tag is a reference that can be moved to different content. A digest is content-addressed and identifies the exact image manifest. I can retain a readable version tag for discovery while recording or executing the digest for reproducibility.\n\n\n\n5.21.7 7. What belongs in the Nextflow S3 work directory, and why does lifecycle matter?\n\n\nModel answer\n\nThe work directory contains staged task inputs, commands, metadata and outputs used for execution and resume. It can grow much larger than final results. Deleting it too early breaks resume and audit needs; retaining it indefinitely creates cost and governance problems. Retention must reflect recovery, reproducibility, policy and whether the data can be recomputed.\n\n\n\n5.21.8 8. How would you investigate AccessDenied safely?\n\n\nModel answer\n\nI would identify the caller, denied API action, exact resource and relevant identity/resource/key policies. I would decide whether the action is actually required, then grant the narrowest justified permission and retest. I would not attach administrator access merely to make the error disappear.\n\n\n\n5.21.9 9. Why can data transfer dominate an apparently cheap compute design?\n\n\nModel answer\n\nGenomics inputs and intermediates are large. Repeated downloads, cross-Region movement, internet egress or traffic through charged networking components can outweigh a short compute task. I place compute near approved data, minimize unnecessary copies and model storage requests and transfer explicitly.\n\n\n\n5.21.10 10. What must you verify before moving human genomic data to a cloud account?\n\n\nModel answer\n\nI need institutional approval and evidence for consented use, data classification, contracts, permitted account and Region, identity and least privilege, encryption/key governance, networking, logging, retention, backup, deletion and incident response. Technical encryption alone does not establish legal or organizational authorization.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/05-cloud-execution-mental-model.html#what-you-should-now-be-able-to-explain",
+    "href": "chapters/05-cloud-execution-mental-model.html#what-you-should-now-be-able-to-explain",
+    "title": "5  Cloud execution mental model: AWS and transferable concepts",
+    "section": "5.22 What you should now be able to explain",
+    "text": "5.22 What you should now be able to explain\nYou should be able to narrate a cloud workflow from authenticated submission through object access, container resolution, scheduling, execution, logging, scientific validation, billing and cleanup. More importantly, you should be able to stop an unsafe deployment and name the missing evidence.\nThe next chapter introduces Git: the system that records changes to the workflow, infrastructure, documentation and evidence you have learned to reason about.",
     "crumbs": [
       "Part I — Build the mental model",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Cloud execution mental model: AWS and transferable concepts</span>"

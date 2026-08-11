@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -338,8 +373,67 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">5.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">5.2</span> Engineering objective</a></li>
+  <li><a href="#start-with-the-vocabulary" id="toc-start-with-the-vocabulary" class="nav-link" data-scroll-target="#start-with-the-vocabulary"><span class="header-section-number">5.3</span> Start with the vocabulary</a></li>
+  <li><a href="#accounts-regions-and-availability-zones" id="toc-accounts-regions-and-availability-zones" class="nav-link" data-scroll-target="#accounts-regions-and-availability-zones"><span class="header-section-number">5.4</span> Accounts, Regions and Availability Zones</a></li>
+  <li><a href="#identity-is-the-first-dependency" id="toc-identity-is-the-first-dependency" class="nav-link" data-scroll-target="#identity-is-the-first-dependency"><span class="header-section-number">5.5</span> Identity is the first dependency</a>
+  <ul class="collapse">
+  <li><a href="#human-identities-and-workload-identities" id="toc-human-identities-and-workload-identities" class="nav-link" data-scroll-target="#human-identities-and-workload-identities"><span class="header-section-number">5.5.1</span> Human identities and workload identities</a></li>
+  <li><a href="#least-privilege-is-an-iterative-engineering-process" id="toc-least-privilege-is-an-iterative-engineering-process" class="nav-link" data-scroll-target="#least-privilege-is-an-iterative-engineering-process"><span class="header-section-number">5.5.2</span> Least privilege is an iterative engineering process</a></li>
+  </ul></li>
+  <li><a href="#storage-s3-is-not-a-shared-directory" id="toc-storage-s3-is-not-a-shared-directory" class="nav-link" data-scroll-target="#storage-s3-is-not-a-shared-directory"><span class="header-section-number">5.6</span> Storage: S3 is not a shared directory</a>
+  <ul class="collapse">
+  <li><a href="#storage-cost-is-more-than-gigabytes" id="toc-storage-cost-is-more-than-gigabytes" class="nav-link" data-scroll-target="#storage-cost-is-more-than-gigabytes"><span class="header-section-number">5.6.1</span> Storage cost is more than gigabytes</a></li>
+  </ul></li>
+  <li><a href="#containers-and-registries" id="toc-containers-and-registries" class="nav-link" data-scroll-target="#containers-and-registries"><span class="header-section-number">5.7</span> Containers and registries</a></li>
+  <li><a href="#compute-ec2-fargate-and-aws-batch-are-different-layers" id="toc-compute-ec2-fargate-and-aws-batch-are-different-layers" class="nav-link" data-scroll-target="#compute-ec2-fargate-and-aws-batch-are-different-layers"><span class="header-section-number">5.8</span> Compute: EC2, Fargate and AWS Batch are different layers</a>
+  <ul class="collapse">
+  <li><a href="#ec2-virtual-machines" id="toc-ec2-virtual-machines" class="nav-link" data-scroll-target="#ec2-virtual-machines"><span class="header-section-number">5.8.1</span> EC2 virtual machines</a></li>
+  <li><a href="#fargate-serverless-container-compute" id="toc-fargate-serverless-container-compute" class="nav-link" data-scroll-target="#fargate-serverless-container-compute"><span class="header-section-number">5.8.2</span> Fargate serverless container compute</a></li>
+  <li><a href="#aws-batch-orchestration" id="toc-aws-batch-orchestration" class="nav-link" data-scroll-target="#aws-batch-orchestration"><span class="header-section-number">5.8.3</span> AWS Batch orchestration</a></li>
+  </ul></li>
+  <li><a href="#networking-the-hidden-architecture" id="toc-networking-the-hidden-architecture" class="nav-link" data-scroll-target="#networking-the-hidden-architecture"><span class="header-section-number">5.9</span> Networking: the hidden architecture</a></li>
+  <li><a href="#logs-metrics-and-scientific-evidence" id="toc-logs-metrics-and-scientific-evidence" class="nav-link" data-scroll-target="#logs-metrics-and-scientific-evidence"><span class="header-section-number">5.10</span> Logs, metrics and scientific evidence</a></li>
+  <li><a href="#how-nextflow-maps-onto-aws" id="toc-how-nextflow-maps-onto-aws" class="nav-link" data-scroll-target="#how-nextflow-maps-onto-aws"><span class="header-section-number">5.11</span> How Nextflow maps onto AWS</a></li>
+  <li><a href="#hpc-and-cloud-translate-do-not-equate" id="toc-hpc-and-cloud-translate-do-not-equate" class="nav-link" data-scroll-target="#hpc-and-cloud-translate-do-not-equate"><span class="header-section-number">5.12</span> HPC and cloud: translate, do not equate</a></li>
+  <li><a href="#the-cloud-bill-is-an-output-of-the-architecture" id="toc-the-cloud-bill-is-an-output-of-the-architecture" class="nav-link" data-scroll-target="#the-cloud-bill-is-an-output-of-the-architecture"><span class="header-section-number">5.13</span> The cloud bill is an output of the architecture</a></li>
+  <li><a href="#biomedical-data-raises-the-stakes" id="toc-biomedical-data-raises-the-stakes" class="nav-link" data-scroll-target="#biomedical-data-raises-the-stakes"><span class="header-section-number">5.14</span> Biomedical data raises the stakes</a></li>
+  <li><a href="#transfer-the-model-to-other-clouds" id="toc-transfer-the-model-to-other-clouds" class="nav-link" data-scroll-target="#transfer-the-model-to-other-clouds"><span class="header-section-number">5.15</span> Transfer the model to other clouds</a></li>
+  <li><a href="#review-ai-generated-cloud-code" id="toc-review-ai-generated-cloud-code" class="nav-link" data-scroll-target="#review-ai-generated-cloud-code"><span class="header-section-number">5.16</span> Review AI-generated cloud code</a></li>
+  <li><a href="#practical-1-a-zero-cost-architecture-review" id="toc-practical-1-a-zero-cost-architecture-review" class="nav-link" data-scroll-target="#practical-1-a-zero-cost-architecture-review"><span class="header-section-number">5.17</span> Practical 1: a zero-cost architecture review</a></li>
+  <li><a href="#practical-2-miniature-paid-aws-lab" id="toc-practical-2-miniature-paid-aws-lab" class="nav-link" data-scroll-target="#practical-2-miniature-paid-aws-lab"><span class="header-section-number">5.18</span> Practical 2: miniature paid AWS lab</a>
+  <ul class="collapse">
+  <li><a href="#phase-0-authorization-and-guardrails" id="toc-phase-0-authorization-and-guardrails" class="nav-link" data-scroll-target="#phase-0-authorization-and-guardrails"><span class="header-section-number">5.18.1</span> Phase 0 — authorization and guardrails</a></li>
+  <li><a href="#phase-1-open-cloudshell-and-prove-identity" id="toc-phase-1-open-cloudshell-and-prove-identity" class="nav-link" data-scroll-target="#phase-1-open-cloudshell-and-prove-identity"><span class="header-section-number">5.18.2</span> Phase 1 — open CloudShell and prove identity</a></li>
+  <li><a href="#phase-2-create-verify-and-remove-a-tiny-s3-object" id="toc-phase-2-create-verify-and-remove-a-tiny-s3-object" class="nav-link" data-scroll-target="#phase-2-create-verify-and-remove-a-tiny-s3-object"><span class="header-section-number">5.18.3</span> Phase 2 — create, verify and remove a tiny S3 object</a></li>
+  <li><a href="#phase-3-run-one-tiny-aws-batch-fargate-job" id="toc-phase-3-run-one-tiny-aws-batch-fargate-job" class="nav-link" data-scroll-target="#phase-3-run-one-tiny-aws-batch-fargate-job"><span class="header-section-number">5.18.4</span> Phase 3 — run one tiny AWS Batch Fargate job</a></li>
+  <li><a href="#phase-4-prove-cleanup" id="toc-phase-4-prove-cleanup" class="nav-link" data-scroll-target="#phase-4-prove-cleanup"><span class="header-section-number">5.18.5</span> Phase 4 — prove cleanup</a></li>
+  <li><a href="#optional-extension-understand-ecr-without-retaining-an-image" id="toc-optional-extension-understand-ecr-without-retaining-an-image" class="nav-link" data-scroll-target="#optional-extension-understand-ecr-without-retaining-an-image"><span class="header-section-number">5.18.6</span> Optional extension — understand ECR without retaining an image</a></li>
+  </ul></li>
+  <li><a href="#practical-acceptance-checklist" id="toc-practical-acceptance-checklist" class="nav-link" data-scroll-target="#practical-acceptance-checklist"><span class="header-section-number">5.19</span> Practical acceptance checklist</a></li>
+  <li><a href="#hands-on-exercise-design-the-next-experiment" id="toc-hands-on-exercise-design-the-next-experiment" class="nav-link" data-scroll-target="#hands-on-exercise-design-the-next-experiment"><span class="header-section-number">5.20</span> Hands-on exercise: design the next experiment</a></li>
+  <li><a href="#ten-interview-questions" id="toc-ten-interview-questions" class="nav-link" data-scroll-target="#ten-interview-questions"><span class="header-section-number">5.21</span> Ten interview questions</a>
+  <ul class="collapse">
+  <li><a href="#what-is-the-difference-between-aws-batch-and-fargate" id="toc-what-is-the-difference-between-aws-batch-and-fargate" class="nav-link" data-scroll-target="#what-is-the-difference-between-aws-batch-and-fargate"><span class="header-section-number">5.21.1</span> 1. What is the difference between AWS Batch and Fargate?</a></li>
+  <li><a href="#why-is-an-s3-prefix-not-a-normal-directory" id="toc-why-is-an-s3-prefix-not-a-normal-directory" class="nav-link" data-scroll-target="#why-is-an-s3-prefix-not-a-normal-directory"><span class="header-section-number">5.21.2</span> 2. Why is an S3 prefix not a normal directory?</a></li>
+  <li><a href="#a-batch-job-says-succeeded.-is-the-analysis-valid" id="toc-a-batch-job-says-succeeded.-is-the-analysis-valid" class="nav-link" data-scroll-target="#a-batch-job-says-succeeded.-is-the-analysis-valid"><span class="header-section-number">5.21.3</span> 3. A Batch job says <code>SUCCEEDED</code>. Is the analysis valid?</a></li>
+  <li><a href="#why-should-a-workload-use-an-iam-role-instead-of-an-access-key-in-its-image" id="toc-why-should-a-workload-use-an-iam-role-instead-of-an-access-key-in-its-image" class="nav-link" data-scroll-target="#why-should-a-workload-use-an-iam-role-instead-of-an-access-key-in-its-image"><span class="header-section-number">5.21.4</span> 4. Why should a workload use an IAM role instead of an access key in its image?</a></li>
+  <li><a href="#why-does-a-budget-alert-not-guarantee-a-spending-cap" id="toc-why-does-a-budget-alert-not-guarantee-a-spending-cap" class="nav-link" data-scroll-target="#why-does-a-budget-alert-not-guarantee-a-spending-cap"><span class="header-section-number">5.21.5</span> 5. Why does a budget alert not guarantee a spending cap?</a></li>
+  <li><a href="#why-pin-a-container-digest-if-the-image-already-has-a-version-tag" id="toc-why-pin-a-container-digest-if-the-image-already-has-a-version-tag" class="nav-link" data-scroll-target="#why-pin-a-container-digest-if-the-image-already-has-a-version-tag"><span class="header-section-number">5.21.6</span> 6. Why pin a container digest if the image already has a version tag?</a></li>
+  <li><a href="#what-belongs-in-the-nextflow-s3-work-directory-and-why-does-lifecycle-matter" id="toc-what-belongs-in-the-nextflow-s3-work-directory-and-why-does-lifecycle-matter" class="nav-link" data-scroll-target="#what-belongs-in-the-nextflow-s3-work-directory-and-why-does-lifecycle-matter"><span class="header-section-number">5.21.7</span> 7. What belongs in the Nextflow S3 work directory, and why does lifecycle matter?</a></li>
+  <li><a href="#how-would-you-investigate-accessdenied-safely" id="toc-how-would-you-investigate-accessdenied-safely" class="nav-link" data-scroll-target="#how-would-you-investigate-accessdenied-safely"><span class="header-section-number">5.21.8</span> 8. How would you investigate <code>AccessDenied</code> safely?</a></li>
+  <li><a href="#why-can-data-transfer-dominate-an-apparently-cheap-compute-design" id="toc-why-can-data-transfer-dominate-an-apparently-cheap-compute-design" class="nav-link" data-scroll-target="#why-can-data-transfer-dominate-an-apparently-cheap-compute-design"><span class="header-section-number">5.21.9</span> 9. Why can data transfer dominate an apparently cheap compute design?</a></li>
+  <li><a href="#what-must-you-verify-before-moving-human-genomic-data-to-a-cloud-account" id="toc-what-must-you-verify-before-moving-human-genomic-data-to-a-cloud-account" class="nav-link" data-scroll-target="#what-must-you-verify-before-moving-human-genomic-data-to-a-cloud-account"><span class="header-section-number">5.21.10</span> 10. What must you verify before moving human genomic data to a cloud account?</a></li>
+  </ul></li>
+  <li><a href="#what-you-should-now-be-able-to-explain" id="toc-what-you-should-now-be-able-to-explain" class="nav-link" data-scroll-target="#what-you-should-now-be-able-to-explain"><span class="header-section-number">5.22</span> What you should now be able to explain</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/05-cloud-execution-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -363,11 +457,865 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter will explain how identity, object storage, registries, managed batch compute, networking, logging, security and cost fit together when a Nextflow pipeline runs in the cloud.</p>
-<p>AWS will provide the concrete examples, with brief mappings to Azure and Google Cloud. No billable cloud account will be required for the learning exercise.</p>
-<p>The complete reasoning-first chapter will be developed and tested next.</p>
+<div class="chapter-goals">
+<p><strong>By the end of this chapter, you will be able to:</strong></p>
+<ul>
+<li>explain how identity, object storage, containers, batch compute, networking, logs and billing cooperate in a cloud workflow;</li>
+<li>distinguish an AWS account, Region, Availability Zone, service and resource;</li>
+<li>explain why an S3 object is not simply a file on a shared POSIX filesystem;</li>
+<li>decide what belongs in a container image, an object store and a workflow work directory;</li>
+<li>map a Nextflow process onto AWS Batch and Fargate without memorizing a vendor diagram;</li>
+<li>identify security, scientific and cost assumptions that AI-generated cloud code cannot safely make for you;</li>
+<li>translate the AWS architecture to Azure or Google Cloud concepts; and</li>
+<li>run and completely remove a miniature, paid AWS experiment using synthetic data and a strict cost checklist.</li>
+</ul>
+</div>
+<section id="why-a-biologist-should-care" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">5.1</span> Why a biologist should care</h2>
+<p>On an HPC cluster, an institution has already chosen the machines, network, scheduler, storage and much of the security model. In a cloud account, your team may be responsible for assembling those pieces—and every running or stored resource can become a billable decision.</p>
+<p>The cloud is not merely “someone else’s computer.” It is an API-driven system for creating computers, storage, networks, identities and managed services on demand. That flexibility is valuable for burst capacity, collaboration and repeatable deployment. It also creates new failure modes:</p>
+<ul>
+<li>a valid access key can still have dangerously broad permissions;</li>
+<li>a bucket can contain the right bytes but be in the wrong account or Region;</li>
+<li>a successful task can leave large intermediate files accumulating for months;</li>
+<li>a container tag can silently point to different software later;</li>
+<li>downloading data between Regions can cost money;</li>
+<li>a budget notification can arrive after spending has occurred; and</li>
+<li>technically correct infrastructure can violate consent, residency or institutional policy.</li>
+</ul>
+<p>AI can draft infrastructure commands quickly. Your professional value is being able to review the identity boundary, data movement, scientific inputs, failure behavior, cleanup and evidence.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">5.2</span> Engineering objective</h2>
+<p>Build one coherent model of a cloud workflow:</p>
+<pre class="text"><code>human or CI identity
+        │ authenticated API requests
+        ▼
+workflow launcher ── submits jobs ──► managed batch scheduler
+        │                                  │
+        │ reads/writes state               │ starts isolated containers
+        ▼                                  ▼
+object storage ◄──────────────────── serverless or VM compute
+ inputs / work / outputs                    │
+        ▲                                   ▼
+        └──────── logs and metrics ◄── logging service
+
+container registry ── immutable image digest ──► compute
+                                    billing ◄── every service used</code></pre>
+<p>This diagram has two kinds of traffic:</p>
+<ul>
+<li>the <strong>control plane</strong> creates, configures and schedules resources; and</li>
+<li>the <strong>data plane</strong> moves reads, references, containers, intermediates and results.</li>
+</ul>
+<p>A pipeline can have correct control-plane configuration while reading the wrong data. It can produce correct results while wasting money. Engineering quality requires both planes plus scientific validation.</p>
+</section>
+<section id="start-with-the-vocabulary" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="start-with-the-vocabulary"><span class="header-section-number">5.3</span> Start with the vocabulary</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Meaning</th>
+<th>Frequent beginner mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cloud account</td>
+<td>Administrative and billing boundary</td>
+<td>Treating it as only a username</td>
+</tr>
+<tr class="even">
+<td>Region</td>
+<td>Geographic service area such as <code>us-east-1</code></td>
+<td>Assuming every resource is global</td>
+</tr>
+<tr class="odd">
+<td>Availability Zone</td>
+<td>Isolated location within a Region</td>
+<td>Treating it as another Region</td>
+</tr>
+<tr class="even">
+<td>Service</td>
+<td>A capability such as S3, Batch or ECR</td>
+<td>Thinking one service is one server</td>
+</tr>
+<tr class="odd">
+<td>Resource</td>
+<td>A created object such as a bucket or job queue</td>
+<td>Forgetting resources persist until removed</td>
+</tr>
+<tr class="even">
+<td>API/CLI</td>
+<td>Programmatic interface to the control plane</td>
+<td>Assuming a command runs on the local machine</td>
+</tr>
+<tr class="odd">
+<td>IAM principal</td>
+<td>Human or workload identity making a request</td>
+<td>Confusing identity with permission</td>
+</tr>
+<tr class="even">
+<td>Policy</td>
+<td>Rules allowing or denying actions on resources</td>
+<td>Using administrator access for convenience</td>
+</tr>
+<tr class="odd">
+<td>Role</td>
+<td>An assumable identity with temporary credentials</td>
+<td>Embedding long-lived keys in code</td>
+</tr>
+<tr class="even">
+<td>ARN</td>
+<td>AWS resource identifier</td>
+<td>Treating a display name as globally unique</td>
+</tr>
+</tbody>
+</table>
+<p>AWS is the concrete example in this chapter. The mental model transfers; the names and command syntax do not.</p>
+</section>
+<section id="accounts-regions-and-availability-zones" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="accounts-regions-and-availability-zones"><span class="header-section-number">5.4</span> Accounts, Regions and Availability Zones</h2>
+<p>An AWS <strong>account</strong> is a security, ownership and billing boundary. A company usually separates production, development and security responsibilities across multiple accounts rather than placing everything in one account.</p>
+<p>A <strong>Region</strong> is where a regional service is operated. Choose it deliberately:</p>
+<ul>
+<li>is the service available there?</li>
+<li>may the data legally and contractually reside there?</li>
+<li>are the inputs already there?</li>
+<li>is compute capacity appropriate?</li>
+<li>what are that Region’s prices and transfer boundaries?</li>
+</ul>
+<p>An <strong>Availability Zone</strong> is an isolated location inside a Region. Batch services can spread work across zones, but a single-zone filesystem or network design can still create dependencies.</p>
+<div class="callout callout-style-simple callout-important callout-titled" title="A Region is part of the analysis specification">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A Region is part of the analysis specification
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Record the account alias or sanitized account ID, Region, storage locations, image digest and workflow revision. “It ran on AWS” is not enough provenance.</p>
+</div>
+</div>
+</section>
+<section id="identity-is-the-first-dependency" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="identity-is-the-first-dependency"><span class="header-section-number">5.5</span> Identity is the first dependency</h2>
+<p>Every cloud operation asks two questions:</p>
+<ol type="1">
+<li><strong>Who is making this request?</strong> Authentication establishes an identity.</li>
+<li><strong>May that identity perform this action on this resource?</strong> Authorization evaluates policies.</li>
+</ol>
+<p>These are different. A successfully authenticated identity can receive <code>AccessDenied</code>, and that can be the correct security outcome.</p>
+<section id="human-identities-and-workload-identities" class="level3" data-number="5.5.1">
+<h3 data-number="5.5.1" class="anchored" data-anchor-id="human-identities-and-workload-identities"><span class="header-section-number">5.5.1</span> Human identities and workload identities</h3>
+<p>Humans should normally enter through organizational federation or IAM Identity Center, use multi-factor authentication and obtain temporary credentials. Compute should assume a workload role with only the permissions it needs.</p>
+<p>Avoid:</p>
+<ul>
+<li>creating access keys for the AWS account root user;</li>
+<li>committing access keys, session tokens or credential files;</li>
+<li>placing credentials inside a container image;</li>
+<li>giving every pipeline <code>AdministratorAccess</code>; and</li>
+<li>sharing one person’s credentials with automation.</li>
+</ul>
+<p>AWS’s <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html">IAM best practices</a> recommend federation, temporary credentials, MFA and least privilege. The <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html">root-user guidance</a> explicitly recommends minimizing root use and not creating root access keys.</p>
+</section>
+<section id="least-privilege-is-an-iterative-engineering-process" class="level3" data-number="5.5.2">
+<h3 data-number="5.5.2" class="anchored" data-anchor-id="least-privilege-is-an-iterative-engineering-process"><span class="header-section-number">5.5.2</span> Least privilege is an iterative engineering process</h3>
+<p>A useful policy describes:</p>
+<ul>
+<li>actions: for example, read objects but not delete buckets;</li>
+<li>resources: the exact bucket prefix or job queue;</li>
+<li>conditions: perhaps the expected account, network path or encryption key;</li>
+<li>duration: temporary credentials rather than indefinite secrets.</li>
+</ul>
+<p>Do not ask AI to “fix AccessDenied” and blindly apply the broader policy it returns. First read the denied action and resource, then decide whether the workflow should be allowed to perform it.</p>
+</section>
+</section>
+<section id="storage-s3-is-not-a-shared-directory" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="storage-s3-is-not-a-shared-directory"><span class="header-section-number">5.6</span> Storage: S3 is not a shared directory</h2>
+<p>Amazon S3 is <strong>object storage</strong>. An object has bytes, a key and metadata inside a bucket. A URI such as</p>
+<pre class="text"><code>s3://example-bucket/project-a/sample-01/R1.fastq.gz</code></pre>
+<p>looks path-like, but <code>project-a/sample-01/</code> is a key prefix—not a POSIX directory. Traditional assumptions may not apply:</p>
+<ul>
+<li>there is no normal <code>cd</code> into an S3 bucket;</li>
+<li>applications generally access objects through APIs or integrations;</li>
+<li>rename is commonly implemented as copy plus delete;</li>
+<li>request count and transfer can affect cost;</li>
+<li>permissions are evaluated by bucket, key, identity and sometimes encryption key; and</li>
+<li>placing an output object is not the same as atomically replacing a local file.</li>
+</ul>
+<p>For a workflow, separate prefixes deliberately:</p>
+<pre class="text"><code>s3://my-lab-bucket/inputs/     immutable test inputs
+s3://my-lab-bucket/work/       recomputable workflow state
+s3://my-lab-bucket/results/    retained deliverables
+s3://my-lab-bucket/logs/       operational evidence, if configured</code></pre>
+<p>Use checksums or application-aware validation after transfers. A successful upload proves that an API call completed, not that the correct biological file was selected.</p>
+<section id="storage-cost-is-more-than-gigabytes" class="level3" data-number="5.6.1">
+<h3 data-number="5.6.1" class="anchored" data-anchor-id="storage-cost-is-more-than-gigabytes"><span class="header-section-number">5.6.1</span> Storage cost is more than gigabytes</h3>
+<p>The <a href="https://aws.amazon.com/s3/pricing/">S3 pricing model</a> includes storage, requests, retrieval for some classes and data transfer. Lifecycle rules can expire recomputable work objects or transition retained data, but a deletion policy is a scientific and governance decision—not merely a cost optimization.</p>
+</section>
+</section>
+<section id="containers-and-registries" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="containers-and-registries"><span class="header-section-number">5.7</span> Containers and registries</h2>
+<p>A container image packages executables and runtime dependencies. A registry stores and distributes those images. Amazon Elastic Container Registry (ECR) is AWS’s managed registry.</p>
+<p>Keep this boundary clear:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Put in the image</th>
+<th>Do not put in the image</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>tools and runtime libraries</td>
+<td>patient or participant data</td>
+</tr>
+<tr class="even">
+<td>small stable configuration defaults</td>
+<td>cloud credentials</td>
+</tr>
+<tr class="odd">
+<td>entrypoint or helper scripts</td>
+<td>large changing reference bundles by default</td>
+</tr>
+<tr class="even">
+<td>labels describing source/version</td>
+<td>writable workflow outputs</td>
+</tr>
+</tbody>
+</table>
+<p>An image <strong>tag</strong> such as <code>:latest</code> is a movable label. An image <strong>digest</strong> such as <code>sha256:...</code> identifies content. Use tags for human-friendly discovery and record or deploy the digest for reproducibility.</p>
+<p>Before trusting an image, ask:</p>
+<ul>
+<li>Who built it, from which source revision?</li>
+<li>Were dependencies pinned?</li>
+<li>What architecture does it support?</li>
+<li>Does it run as root?</li>
+<li>Is it scanned and patched under an explicit policy?</li>
+<li>Can the exact digest be recovered later?</li>
+</ul>
+</section>
+<section id="compute-ec2-fargate-and-aws-batch-are-different-layers" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="compute-ec2-fargate-and-aws-batch-are-different-layers"><span class="header-section-number">5.8</span> Compute: EC2, Fargate and AWS Batch are different layers</h2>
+<section id="ec2-virtual-machines" class="level3" data-number="5.8.1">
+<h3 data-number="5.8.1" class="anchored" data-anchor-id="ec2-virtual-machines"><span class="header-section-number">5.8.1</span> EC2 virtual machines</h3>
+<p>EC2 provides virtual machines. You choose an instance family and size and are responsible for more operational detail. It offers broad flexibility, specialized hardware and Spot capacity, but also exposes more infrastructure.</p>
+</section>
+<section id="fargate-serverless-container-compute" class="level3" data-number="5.8.2">
+<h3 data-number="5.8.2" class="anchored" data-anchor-id="fargate-serverless-container-compute"><span class="header-section-number">5.8.2</span> Fargate serverless container compute</h3>
+<p>AWS Fargate runs containers without you managing the underlying instances. You request CPU, memory and related settings. AWS documents Linux Fargate billing per second with a one-minute minimum; other charges such as public IPv4, logging and transfer can still apply. Always check the current <a href="https://aws.amazon.com/fargate/pricing/">Fargate pricing page</a> for the chosen Region and architecture.</p>
+</section>
+<section id="aws-batch-orchestration" class="level3" data-number="5.8.3">
+<h3 data-number="5.8.3" class="anchored" data-anchor-id="aws-batch-orchestration"><span class="header-section-number">5.8.3</span> AWS Batch orchestration</h3>
+<p>AWS Batch is a managed batch scheduler. Its core objects are:</p>
+<ul>
+<li><strong>job definition:</strong> the execution blueprint—image, CPU, memory, command, roles and retry-related settings;</li>
+<li><strong>job queue:</strong> where submitted jobs wait and how they are routed; and</li>
+<li><strong>compute environment:</strong> where Batch can obtain compute, such as Fargate or managed EC2 capacity.</li>
+</ul>
+<p>Batch schedules the work; Fargate or EC2 supplies the compute. Saying “the pipeline runs on Batch” does not identify the compute model.</p>
+</section>
+</section>
+<section id="networking-the-hidden-architecture" class="level2" data-number="5.9">
+<h2 data-number="5.9" class="anchored" data-anchor-id="networking-the-hidden-architecture"><span class="header-section-number">5.9</span> Networking: the hidden architecture</h2>
+<p>A Virtual Private Cloud (VPC) is a logically isolated network. Subnets divide its address space and are associated with Availability Zones. Route tables decide where traffic can go. Security groups filter allowed traffic to and from resources.</p>
+<p>The words <strong>public subnet</strong> and <strong>private subnet</strong> do not themselves prove security. Examine routes, addresses, endpoints, security groups and workload behavior.</p>
+<p>A container may need to reach:</p>
+<ul>
+<li>ECR to pull its image;</li>
+<li>S3 to read inputs and write work;</li>
+<li>CloudWatch Logs to send logs;</li>
+<li>external package or reference servers, if the design permits them.</li>
+</ul>
+<p>Private workloads can use service endpoints for some AWS services. A NAT gateway provides outbound internet access but can create hourly and per-gigabyte charges. A miniature learning lab does not need a NAT gateway.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="Never copy a production network from a tutorial">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Never copy a production network from a tutorial
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Tutorial networking prioritizes comprehensibility and short-lived experiments. Production biomedical systems require review by the organization’s cloud, security, privacy and compliance owners.</p>
+</div>
+</div>
+</section>
+<section id="logs-metrics-and-scientific-evidence" class="level2" data-number="5.10">
+<h2 data-number="5.10" class="anchored" data-anchor-id="logs-metrics-and-scientific-evidence"><span class="header-section-number">5.10</span> Logs, metrics and scientific evidence</h2>
+<p>CloudWatch can collect Batch job logs and operational metrics. Nextflow can also produce a trace, report, timeline and DAG. These evidence types answer different questions:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Evidence</th>
+<th>Question it helps answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Batch job state</td>
+<td>Did the cloud scheduler report success?</td>
+</tr>
+<tr class="even">
+<td>Container log</td>
+<td>What did the application write to stdout/stderr?</td>
+</tr>
+<tr class="odd">
+<td>Nextflow trace</td>
+<td>Which process ran, for how long and with what status?</td>
+</tr>
+<tr class="even">
+<td>Object metadata/checksum</td>
+<td>Were expected bytes stored or transferred?</td>
+</tr>
+<tr class="odd">
+<td>FastQC/BAM metrics</td>
+<td>Are the scientific outputs plausible?</td>
+</tr>
+<tr class="even">
+<td>Cloud billing data</td>
+<td>What resource usage generated cost?</td>
+</tr>
+</tbody>
+</table>
+<p>No single green status proves all six.</p>
+</section>
+<section id="how-nextflow-maps-onto-aws" class="level2" data-number="5.11">
+<h2 data-number="5.11" class="anchored" data-anchor-id="how-nextflow-maps-onto-aws"><span class="header-section-number">5.11</span> How Nextflow maps onto AWS</h2>
+<p>A common architecture has these roles:</p>
+<pre class="text"><code>Nextflow launcher
+  ├── reads workflow code and configuration
+  ├── stages or references data in S3
+  ├── submits each process as an AWS Batch job
+  ├── records workflow state in an S3 work directory
+  └── monitors job states and publishes outputs
+
+AWS Batch job
+  ├── receives CPU, memory, image and command
+  ├── starts a container on Fargate or EC2
+  ├── reads staged inputs
+  ├── writes task outputs and logs
+  └── exits with a status code</code></pre>
+<p>Nextflow’s AWS integration is supplied by the <a href="https://registry.nextflow.io/plugins/nf-amazon/trends"><code>nf-amazon</code> plugin</a>. Exact configuration changes across Nextflow releases, so use the documentation for the version you are running rather than copying an old blog post.</p>
+<p>Conceptually, a cloud profile must decide at least:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>profiles <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    aws_batch <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        process<span class="op">.</span>executor <span class="op">=</span> <span class="st">'awsbatch'</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        process<span class="op">.</span>queue <span class="op">=</span> <span class="st">'&lt;batch-job-queue&gt;'</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        process<span class="op">.</span>container <span class="op">=</span> <span class="st">'&lt;registry&gt;/&lt;image&gt;@sha256:&lt;digest&gt;'</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        workDir <span class="op">=</span> <span class="st">'s3://&lt;bucket&gt;/work'</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is an architecture sketch, not a ready-to-run profile. Authentication, Region, plugin/version requirements, IAM roles, networking, encryption, resource labels and cleanup must be defined for the real environment.</p>
+<div class="callout callout-style-simple callout-important callout-titled" title="Conda is not the cloud runtime plan">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Conda is not the cloud runtime plan
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nextflow documents that its Conda environment feature is not supported with remote object-storage executors such as AWS Batch. Build the required tools into an immutable container image instead of attempting to solve a Conda environment independently inside every remote task.</p>
+</div>
+</div>
+<p>The launcher also matters. It may run on a laptop, a controlled virtual machine, a CI runner or a managed orchestration product. It needs durable state, network access and permission to submit and monitor jobs. Closing an unmanaged laptop halfway through a production workflow is not a reliability design.</p>
+</section>
+<section id="hpc-and-cloud-translate-do-not-equate" class="level2" data-number="5.12">
+<h2 data-number="5.12" class="anchored" data-anchor-id="hpc-and-cloud-translate-do-not-equate"><span class="header-section-number">5.12</span> HPC and cloud: translate, do not equate</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>HPC idea</th>
+<th>Typical AWS analogue</th>
+<th>Important difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>User/project account</td>
+<td>IAM principal and AWS account/project tags</td>
+<td>Identity and billing boundaries are API policy objects</td>
+</tr>
+<tr class="even">
+<td>SLURM partition</td>
+<td>Batch queue plus compute environment</td>
+<td>Capacity can be dynamically provisioned</td>
+</tr>
+<tr class="odd">
+<td><code>sbatch</code></td>
+<td>Batch <code>SubmitJob</code> API</td>
+<td>Submission requires cloud IAM and resource identifiers</td>
+</tr>
+<tr class="even">
+<td>Compute node</td>
+<td>EC2 instance or Fargate task</td>
+<td>Lifetime may be minutes rather than years</td>
+</tr>
+<tr class="odd">
+<td>Shared project filesystem</td>
+<td>S3, EFS or FSx depending on semantics</td>
+<td>Object storage is not POSIX storage</td>
+</tr>
+<tr class="even">
+<td>Module</td>
+<td>Usually software inside the container</td>
+<td>Host modules are not portable to remote containers</td>
+</tr>
+<tr class="odd">
+<td><code>sacct</code> and job log</td>
+<td>Batch state, CloudWatch and Nextflow trace</td>
+<td>Evidence is distributed across services</td>
+</tr>
+<tr class="even">
+<td>Allocation limits</td>
+<td>Quotas, budgets, policy and account controls</td>
+<td>A budget alert is not a scheduler quota</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-cloud-bill-is-an-output-of-the-architecture" class="level2" data-number="5.13">
+<h2 data-number="5.13" class="anchored" data-anchor-id="the-cloud-bill-is-an-output-of-the-architecture"><span class="header-section-number">5.13</span> The cloud bill is an output of the architecture</h2>
+<p>Think in components:</p>
+<pre class="text"><code>total cost ≈ compute duration
+           + stored bytes × retention
+           + storage/API requests
+           + data transfer
+           + logs and metrics retained
+           + networking resources
+           + managed-service charges</code></pre>
+<p>Common surprises include idle virtual machines, unattached disks, old image layers, S3 work prefixes, verbose logs, public IPv4 addresses, NAT gateways and cross-Region transfer.</p>
+<p>Treat each resource choice as a hypothesis. Start with a representative small sample, read the trace and billing evidence, then revise CPU, memory and parallelism. Cheapest per hour is not necessarily cheapest per completed sample, and Spot capacity is not appropriate unless retries and interruption behavior are understood.</p>
+</section>
+<section id="biomedical-data-raises-the-stakes" class="level2" data-number="5.14">
+<h2 data-number="5.14" class="anchored" data-anchor-id="biomedical-data-raises-the-stakes"><span class="header-section-number">5.14</span> Biomedical data raises the stakes</h2>
+<p>The practical below uses synthetic text only. Before moving real human data, answer these questions with institutional owners:</p>
+<ul>
+<li>Does consent permit this use and location?</li>
+<li>Is the account approved for the data classification?</li>
+<li>Are agreements such as a BAA required and in place?</li>
+<li>Which Regions are permitted?</li>
+<li>How are encryption keys governed?</li>
+<li>Who can read, copy, share and delete objects?</li>
+<li>Are access and administrative events logged for the required duration?</li>
+<li>What are retention, backup and deletion obligations?</li>
+<li>How are incidents and accidental disclosure handled?</li>
+</ul>
+<p>Encryption is necessary but not sufficient. Encrypting a publicly accessible or over-permissioned resource does not repair its authorization model.</p>
+</section>
+<section id="transfer-the-model-to-other-clouds" class="level2" data-number="5.15">
+<h2 data-number="5.15" class="anchored" data-anchor-id="transfer-the-model-to-other-clouds"><span class="header-section-number">5.15</span> Transfer the model to other clouds</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>AWS</th>
+<th>Azure</th>
+<th>Google Cloud</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Identity/policy</td>
+<td>IAM roles and policies</td>
+<td>Microsoft Entra ID and Azure RBAC</td>
+<td>Cloud IAM and service accounts</td>
+</tr>
+<tr class="even">
+<td>Object storage</td>
+<td>S3</td>
+<td>Blob Storage</td>
+<td>Cloud Storage</td>
+</tr>
+<tr class="odd">
+<td>Container registry</td>
+<td>ECR</td>
+<td>Azure Container Registry</td>
+<td>Artifact Registry</td>
+</tr>
+<tr class="even">
+<td>Managed batch</td>
+<td>AWS Batch</td>
+<td>Azure Batch</td>
+<td>Google Cloud Batch</td>
+</tr>
+<tr class="odd">
+<td>Logs/metrics</td>
+<td>CloudWatch</td>
+<td>Azure Monitor</td>
+<td>Cloud Logging and Monitoring</td>
+</tr>
+<tr class="even">
+<td>Private network</td>
+<td>VPC</td>
+<td>Virtual Network</td>
+<td>VPC</td>
+</tr>
+</tbody>
+</table>
+<p>This table maps responsibilities, not exact features. Nextflow has provider- specific executors and plugins; verify current support, authentication and storage semantics before translating a configuration.</p>
+</section>
+<section id="review-ai-generated-cloud-code" class="level2" data-number="5.16">
+<h2 data-number="5.16" class="anchored" data-anchor-id="review-ai-generated-cloud-code"><span class="header-section-number">5.16</span> Review AI-generated cloud code</h2>
+<p>Before executing a generated command, Terraform module or Nextflow profile, ask:</p>
+<ol type="1">
+<li>Which account and Region will this change?</li>
+<li>Which identity will execute it, and where do credentials come from?</li>
+<li>What new resources will persist and incur cost?</li>
+<li>Are names, ARNs, subnets, roles and image architecture valid here?</li>
+<li>Is any permission broader than the described workflow requires?</li>
+<li>Can any input, log or error message expose sensitive information?</li>
+<li>Is the container pinned by digest and compatible with the compute type?</li>
+<li>Where are work files stored, encrypted and eventually deleted?</li>
+<li>What does failure leave behind?</li>
+<li>What commands verify success and complete cleanup?</li>
+</ol>
+<p>If those answers are absent, the code is an unreviewed proposal.</p>
+</section>
+<section id="practical-1-a-zero-cost-architecture-review" class="level2" data-number="5.17">
+<h2 data-number="5.17" class="anchored" data-anchor-id="practical-1-a-zero-cost-architecture-review"><span class="header-section-number">5.17</span> Practical 1: a zero-cost architecture review</h2>
+<p>This practical requires no cloud account.</p>
+<p>Create <code>cloud-architecture-review.md</code> and analyze this proposal:</p>
+<blockquote class="blockquote">
+<p>Upload FASTQ files to a public S3 bucket. Put an AWS access key in the Dockerfile. Run Nextflow from a laptop using <code>:latest</code>, grant the job administrator access and keep the work directory forever in case it is needed.</p>
+</blockquote>
+<p>Record at least one problem and one corrected decision under each heading:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Cloud architecture review</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identity and secrets</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data classification and access</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Container provenance</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Workflow launcher and recovery</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Compute and networking</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">## Storage lifecycle</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cost controls</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Scientific validation</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## Logging and audit evidence</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cleanup and ownership</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A defensible review should reject the public bucket and embedded credential; separate human and workload roles; pin the image digest; place the launcher in a durable managed context; define encrypted storage, retention and deletion; and specify scientific and operational acceptance tests.</p>
+</section>
+<section id="practical-2-miniature-paid-aws-lab" class="level2" data-number="5.18">
+<h2 data-number="5.18" class="anchored" data-anchor-id="practical-2-miniature-paid-aws-lab"><span class="header-section-number">5.18</span> Practical 2: miniature paid AWS lab</h2>
+<p>This optional practical creates real cloud resources and can incur charges. It uses synthetic data and has two stages:</p>
+<ol type="1">
+<li>store and verify one tiny object in S3; and</li>
+<li>run the official AWS Batch Fargate hello-world job.</li>
+</ol>
+<p>AWS estimates its Fargate CLI tutorial at <strong>less than USD $0.01 if resources are removed promptly</strong>, but that is not a guarantee of your total bill. Prices, taxes, existing account resources, public IPv4 charges and Regions differ. Check current pricing before starting. Set a personal ceiling such as <strong>$5</strong> that you are genuinely willing to pay.</p>
+<div class="callout callout-style-simple callout-warning callout-titled" title="Budget alerts are delayed, not hard caps">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Budget alerts are delayed, not hard caps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>AWS states that budget information can be delayed and is updated only several times per day. A $5 alert does not automatically prevent $6 of spending. The controls in this lab are tiny inputs, no NAT gateway, short execution, immediate teardown and verification.</p>
+</div>
+</div>
+<section id="phase-0-authorization-and-guardrails" class="level3" data-number="5.18.1">
+<h3 data-number="5.18.1" class="anchored" data-anchor-id="phase-0-authorization-and-guardrails"><span class="header-section-number">5.18.1</span> Phase 0 — authorization and guardrails</h3>
+<p>Use a personal learning account only if you are authorized to create charges. Do not use an employer account without approval. Secure the root user with MFA, do not create root access keys and use a non-root federated or IAM identity for normal work.</p>
+<p>In <strong>Billing and Cost Management → Budgets</strong>, create a monthly cost budget. A reasonable learning configuration is:</p>
+<ul>
+<li>budget amount: <code>$5 USD</code>;</li>
+<li>actual-cost alerts: <code>$1</code>, <code>$3</code> and <code>$5</code>;</li>
+<li>alert destination: an email address you actively monitor; and</li>
+<li>no assumption that the alert terminates resources.</li>
+</ul>
+<p>Follow AWS’s current <a href="https://docs.aws.amazon.com/cost-management/latest/userguide/create-cost-budget.html">cost-budget procedure</a>. Also inspect the account’s current Cost Explorer/billing view so pre-existing costs are not attributed to this lab.</p>
+<p>Write down:</p>
+<pre class="text"><code>spending ceiling accepted: yes/no
+budget configured: yes/no
+account contains other resources: yes/no/unknown
+chosen Region:
+start time:</code></pre>
+<p>Stop if the first two answers are not <code>yes</code>.</p>
+</section>
+<section id="phase-1-open-cloudshell-and-prove-identity" class="level3" data-number="5.18.2">
+<h3 data-number="5.18.2" class="anchored" data-anchor-id="phase-1-open-cloudshell-and-prove-identity"><span class="header-section-number">5.18.2</span> Phase 1 — open CloudShell and prove identity</h3>
+<p>Open AWS CloudShell in the chosen Region. AWS provides CloudShell without an additional CloudShell charge, although resources created from it are billable. Its browser session supplies temporary credentials, so this exercise does not need a local access key.</p>
+<p>Set one Region and inspect the caller:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">AWS_REGION</span><span class="op">=</span>us-east-1</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">AWS_DEFAULT_REGION</span><span class="op">=</span><span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> sts get-caller-identity</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> configure get region</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Replace <code>us-east-1</code> if you intentionally selected another Region. Confirm that the account and ARN are the learning identity you expected. Do not paste the complete account ID into a public repository.</p>
+<p>Create collision-resistant lab names from the current account:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="va">LAB_ACCOUNT_ID</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="ex">aws</span> sts get-caller-identity <span class="at">--query</span> Account <span class="at">--output</span> text<span class="va">)</span><span class="st">"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="va">LAB_SUFFIX</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="fu">date</span> <span class="at">-u</span> +%Y%m%d%H%M%S<span class="va">)</span><span class="st">"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="va">LAB_BUCKET</span><span class="op">=</span><span class="st">"nf-biologist-</span><span class="va">${LAB_ACCOUNT_ID}</span><span class="st">-</span><span class="va">${LAB_SUFFIX}</span><span class="st">"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'region=%s\nbucket=%s\n'</span> <span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span> cloud-lab-state.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>cloud-lab-state.txt</code> is your cleanup record. It contains an account-derived bucket name, so keep it local rather than committing it.</p>
+</section>
+<section id="phase-2-create-verify-and-remove-a-tiny-s3-object" class="level3" data-number="5.18.3">
+<h3 data-number="5.18.3" class="anchored" data-anchor-id="phase-2-create-verify-and-remove-a-tiny-s3-object"><span class="header-section-number">5.18.3</span> Phase 2 — create, verify and remove a tiny S3 object</h3>
+<p>Create a four-line synthetic FASTQ-like fixture:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'@synthetic-read-1\nACGTACGT\n+\nFFFFFFFF\n'</span> <span class="op">&gt;</span> mini.fastq</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> mini.fastq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create the bucket. <code>us-east-1</code> has special bucket-creation syntax:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span> <span class="ot">=</span> <span class="st">"us-east-1"</span> <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">aws</span> s3api create-bucket <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="at">--region</span> <span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">aws</span> s3api create-bucket <span class="dt">\</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--region</span> <span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--create-bucket-configuration</span> LocationConstraint=<span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Block public access explicitly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api put-public-access-block <span class="dt">\</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--public-access-block-configuration</span> <span class="dt">\</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Upload, list and download the object:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3 cp mini.fastq <span class="st">"s3://</span><span class="va">${LAB_BUCKET}</span><span class="st">/inputs/mini.fastq"</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3 ls <span class="st">"s3://</span><span class="va">${LAB_BUCKET}</span><span class="st">/inputs/"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3 cp <span class="st">"s3://</span><span class="va">${LAB_BUCKET}</span><span class="st">/inputs/mini.fastq"</span> mini.downloaded.fastq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compare the bytes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> mini.fastq mini.downloaded.fastq</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cmp</span> mini.fastq mini.downloaded.fastq</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"cmp_exit_code=</span><span class="va">$?</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>An exit code of <code>0</code> and matching hashes prove byte identity. They do not prove that a real FASTQ has valid pairing, read counts or biological provenance.</p>
+<p>Inspect the controls rather than assuming them:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api get-bucket-location <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api get-public-access-block <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api head-object <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="at">--key</span> inputs/mini.fastq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now remove only the known object, verify the bucket is empty, then remove it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api delete-object <span class="dt">\</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--key</span> inputs/mini.fastq</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api list-objects-v2 <span class="dt">\</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="dt">\</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--query</span> <span class="st">'Contents[].Key'</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api delete-bucket <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span> <span class="at">--region</span> <span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The list should return no keys before <code>delete-bucket</code>. Verify deletion:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api head-bucket <span class="at">--bucket</span> <span class="st">"</span><span class="va">$LAB_BUCKET</span><span class="st">"</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"expected_nonzero_after_deletion=</span><span class="va">$?</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The final call should fail because the bucket no longer exists or is no longer accessible. This is an intentional negative test.</p>
+</section>
+<section id="phase-3-run-one-tiny-aws-batch-fargate-job" class="level3" data-number="5.18.4">
+<h3 data-number="5.18.4" class="anchored" data-anchor-id="phase-3-run-one-tiny-aws-batch-fargate-job"><span class="header-section-number">5.18.4</span> Phase 3 — run one tiny AWS Batch Fargate job</h3>
+<p>Use AWS’s maintained <a href="https://docs.aws.amazon.com/batch/latest/userguide/getting-started-with-fargate-using-the-aws-cli.html">AWS Batch Fargate CLI tutorial</a>, not a copied third-party command sequence. It takes approximately 15–20 minutes and walks through:</p>
+<ol type="1">
+<li>creating the Batch task execution role;</li>
+<li>creating a Fargate compute environment;</li>
+<li>creating a job queue;</li>
+<li>registering a small job definition;</li>
+<li>submitting and monitoring one job;</li>
+<li>reading its CloudWatch log; and</li>
+<li>disabling and deleting the queue and compute environment and removing the remaining tutorial resources.</li>
+</ol>
+<p>Before executing each tutorial command, replace its names with a clear prefix such as <code>nf-biologist-lab-</code> and check that <code>AWS_REGION</code> is still correct:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> sts get-caller-identity</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'Region: %s\n'</span> <span class="st">"</span><span class="va">$AWS_REGION</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not add a NAT gateway, large data, GPUs or a long-running service. Choose Fargate and use the tutorial’s stated CPU, memory and single short hello-world command. Fargate accepts only specific CPU/memory combinations; do not enlarge the request merely because more capacity sounds safer.</p>
+<p>Capture this evidence in <code>cloud-batch-evidence.txt</code>:</p>
+<pre class="text"><code>Region:
+job name:
+job ID:
+final Batch status:
+container image/tag or digest:
+requested vCPU and memory:
+CloudWatch log group/stream:
+first and last log timestamps:
+job output summary:
+cleanup completion time:</code></pre>
+<p>Do not publish raw account IDs, ARNs or logs until you have reviewed them.</p>
+</section>
+<section id="phase-4-prove-cleanup" class="level3" data-number="5.18.5">
+<h3 data-number="5.18.5" class="anchored" data-anchor-id="phase-4-prove-cleanup"><span class="header-section-number">5.18.5</span> Phase 4 — prove cleanup</h3>
+<p>Follow the tutorial cleanup in dependency order. Batch generally requires a queue or compute environment to be disabled before it can be deleted. Wait for the reported state instead of repeatedly issuing deletion commands.</p>
+<p>Then inspect, rather than assume:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> batch describe-job-queues</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> batch describe-compute-environments</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> batch describe-job-definitions <span class="at">--status</span> ACTIVE</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> s3api list-buckets <span class="at">--query</span> <span class="st">'Buckets[].Name'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Filter the output for your <code>nf-biologist-lab-</code> prefix. Confirm that no lab queue, compute environment, active job definition or bucket remains. Review the IAM role and CloudWatch log group created by the tutorial and remove them if the tutorial’s cleanup did not do so. Do not delete unrelated resources.</p>
+<p>Record:</p>
+<pre class="text"><code>lab bucket absent: yes/no
+lab queue absent: yes/no
+lab compute environment absent: yes/no
+lab job definition inactive/removed: yes/no
+lab IAM role removed: yes/no
+lab log group retained or removed intentionally:
+end time:</code></pre>
+<p>Check the billing dashboard later because cost data is delayed. The goal is not to claim a universal exact price; it is to connect each observed charge to a resource and prove that no billable lab resource was left running.</p>
+</section>
+<section id="optional-extension-understand-ecr-without-retaining-an-image" class="level3" data-number="5.18.6">
+<h3 data-number="5.18.6" class="anchored" data-anchor-id="optional-extension-understand-ecr-without-retaining-an-image"><span class="header-section-number">5.18.6</span> Optional extension — understand ECR without retaining an image</h3>
+<p>If you already understand Docker and want to practice the registry layer, follow the official <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html">ECR getting-started procedure</a> with a tiny image. Record both tag and digest, pull by digest, then delete the image and repository immediately. Review current ECR storage and transfer pricing first. This extension is intentionally optional because Chapter 9 teaches image construction in depth.</p>
+</section>
+</section>
+<section id="practical-acceptance-checklist" class="level2" data-number="5.19">
+<h2 data-number="5.19" class="anchored" data-anchor-id="practical-acceptance-checklist"><span class="header-section-number">5.19</span> Practical acceptance checklist</h2>
+<p>The paid lab is complete only when you can show:</p>
+<ul>
+<li>expected identity and Region were checked before resource creation;</li>
+<li>a budget and personal spending ceiling were established;</li>
+<li>only synthetic data was uploaded;</li>
+<li>public S3 access was blocked;</li>
+<li>upload/download bytes matched;</li>
+<li>the Batch job reached <code>SUCCEEDED</code> and its log was inspected;</li>
+<li>requested CPU, memory and image were recorded;</li>
+<li>every lab resource was enumerated after teardown; and</li>
+<li>delayed billing was checked later.</li>
+</ul>
+</section>
+<section id="hands-on-exercise-design-the-next-experiment" class="level2" data-number="5.20">
+<h2 data-number="5.20" class="anchored" data-anchor-id="hands-on-exercise-design-the-next-experiment"><span class="header-section-number">5.20</span> Hands-on exercise: design the next experiment</h2>
+<p>Design—but do not deploy—a cloud version of this book’s five-process pipeline: raw FastQC, Trim Galore, trimmed FastQC, Bowtie2 alignment/sort and BAM QC.</p>
+<p>In <code>cloud-nextflow-design.md</code>, provide:</p>
+<ol type="1">
+<li>a diagram showing launcher, S3 prefixes, Batch, compute, registry and logs;</li>
+<li>separate human, launcher and task identities;</li>
+<li>proposed Region and the evidence needed to approve it;</li>
+<li>input, work and result retention rules;</li>
+<li>an immutable image reference strategy;</li>
+<li>CPU and memory hypotheses for each process;</li>
+<li>failure, retry and <code>-resume</code> behavior;</li>
+<li>operational and scientific acceptance tests;</li>
+<li>a cost model listing every potentially billable component; and</li>
+<li>a teardown or production-ownership plan.</li>
+</ol>
+<p>Then ask an AI system to review the design. Add a section titled <strong>AI claims I verified</strong>. For every accepted suggestion, identify the authoritative provider or Nextflow documentation, version and date checked. Reject suggestions that assume permissions, compliance approval or prices without evidence.</p>
+</section>
+<section id="ten-interview-questions" class="level2" data-number="5.21">
+<h2 data-number="5.21" class="anchored" data-anchor-id="ten-interview-questions"><span class="header-section-number">5.21</span> Ten interview questions</h2>
+<section id="what-is-the-difference-between-aws-batch-and-fargate" class="level3" data-number="5.21.1">
+<h3 data-number="5.21.1" class="anchored" data-anchor-id="what-is-the-difference-between-aws-batch-and-fargate"><span class="header-section-number">5.21.1</span> 1. What is the difference between AWS Batch and Fargate?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>AWS Batch is the scheduling/orchestration layer: it accepts jobs, evaluates queues and places work. Fargate is one compute option that supplies serverless container capacity. Batch can also use managed EC2 capacity. A complete answer names both layers because they affect cost, capability and operations differently.</p>
+</details>
+</section>
+<section id="why-is-an-s3-prefix-not-a-normal-directory" class="level3" data-number="5.21.2">
+<h3 data-number="5.21.2" class="anchored" data-anchor-id="why-is-an-s3-prefix-not-a-normal-directory"><span class="header-section-number">5.21.2</span> 2. Why is an S3 prefix not a normal directory?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>S3 stores objects identified by bucket and key. Slash-separated prefixes give keys a hierarchical appearance, but there is no POSIX directory tree with the same rename, locking, permissions and random-access semantics. Applications must use an object API or an integration that deliberately translates those semantics.</p>
+</details>
+</section>
+<section id="a-batch-job-says-succeeded.-is-the-analysis-valid" class="level3" data-number="5.21.3">
+<h3 data-number="5.21.3" class="anchored" data-anchor-id="a-batch-job-says-succeeded.-is-the-analysis-valid"><span class="header-section-number">5.21.3</span> 3. A Batch job says <code>SUCCEEDED</code>. Is the analysis valid?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>No.&nbsp;It means the scheduled command reported successful completion. I would also verify input identity and checksums, workflow revision, image digest, parameters, expected outputs and domain metrics such as read counts, FastQC, mapping statistics and sample identity.</p>
+</details>
+</section>
+<section id="why-should-a-workload-use-an-iam-role-instead-of-an-access-key-in-its-image" class="level3" data-number="5.21.4">
+<h3 data-number="5.21.4" class="anchored" data-anchor-id="why-should-a-workload-use-an-iam-role-instead-of-an-access-key-in-its-image"><span class="header-section-number">5.21.4</span> 4. Why should a workload use an IAM role instead of an access key in its image?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>A role provides temporary, rotatable credentials to the workload and can be scoped with least-privilege policies. A key baked into an image is long-lived, can be copied with every image pull, is difficult to rotate and turns the image registry into a credential exposure path.</p>
+</details>
+</section>
+<section id="why-does-a-budget-alert-not-guarantee-a-spending-cap" class="level3" data-number="5.21.5">
+<h3 data-number="5.21.5" class="anchored" data-anchor-id="why-does-a-budget-alert-not-guarantee-a-spending-cap"><span class="header-section-number">5.21.5</span> 5. Why does a budget alert not guarantee a spending cap?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>Billing data and budget evaluation are delayed, and an alert is ordinarily a notification rather than an immediate resource kill switch. Cost control also requires quotas and policy where appropriate, small initial tests, bounded resources, ownership, monitoring and explicit teardown.</p>
+</details>
+</section>
+<section id="why-pin-a-container-digest-if-the-image-already-has-a-version-tag" class="level3" data-number="5.21.6">
+<h3 data-number="5.21.6" class="anchored" data-anchor-id="why-pin-a-container-digest-if-the-image-already-has-a-version-tag"><span class="header-section-number">5.21.6</span> 6. Why pin a container digest if the image already has a version tag?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>A registry tag is a reference that can be moved to different content. A digest is content-addressed and identifies the exact image manifest. I can retain a readable version tag for discovery while recording or executing the digest for reproducibility.</p>
+</details>
+</section>
+<section id="what-belongs-in-the-nextflow-s3-work-directory-and-why-does-lifecycle-matter" class="level3" data-number="5.21.7">
+<h3 data-number="5.21.7" class="anchored" data-anchor-id="what-belongs-in-the-nextflow-s3-work-directory-and-why-does-lifecycle-matter"><span class="header-section-number">5.21.7</span> 7. What belongs in the Nextflow S3 work directory, and why does lifecycle matter?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>The work directory contains staged task inputs, commands, metadata and outputs used for execution and resume. It can grow much larger than final results. Deleting it too early breaks resume and audit needs; retaining it indefinitely creates cost and governance problems. Retention must reflect recovery, reproducibility, policy and whether the data can be recomputed.</p>
+</details>
+</section>
+<section id="how-would-you-investigate-accessdenied-safely" class="level3" data-number="5.21.8">
+<h3 data-number="5.21.8" class="anchored" data-anchor-id="how-would-you-investigate-accessdenied-safely"><span class="header-section-number">5.21.8</span> 8. How would you investigate <code>AccessDenied</code> safely?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>I would identify the caller, denied API action, exact resource and relevant identity/resource/key policies. I would decide whether the action is actually required, then grant the narrowest justified permission and retest. I would not attach administrator access merely to make the error disappear.</p>
+</details>
+</section>
+<section id="why-can-data-transfer-dominate-an-apparently-cheap-compute-design" class="level3" data-number="5.21.9">
+<h3 data-number="5.21.9" class="anchored" data-anchor-id="why-can-data-transfer-dominate-an-apparently-cheap-compute-design"><span class="header-section-number">5.21.9</span> 9. Why can data transfer dominate an apparently cheap compute design?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>Genomics inputs and intermediates are large. Repeated downloads, cross-Region movement, internet egress or traffic through charged networking components can outweigh a short compute task. I place compute near approved data, minimize unnecessary copies and model storage requests and transfer explicitly.</p>
+</details>
+</section>
+<section id="what-must-you-verify-before-moving-human-genomic-data-to-a-cloud-account" class="level3" data-number="5.21.10">
+<h3 data-number="5.21.10" class="anchored" data-anchor-id="what-must-you-verify-before-moving-human-genomic-data-to-a-cloud-account"><span class="header-section-number">5.21.10</span> 10. What must you verify before moving human genomic data to a cloud account?</h3>
+<details>
+<summary>
+Model answer
+</summary>
+<p>I need institutional approval and evidence for consented use, data classification, contracts, permitted account and Region, identity and least privilege, encryption/key governance, networking, logging, retention, backup, deletion and incident response. Technical encryption alone does not establish legal or organizational authorization.</p>
+</details>
+</section>
+</section>
+<section id="what-you-should-now-be-able-to-explain" class="level2" data-number="5.22">
+<h2 data-number="5.22" class="anchored" data-anchor-id="what-you-should-now-be-able-to-explain"><span class="header-section-number">5.22</span> What you should now be able to explain</h2>
+<p>You should be able to narrate a cloud workflow from authenticated submission through object access, container resolution, scheduling, execution, logging, scientific validation, billing and cleanup. More importantly, you should be able to stop an unsafe deployment and name the missing evidence.</p>
+<p>The next chapter introduces Git: the system that records changes to the workflow, infrastructure, documentation and evidence you have learned to reason about.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -795,7 +1743,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/05-cloud-execution-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/05-cloud-execution-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>
