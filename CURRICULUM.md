@@ -140,9 +140,36 @@ environment. They can coexist and conflict through `PATH`.
 **Pass condition:** identify the Java, Conda, Singularity, scheduler and storage
 layers active in a session.
 
+### Chapter 5 — Cloud execution mental model: AWS and transferable concepts
+
+Explain how cloud execution differs from both a workstation and a fixed HPC
+cluster. Introduce accounts, regions, availability zones, IAM identities and
+roles, virtual networks, object storage, container registries, compute services,
+managed batch schedulers, autoscaling, logs, encryption, data transfer and the
+shared-responsibility model.
+
+Use AWS as the concrete vocabulary: S3, ECR, EC2, AWS Batch, CloudWatch, IAM,
+KMS and VPC. Map the concepts briefly to Azure and Google Cloud so readers learn
+the architecture rather than memorizing one vendor's product catalog. Explain
+Nextflow execution through AWS Batch and the role of a platform such as Seqera
+without requiring readers to create a billable cloud account.
+
+Emphasize cost as an engineering constraint: instance/runtime cost, storage
+classes, requests, logs, NAT gateways, idle resources and data egress. Cover
+least privilege, temporary credentials, protected biomedical data, regional
+placement, auditability, budgets and teardown. Require readers to challenge
+AI-generated infrastructure and IAM policies rather than deploying them
+blindly.
+
+**Artifact:** `cloud-architecture-review.md` containing a service map, trust
+boundaries, cost model, data lifecycle and deployment decision record.
+**Pass condition:** explain how one sample moves from object storage through a
+containerized batch task to validated outputs, including identity, networking,
+logging, cost and failure evidence.
+
 ## Part II — Git, GitHub and collaborative engineering
 
-### Chapter 5 — Git mental model and first repository
+### Chapter 6 — Git mental model and first repository
 
 Explain working tree, staging area, commit, branch, repository, remote and
 `.gitignore`. Teach `git init`, `git status`, `git diff`, `git add`,
@@ -155,7 +182,7 @@ backup or a place for raw patient data and large generated results.
 **Pass condition:** clean working tree and ability to explain what each commit
 contains.
 
-### Chapter 6 — A safe daily Git workflow
+### Chapter 7 — A safe daily Git workflow
 
 Teach small commits, useful messages, branches, switching, comparing revisions,
 restoring a single accidental edit safely and understanding merge conflicts.
@@ -167,7 +194,7 @@ Include a warning against copying destructive reset commands from the internet.
 **Artifact:** a short feature branch merged locally.  
 **Pass condition:** main contains the feature and the history remains readable.
 
-### Chapter 7 — GitHub, issues, pull requests and code review
+### Chapter 8 — GitHub, issues, pull requests and code review
 
 Explain local Git versus GitHub; SSH keys versus HTTPS credentials; clone,
 fetch, pull and push; forks; issues; pull requests; review comments; branch
@@ -179,7 +206,7 @@ and `git push -u origin <branch>`.
 **Artifact:** a public practice repository and one reviewed pull request.  
 **Pass condition:** remote branch and local branch point to the intended commit.
 
-### Chapter 8 — Versions, tags, changelogs and releases
+### Chapter 9 — Versions, tags, changelogs and releases
 
 Teach semantic versioning as a communication contract, annotated versus
 lightweight tags, immutable commit IDs, release notes, changelogs and when a
@@ -194,7 +221,7 @@ Commands include `git tag -a`, `git tag -n`, `git show`, `git push origin
 
 ## Part III — Environments, data and a trusted analytical baseline
 
-### Chapter 9 — Dependencies, Conda and channels
+### Chapter 10 — Dependencies, Conda and channels
 
 Explain package, dependency, environment, solver, channel, Bioconda,
 conda-forge, channel priority, pinning, lock/explicit files and why `base`
@@ -207,7 +234,7 @@ universally superior.
 **Pass condition:** reader can explain why channel order and version pins
 affect reproducibility.
 
-### Chapter 10 — Build and audit the tool environment
+### Chapter 11 — Build and audit the tool environment
 
 Create an environment from the tracked specification, activate it and verify
 FastQC, Trim Galore, Cutadapt, Bowtie2, SAMtools, Seqtk and supporting tools.
@@ -221,7 +248,7 @@ small changes rather than repeatedly mutating a trusted environment.
 **Pass condition:** versions and executable paths come from the intended
 environment.
 
-### Chapter 11 — Deterministic test data, provenance and checksums
+### Chapter 12 — Deterministic test data, provenance and checksums
 
 Explain fixtures, public reference data, deterministic random seeds,
 confidentiality boundaries, checksums and provenance records. Generate 100,000
@@ -234,7 +261,7 @@ Commands include `curl`, `gzip`, `sha256sum`/`shasum`, `wgsim`, `wc` and
 **Pass condition:** 400,000 FASTQ lines per mate, 100,000 read pairs, matching
 SHA-256 values and a readable `chr22` index.
 
-### Chapter 12 — Validate the workflow manually
+### Chapter 13 — Validate the workflow manually
 
 Run raw FastQC, paired Trim Galore, post-trim FastQC, Bowtie2, SAMtools sort,
 index, quickcheck, flagstat and idxstats one step at a time. Explain FASTQ, BAM,
@@ -250,7 +277,7 @@ expected mapping summaries.
 
 ## Part IV — Scripting, configuration, logging and tests
 
-### Chapter 13 — Turn the baseline into strict Bash
+### Chapter 14 — Turn the baseline into strict Bash
 
 Teach shebangs, variables, quoting, command continuation, functions and
 `set -euo pipefail` one behavior at a time. Explain why pipelines can hide an
@@ -260,7 +287,7 @@ upstream failure without `pipefail`.
 **Pass condition:** script syntax check, successful run and outputs equivalent
 to the manual baseline.
 
-### Chapter 14 — Defensive scripts, parameters and logs
+### Chapter 15 — Defensive scripts, parameters and logs
 
 Add input checks, directory creation, read-only defaults, usage messages,
 parameter validation, temporary-file handling, cleanup traps, timestamps and
@@ -271,7 +298,7 @@ that must never enter Git.
 **Pass condition:** clear help output, safe missing-input failure and no partial
 final output presented as success.
 
-### Chapter 15 — Testing bioinformatics software
+### Chapter 16 — Testing bioinformatics software
 
 Distinguish syntax tests, unit tests, integration tests, smoke tests, regression
 tests, negative tests, scientific acceptance criteria and full validation.
@@ -284,7 +311,7 @@ fails for the intended reason.
 
 ## Part V — Containerization and portable software
 
-### Chapter 16 — Container mental model
+### Chapter 17 — Container mental model
 
 Explain host, image, container, layer, registry, repository, tag, digest,
 bind mount, working directory, environment and process. Contrast virtual
@@ -294,7 +321,7 @@ limits.
 **Artifact:** annotated container architecture diagram.  
 **Pass condition:** explain image versus container and tag versus digest.
 
-### Chapter 17 — Write a Dockerfile deliberately
+### Chapter 18 — Write a Dockerfile deliberately
 
 Teach `FROM`, `LABEL`, `COPY`, `RUN`, `ARG`, `ENV`, `USER`, `WORKDIR`, build
 context, `.dockerignore`, layer caching, least privilege and why file ordering
@@ -307,7 +334,7 @@ inspect` and `docker image history` where Docker is available.
 **Pass condition:** required tools run inside the image without relying on the
 host Conda environment.
 
-### Chapter 18 — Registries, image CI and immutable evidence
+### Chapter 19 — Registries, image CI and immutable evidence
 
 Use GitHub Actions to build and publish the OCI image to GHCR. Explain workflow
 YAML, triggers, jobs, steps, action pinning, permissions, secrets, cache,
@@ -319,7 +346,7 @@ is validated.”
 **Artifact:** passing container-build workflow and image digest.  
 **Pass condition:** clean pull and tool smoke checks from the published image.
 
-### Chapter 19 — Singularity/Apptainer on HPC
+### Chapter 20 — Singularity/Apptainer on HPC
 
 Explain why HPC sites commonly disallow Docker daemons, how OCI images become
 SIF files, clean environments, bind mounts, caches and project storage. Teach
@@ -333,7 +360,7 @@ clean environment.
 
 ## Part VI — Nextflow DSL2 from first process to complete pipeline
 
-### Chapter 20 — Nextflow mental model
+### Chapter 21 — Nextflow mental model
 
 Teach process, task, channel, value, queue channel, tuple, path staging,
 workflow block, operator, executor, work directory, cache and publish directory.
@@ -342,7 +369,7 @@ Relate each concept to the already trusted manual workflow.
 **Artifact:** annotated dataflow diagram.  
 **Pass condition:** reader predicts which processes may run concurrently.
 
-### Chapter 21 — First DSL2 workflow and task anatomy
+### Chapter 22 — First DSL2 workflow and task anatomy
 
 Run a minimal hello workflow, then implement raw FastQC. Explain
 `nextflow.enable.dsl=2`, `process`, `input`, `output`, `script`, interpolation,
@@ -354,7 +381,7 @@ Inspect `.command.sh`, `.command.run`, `.command.log`, `.command.out`,
 **Artifact:** first real `FASTQC_RAW` process.  
 **Pass condition:** two FastQC reports and an exit code of zero.
 
-### Chapter 22 — Channels, tuples and paired files
+### Chapter 23 — Channels, tuples and paired files
 
 Build paired-read channels with `channel.fromFilePairs`, metadata tuples,
 `path`, `val`, `map`, `collect`, `view`, emits and channel reuse. Explain data
@@ -363,7 +390,7 @@ shape explicitly before introducing compact syntax.
 **Artifact:** channel-shape notebook/diagram and paired-input workflow.  
 **Pass condition:** sample identifier and R1/R2 association remain correct.
 
-### Chapter 23 — Port the complete pipeline
+### Chapter 24 — Port the complete pipeline
 
 Add `TRIM_GALORE`, `FASTQC_TRIMMED`, `ALIGN_SORT` and `BAM_QC`. Explain process
 contracts, branching, synchronization, pipes inside a process and why
@@ -373,7 +400,7 @@ contracts, branching, synchronization, pipes inside a process and why
 **Pass condition:** all five processes succeed and publish the complete expected
 result set.
 
-### Chapter 24 — Parameters, configuration and runtime profiles
+### Chapter 25 — Parameters, configuration and runtime profiles
 
 Move portable parameters and site policy into appropriate configuration. Teach
 `params`, `nextflow.config`, profile selection, `process` selectors, labels,
@@ -385,7 +412,7 @@ Create `conda_local`, `singularity_local` and `slurm_singularity` profiles.
 **Pass condition:** `nextflow config -profile ...` resolves each runtime as
 intended without embedding secrets.
 
-### Chapter 25 — Reports, failures, caching and debugging
+### Chapter 26 — Reports, failures, caching and debugging
 
 Teach `-resume`, task hashes, invalidated cache, trace, report, timeline, DAG,
 work-directory inspection, `.nextflow.log`, error strategies and resource
@@ -398,7 +425,7 @@ shows all five tasks as cached.
 
 ## Part VII — Schedulers, CI/CD and reproducible delivery
 
-### Chapter 26 — Execute Nextflow through SLURM
+### Chapter 27 — Execute Nextflow through SLURM
 
 Explain Nextflow as scheduler client, executor settings, queue/account,
 resources, scheduler latency and generated wrappers. Compare local execution
@@ -409,7 +436,7 @@ with five scheduled jobs and inspect `#SBATCH` directives plus
 **Pass condition:** five completed SLURM tasks used the expected partition,
 account, resources and SIF.
 
-### Chapter 27 — CI/CD for a bioinformatics repository
+### Chapter 28 — CI/CD for a bioinformatics repository
 
 Define continuous integration, continuous delivery and deployment precisely.
 Design a layered GitHub Actions system:
@@ -429,7 +456,7 @@ self-hosted runner and why that introduces security/maintenance obligations.
 **Pass condition:** deliberate documentation or syntax defect fails the
 appropriate check; corrected commit passes.
 
-### Chapter 28 — Reproducibility and cross-runtime equivalence
+### Chapter 29 — Reproducibility and cross-runtime equivalence
 
 Compare Conda and container results using checksums, headers, alignment records,
 flagstat and idxstats. Explain byte identity, functional equivalence, numerical
@@ -442,7 +469,7 @@ comparison can reveal legitimate provenance rather than changed alignments.
 **Pass condition:** claims match the evidence: identical headerless records and
 summaries, not falsely “byte-identical BAMs.”
 
-### Chapter 29 — Release, provenance and application-ready evidence
+### Chapter 30 — Release, provenance and application-ready evidence
 
 Perform clean-room setup, repository audit, README walkthrough, checksums,
 release notes, semantic tag, source archive and evidence matrix. Explain SBOM,
@@ -455,7 +482,7 @@ and reproduce the small test path.
 
 ## Part VIII — Working safely and effectively in industry
 
-### Chapter 30 — Security, privacy and regulated boundaries
+### Chapter 31 — Security, privacy and regulated boundaries
 
 Introduce least privilege, secrets, dependency/image scanning, trusted base
 images, updates, licenses, PHI/PII, encryption, access control, audit trails,
@@ -469,7 +496,7 @@ quality or regulatory specialists.
 **Pass condition:** repository contains no secrets or sensitive data and its
 scope statement is accurate.
 
-### Chapter 31 — Team practices: documentation, review and operations
+### Chapter 32 — Team practices: documentation, review and operations
 
 Teach issue templates, definition of done, code review etiquette, decision
 records, runbooks, ownership, change control, deprecation, observability,
@@ -480,7 +507,7 @@ domain acceptance criteria and how engineers expose assumptions for review.
 **Pass condition:** another reader can understand a change, reproduce its test
 and identify its owner and rollback path.
 
-### Chapter 32 — Where to go next
+### Chapter 33 — Where to go next
 
 Introduce modular Nextflow organization, nf-core, schema validation, workflow
 testing frameworks, MultiQC, reference management, cloud executors,
@@ -554,11 +581,11 @@ The reader order and writing order will be the same. We will complete and verify
 one chapter before beginning the next:
 
 1. revise Chapter 1 against this curriculum;
-2. write Chapters 2–4 and verify the local/HPC foundations;
-3. write Chapters 5–8 using this tutorial repository as the live Git example;
-4. write Chapters 9–15 from the verified manual workflow evidence;
-5. write Chapters 16–19 from the image and Singularity evidence;
-6. write Chapters 20–25 by reconstructing the DSL2 port incrementally;
-7. write Chapters 26–29 from SLURM, CI, comparison and release evidence;
-8. write Chapters 30–32 and finish the appendices; and
+2. write Chapters 2–5 and verify the local, HPC and cloud foundations;
+3. write Chapters 6–9 using this tutorial repository as the live Git example;
+4. write Chapters 10–16 from the verified manual workflow evidence;
+5. write Chapters 17–20 from the image and Singularity evidence;
+6. write Chapters 21–26 by reconstructing the DSL2 port incrementally;
+7. write Chapters 27–30 from SLURM, CI, comparison and release evidence;
+8. write Chapters 31–33 and finish the appendices; and
 9. perform a clean beginner walkthrough of the entire published book.

@@ -18,9 +18,10 @@ book:
         - chapters/02-terminal-files-paths.qmd
         - chapters/03-workstation-setup.qmd
         - chapters/04-hpc-mental-model.qmd
+        - chapters/05-cloud-execution-mental-model.qmd
     - part: "Part II — Git, GitHub and collaborative engineering"
       chapters:
-        - chapters/05-git-mental-model.qmd
+        - chapters/06-git-mental-model.qmd
         - chapters/06-manual-pipeline.qmd
         - chapters/07-strict-bash.qmd
     - part: "Part III — Make the software portable"

@@ -3,4 +3,5 @@
 This chapter will explain how Git records selected filesystem changes and will
 build the reader's first small, reviewable repository.
 
-The complete chapter will be developed and tested next.
+The complete chapter will be developed and tested after the cloud execution
+chapter.

@@ -1,0 +1,10 @@
+# Cloud execution mental model: AWS and transferable concepts
+
+This chapter will explain how identity, object storage, registries, managed
+batch compute, networking, logging, security and cost fit together when a
+Nextflow pipeline runs in the cloud.
+
+AWS will provide the concrete examples, with brief mappings to Azure and Google
+Cloud. No billable cloud account will be required for the learning exercise.
+
+The complete reasoning-first chapter will be developed and tested next.
