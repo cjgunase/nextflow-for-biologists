@@ -313,25 +313,322 @@
     ]
   },
   {
-    "objectID": "chapters/02-terminal-and-hpc.html",
-    "href": "chapters/02-terminal-and-hpc.html",
-    "title": "3  The terminal and an HPC cluster",
+    "objectID": "chapters/02-terminal-files-paths.html",
+    "href": "chapters/02-terminal-files-paths.html",
+    "title": "3  The terminal, files, paths and commands",
     "section": "",
-    "text": "This chapter introduces prompts, commands, login versus compute nodes, software modules, storage locations and job schedulers. It explains why heavy analyses should not be run on a shared login node and why module purge changes the cluster-provided software layer without deactivating a Conda environment.\n\n\n\n\n\n\nNoteComing in the guided build\n\n\n\nThe complete lesson will use annotated DLDCC examples while clearly marking which paths, module names, accounts and partitions are site-specific.",
+    "text": "3.1 Why a biologist should care\nGraphical applications hide many implementation details. That is convenient for interactive work, but it makes a procedure difficult to record exactly. The command line turns an action into text that can be reviewed, saved in a script, placed under version control and executed by a workflow engine.\nFor example, “I clicked the alignment button” omits the program version, reference, input files and parameters. A command can make those choices explicit:\nYou do not need to understand this Bowtie2 command yet. Notice only that it is text. Later, the same text can be tested manually, saved in Bash and placed inside a Nextflow process.\nThe terminal is powerful because it exposes exact actions. It is risky for the same reason: the shell will attempt exactly what you request, including a badly targeted deletion. Safe command-line work begins with orientation and verification, not speed.",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal and an HPC cluster</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
     ]
   },
   {
-    "objectID": "chapters/03-files-paths-and-git.html",
-    "href": "chapters/03-files-paths-and-git.html",
-    "title": "4  Files, paths and Git",
+    "objectID": "chapters/02-terminal-files-paths.html#why-a-biologist-should-care",
+    "href": "chapters/02-terminal-files-paths.html#why-a-biologist-should-care",
+    "title": "3  The terminal, files, paths and commands",
     "section": "",
-    "text": "This chapter develops the minimum command-line vocabulary needed for the rest of the book: working directories, absolute and relative paths, files versus directories, standard output, exit codes, checksums, Git commits and tags.",
+    "text": "bowtie2 -x ref/index/chr22 -1 reads_R1.fastq -2 reads_R2.fastq",
     "crumbs": [
       "Part I — Build the mental model",
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Files, paths and Git</span>"
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#engineering-objective",
+    "href": "chapters/02-terminal-files-paths.html#engineering-objective",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.2 Engineering objective",
+    "text": "3.2 Engineering objective\nThis chapter builds a disposable practice workspace and a small evidence file. Nothing touches the bioinformatics pipeline yet. The goals are to:\n\nknow where you are;\nknow what a command will target;\ninspect the result;\npreserve error information; and\nleave a reproducible record.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#terminal-shell-and-prompt",
+    "href": "chapters/02-terminal-files-paths.html#terminal-shell-and-prompt",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.3 Terminal, shell and prompt",
+    "text": "3.3 Terminal, shell and prompt\nA terminal is the application window that displays text and sends your keystrokes. Terminal.app, iTerm2, a VS Code terminal and an SSH terminal are examples.\nA shell is the program that reads and interprets commands. Common shells include Bash and Zsh. macOS commonly starts Zsh; many Linux and HPC systems use Bash.\nA prompt is the text the shell displays when it is ready. It may contain a username, computer name, directory or active Conda environment.\n(base) [alex@compute-1 project]$\nDo not copy the prompt into a command. In this book:\npwd\nmeans type only pwd, then press Return or Enter. The fenced block is not part of the command either.\n\n\n\n\n\n\nWarningDo not copy prompt characters\n\n\n\nDocumentation sometimes shows commands beginning with $. That symbol usually represents the prompt, not text to type. Our copyable command blocks omit it. Expected output is displayed in separate text blocks.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#command-arguments-and-options",
+    "href": "chapters/02-terminal-files-paths.html#command-arguments-and-options",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.4 Command, arguments and options",
+    "text": "3.4 Command, arguments and options\nConsider:\nwc -l notes.txt\nThe pieces are:\n\n\n\nPiece\nRole\n\n\n\n\nwc\ncommand/program name\n\n\n-l\noption requesting a line count\n\n\nnotes.txt\nargument naming the input file\n\n\n\nOptions often begin with one hyphen for a short form or two hyphens for a long form. This is a convention, not an absolute law. Each program defines its own interface. -h may mean help in one tool and something else in another.\nNever guess a destructive option. Read the program’s help or official documentation.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#before-you-type-identify-your-shell-and-location",
+    "href": "chapters/02-terminal-files-paths.html#before-you-type-identify-your-shell-and-location",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.5 Before you type: identify your shell and location",
+    "text": "3.5 Before you type: identify your shell and location\nRun:\nprintf 'shell=%s\\n' \"$SHELL\"\npwd\nThe first command prints your configured login shell. pwd means print working directory.\nExample output on macOS:\nshell=/bin/zsh\n/Users/alex\nExample output on Linux or an HPC system:\nshell=/bin/bash\n/home/alex\nYour output will differ. A different username or home path is not a failure.\n\n3.5.1 Read the first command\nprintf 'shell=%s\\n' \"$SHELL\"\n│      │             └─ expand the SHELL environment variable safely\n│      └─ format: text, a string placeholder, then a newline\n└─ print formatted text\nDouble quotes preserve the expanded value as one argument. We will return to quoting later.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#paths-addresses-in-the-filesystem",
+    "href": "chapters/02-terminal-files-paths.html#paths-addresses-in-the-filesystem",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.6 Paths: addresses in the filesystem",
+    "text": "3.6 Paths: addresses in the filesystem\nA path identifies a filesystem location.\nAn absolute path begins at the filesystem root:\n/Users/alex/project/data/reads.fastq\n/home/alex/project/data/reads.fastq\nA relative path begins from the current working directory:\ndata/reads.fastq\n../reference/chr22.fa\nSpecial path components:\n\n\n\nSymbol\nMeaning\n\n\n\n\n/\nfilesystem root and path separator on Unix-like systems\n\n\n.\ncurrent directory\n\n\n..\nparent directory\n\n\n~\nyour home directory when expanded by the shell\n\n\n$HOME\nenvironment variable containing your home path\n\n\n\n~ is convenient interactively. In scripts, a quoted \"$HOME\" is often more explicit. Do not replace HOME with a project directory; many programs depend on its real meaning.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#build-a-safe-practice-workspace",
+    "href": "chapters/02-terminal-files-paths.html#build-a-safe-practice-workspace",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.7 Build a safe practice workspace",
+    "text": "3.7 Build a safe practice workspace\nFirst, inspect the intended parent:\nprintf 'home=%s\\n' \"$HOME\"\nls -ld \"$HOME\"\nThen create a new, narrowly named directory:\nmkdir -p \"$HOME/nextflow-for-biologists-practice/chapter-02\"\ncd \"$HOME/nextflow-for-biologists-practice/chapter-02\"\npwd\nmkdir creates a directory. -p also creates missing parent directories and does not fail if the directory already exists. cd changes the shell’s current directory.\nExpected final line, with your home path:\n/Users/alex/nextflow-for-biologists-practice/chapter-02\nor:\n/home/alex/nextflow-for-biologists-practice/chapter-02\n\n\n\n\n\n\nImportantThe working-directory rule\n\n\n\nBefore a command creates, moves or changes files, run pwd and inspect the target path. Most “the command ran but I cannot find the file” problems begin with an incorrect working directory.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#list-files-including-hidden-files",
+    "href": "chapters/02-terminal-files-paths.html#list-files-including-hidden-files",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.8 List files, including hidden files",
+    "text": "3.8 List files, including hidden files\nRun:\nls\nls -la\nls lists directory entries. -l requests a long format. -a includes names beginning with ., which are hidden from a normal listing.\nAn empty practice directory still contains two special directory entries in the -a view:\n.\n..\nThey mean current directory and parent directory; they are not ordinary files to remove.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#create-predictable-text-files",
+    "href": "chapters/02-terminal-files-paths.html#create-predictable-text-files",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.9 Create predictable text files",
+    "text": "3.9 Create predictable text files\nUse printf rather than an interactive editor so the starting content is exact:\nprintf 'sample\\tcondition\\nS01\\tcontrol\\nS02\\ttreated\\n' &gt; samples.tsv\nprintf 'quality-control notes\\n' &gt; notes.txt\nThe &gt; operator redirects standard output into a file. It creates the file if needed and replaces its contents if it already exists.\nInspect before and after using redirection. Do not casually redirect into a valuable file.\nList the result:\nls -lh\n-h asks ls to show human-readable sizes when used with -l.\nExpected names:\nnotes.txt\nsamples.tsv",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#inspect-content-without-editing-it",
+    "href": "chapters/02-terminal-files-paths.html#inspect-content-without-editing-it",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.10 Inspect content without editing it",
+    "text": "3.10 Inspect content without editing it\nRun:\ncat notes.txt\nhead -n 3 samples.tsv\ntail -n 1 samples.tsv\nwc -l samples.tsv\nWhat they do:\n\ncat writes complete file content to standard output. Use it only for small text files.\nhead -n 3 writes the first three lines.\ntail -n 1 writes the final line.\nwc -l counts newline characters, which normally corresponds to line count for a well-formed text file.\n\nExpected output includes:\nquality-control notes\nsample  condition\nS01 control\nS02 treated\nS02 treated\n3 samples.tsv\nFor a large log or report, use less filename to page through content without loading everything into an editor. Press q to leave less.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#file-extensions-are-names-not-guarantees",
+    "href": "chapters/02-terminal-files-paths.html#file-extensions-are-names-not-guarantees",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.11 File extensions are names, not guarantees",
+    "text": "3.11 File extensions are names, not guarantees\nsamples.tsv suggests tab-separated values, but the extension does not enforce the format. The content and the consuming program determine whether the file is valid.\nLikewise, renaming notes.txt to notes.fastq would not turn it into FASTQ. This is why later chapters use structural checks rather than trusting names.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#copy-and-move-safely",
+    "href": "chapters/02-terminal-files-paths.html#copy-and-move-safely",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.12 Copy and move safely",
+    "text": "3.12 Copy and move safely\nCreate two subdirectories:\nmkdir -p input archive\nCopy the sample sheet:\ncp samples.tsv input/samples.tsv\nMove the notes:\nmv notes.txt archive/notes.txt\nVerify:\nfind . -maxdepth 2 -type f -print\nExpected paths:\n./archive/notes.txt\n./input/samples.tsv\n./samples.tsv\ncp creates another file. mv changes a name or location; on the same filesystem it does not make a second independent copy.\nWe supplied explicit destination filenames. That makes the intended result clearer than relying on implicit directory behavior.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#standard-input-output-and-error",
+    "href": "chapters/02-terminal-files-paths.html#standard-input-output-and-error",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.13 Standard input, output and error",
+    "text": "3.13 Standard input, output and error\nA command-line process normally has three standard streams:\n\n\n\n\n\n\n\n\nStream\nNumber\nDefault destination/purpose\n\n\n\n\nstandard input\n0\ndata entering the process, often the keyboard\n\n\nstandard output\n1\nexpected program output, normally the terminal\n\n\nstandard error\n2\ndiagnostics and errors, normally the terminal\n\n\n\nSeparating output from diagnostics lets us save a clean result while retaining an error log.\nRun a successful listing and redirect standard output:\nls input &gt; input-files.txt\nNow deliberately request a missing directory and redirect standard error:\nls missing-directory 2&gt; expected-error.txt\nThe second command should print nothing to the terminal because its error was redirected. Inspect it:\ncat expected-error.txt\nThe exact wording varies, but it should say that missing-directory does not exist.\nUseful forms:\n\n\n\n\n\n\n\nSyntax\nEffect\n\n\n\n\n&gt; file\nreplace file with standard output\n\n\n&gt;&gt; file\nappend standard output to file\n\n\n2&gt; file\nreplace file with standard error\n\n\n2&gt;&1\nsend standard error to the current standard-output destination\n\n\n\nRedirection is handled by the shell before the program starts. The program may not know that its output is going to a file.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#exit-status-success-is-a-number",
+    "href": "chapters/02-terminal-files-paths.html#exit-status-success-is-a-number",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.14 Exit status: success is a number",
+    "text": "3.14 Exit status: success is a number\nWhen a command finishes, it returns an integer exit status. By Unix convention:\n\n0 means success;\na nonzero value means some kind of failure or special condition.\n\nImmediately after the deliberate failed ls, run:\nprintf 'exit_status=%s\\n' \"$?\"\nYou should see a nonzero value such as:\nexit_status=1\nNow run:\nls input\nprintf 'exit_status=%s\\n' \"$?\"\nExpected final line:\nexit_status=0\n$? contains only the status of the most recently completed foreground pipeline. Even echo or printf replaces it. Capture or inspect it immediately.\n\n\n\n\n\n\nWarningOutput is not the same as success\n\n\n\nA program can write warnings and still exit zero. A program can also produce a partial output before failing. Check exit status and validate important outputs.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#pipes-connect-processes",
+    "href": "chapters/02-terminal-files-paths.html#pipes-connect-processes",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.15 Pipes connect processes",
+    "text": "3.15 Pipes connect processes\nThe pipe operator | connects the standard output of the command on the left to the standard input of the command on the right.\nfind . -maxdepth 2 -type f -print | sort\nfind emits paths. sort receives those paths and prints them in order.\nAnother example:\nprintf 'alpha\\nbeta\\ngamma\\n' | wc -l\nExpected output:\n3\nA pipe passes data; it does not automatically create an intermediate file. In Chapter 13 we will see why a failure on the left side of a pipeline can be hidden unless Bash pipefail behavior is enabled.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#quoting-prevents-accidental-reinterpretation",
+    "href": "chapters/02-terminal-files-paths.html#quoting-prevents-accidental-reinterpretation",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.16 Quoting prevents accidental reinterpretation",
+    "text": "3.16 Quoting prevents accidental reinterpretation\nThe shell performs expansions before launching a program. Spaces can divide one intended path into multiple arguments.\nCreate a file whose name contains a space:\nprintf 'temporary example\\n' &gt; \"name with spaces.txt\"\nRead it correctly:\ncat \"name with spaces.txt\"\nDouble quotes allow variable expansion while preserving the result as one argument:\npractice_dir=\"$HOME/nextflow-for-biologists-practice/chapter-02\"\nprintf 'practice_dir=%s\\n' \"$practice_dir\"\nSingle quotes preserve literal text:\nprintf '%s\\n' '$HOME is written literally inside single quotes'\nExpected output begins with the characters $HOME; the variable is not expanded.\nThe safe default is to double-quote variable expansions unless you have a specific, understood reason not to.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#wildcards-expand-to-matching-pathnames",
+    "href": "chapters/02-terminal-files-paths.html#wildcards-expand-to-matching-pathnames",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.17 Wildcards expand to matching pathnames",
+    "text": "3.17 Wildcards expand to matching pathnames\nCreate three small files:\nprintf 'R1\\n' &gt; sample_R1.fastq\nprintf 'R2\\n' &gt; sample_R2.fastq\nprintf 'report\\n' &gt; sample_report.txt\nInspect a wildcard before using it in a command that modifies files:\nprintf '%s\\n' sample_*.fastq\nExpected matches:\nsample_R1.fastq\nsample_R2.fastq\nThe shell expands * before starting printf. Quoting the pattern changes the meaning:\nprintf '%s\\n' 'sample_*.fastq'\nThis prints the literal asterisk.\n\n\n\n\n\n\nImportantInspect globs before modifying files\n\n\n\nNever assume a wildcard matches only the intended files. Print or list the matches first. An empty or overly broad match can cause surprising behavior.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#hidden-files-and-configuration",
+    "href": "chapters/02-terminal-files-paths.html#hidden-files-and-configuration",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.18 Hidden files and configuration",
+    "text": "3.18 Hidden files and configuration\nNames beginning with . are conventionally hidden:\nprintf 'practice configuration\\n' &gt; .practice-config\nls\nls -la\nThe first listing normally omits .practice-config; the second includes it.\nGit metadata lives in a hidden .git directory. Conda, Nextflow, Docker and other tools also use hidden files or directories. “Hidden” does not mean unimportant or secure.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#command-history-and-sensitive-information",
+    "href": "chapters/02-terminal-files-paths.html#command-history-and-sensitive-information",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.19 Command history and sensitive information",
+    "text": "3.19 Command history and sensitive information\nMost interactive shells store command history. This helps repeat and audit work, but it creates a security risk if a command includes a password, token or private URL.\nNever paste secrets directly into commands merely because a tutorial shows an environment variable. Use the authentication mechanism recommended by the service, and treat terminal transcripts as potentially sensitive.\nWe will never commit secrets, patient paths or credentials to the public tutorial repository.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#investigate-before-deleting",
+    "href": "chapters/02-terminal-files-paths.html#investigate-before-deleting",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.20 Investigate before deleting",
+    "text": "3.20 Investigate before deleting\nThis chapter does not require rm. That is deliberate.\nBefore any future deletion:\n\nprint the working directory;\nresolve the exact target;\nlist the target;\nconfirm that it contains only disposable material; and\nprefer a recoverable trash operation when practical.\n\nNever use a recursive deletion command with /, ~, $HOME, an unresolved variable, a broad project root or an uninspected wildcard.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#what-changed-on-disk",
+    "href": "chapters/02-terminal-files-paths.html#what-changed-on-disk",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.21 What changed on disk",
+    "text": "3.21 What changed on disk\nThe practice directory should now contain files similar to:\nchapter-02/\n├── .practice-config\n├── archive/\n│   └── notes.txt\n├── expected-error.txt\n├── input/\n│   └── samples.tsv\n├── input-files.txt\n├── name with spaces.txt\n├── sample_R1.fastq\n├── sample_R2.fastq\n├── sample_report.txt\n└── samples.tsv\nVerify with:\nfind . -maxdepth 2 -print | sort\nYour timestamps, ownership and absolute home path may differ. The relative structure and file contents are the acceptance criteria.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#common-failures-and-how-to-reason-about-them",
+    "href": "chapters/02-terminal-files-paths.html#common-failures-and-how-to-reason-about-them",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.22 Common failures and how to reason about them",
+    "text": "3.22 Common failures and how to reason about them\n\n3.22.1 “No such file or directory”\nFirst ask:\npwd\nls -la\nThen inspect the parent directory and spelling. Do not immediately create a new file with the missing name; you may simply be in the wrong directory.\n\n\n3.22.2 “Permission denied”\nInspect the path and permissions:\nls -ld .\nls -l samples.tsv\nDo not solve every permission error with sudo or broad write permissions. On an HPC system, the correct solution may be to use project storage or ask an administrator.\n\n\n3.22.3 A command appears to hang\nIt may be waiting for input, processing a large file or displaying through a pager. Read the screen. q exits less; Control-C requests interruption of a foreground command. Interruption may leave partial files, which must be validated before reuse.\n\n\n3.22.4 A wildcard prints literally\nEither it was quoted or no path matched and the shell preserved the pattern. Check the working directory and list candidate names.\n\n\n3.22.5 $? unexpectedly says zero\nYou probably ran another successful command before inspecting it. Exit status must be captured immediately after the command of interest.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#verification-checkpoint",
+    "href": "chapters/02-terminal-files-paths.html#verification-checkpoint",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.23 Verification checkpoint",
+    "text": "3.23 Verification checkpoint\nFrom the chapter practice directory, run:\npwd\ntest -s samples.tsv\nprintf 'samples_nonempty=%s\\n' \"$?\"\ntest \"$(wc -l &lt; samples.tsv)\" -eq 3\nprintf 'samples_three_lines=%s\\n' \"$?\"\ntest -f archive/notes.txt\nprintf 'archived_notes_exists=%s\\n' \"$?\"\ntest -f input/samples.tsv\nprintf 'input_copy_exists=%s\\n' \"$?\"\nThis is the one place in the chapter where command substitution appears: $(wc -l &lt; samples.tsv) runs the count and substitutes its output into the test expression. Chapter 13 explains the syntax in depth.\nAll four printed values should be zero:\nsamples_nonempty=0\nsamples_three_lines=0\narchived_notes_exists=0\ninput_copy_exists=0\nThe test command usually produces no text. Its exit status is the result.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#hands-on-exercise-create-a-miniature-sequencing-intake",
+    "href": "chapters/02-terminal-files-paths.html#hands-on-exercise-create-a-miniature-sequencing-intake",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.24 Hands-on exercise: create a miniature sequencing intake",
+    "text": "3.24 Hands-on exercise: create a miniature sequencing intake\nWork inside:\n$HOME/nextflow-for-biologists-practice/chapter-02/exercise\nCreate this structure using commands from the chapter:\nexercise/\n├── incoming/\n│   ├── patient-free_demo_R1.fastq\n│   └── patient-free_demo_R2.fastq\n├── metadata/\n│   └── samples.tsv\n├── logs/\n│   └── intake.log\n└── README.txt\nRequirements:\n\nEach FASTQ practice file contains exactly four lines. The content may be a clearly labeled synthetic placeholder; do not use patient data.\nsamples.tsv contains a header and one sample row.\nREADME.txt states that the fixture is synthetic and for shell practice.\nintake.log contains the absolute exercise path and a sorted list of the files.\nCapture one deliberate missing-file error in logs/expected-error.log.\nVerify every required file is nonempty.\n\nDo not use an editor for the initial version; construct the files with printf, redirection and commands introduced here.\n\n\n\n\n\n\nTipExercise verification hints\n\n\n\n\n\nUseful commands include:\nfind . -maxdepth 3 -type f -print | sort\nwc -l incoming/*.fastq\ntest -s metadata/samples.tsv\ntest -s README.txt\nThe two FASTQ placeholders should total eight lines. Every test -s command should return exit status zero.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#interview-grill-ten-questions",
+    "href": "chapters/02-terminal-files-paths.html#interview-grill-ten-questions",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.25 Interview grill: ten questions",
+    "text": "3.25 Interview grill: ten questions\nTry answering aloud before opening the model points. A strong answer explains behavior and risk; it does not merely expand an acronym.\n\nWhat is the difference between a terminal and a shell?\nWhat is the difference between an absolute and a relative path?\nWhy should a script quote a variable such as \"$input_file\"?\nWhat is the difference between &gt; and &gt;&gt;?\nWhat do standard input, standard output and standard error represent?\nWhat does exit status zero mean, and what does it not prove?\nWhat does a pipe do, and why can pipelines complicate error detection?\nWho expands *.fastq: the shell or the bioinformatics program?\nHow would you investigate “No such file or directory” safely?\nWhy is placing a password or token directly in a shell command dangerous?\n\n\n\n\n\n\n\nNoteModel answer points\n\n\n\n\n\n\nA terminal is the interface; a shell interprets commands.\nAn absolute path starts at root; a relative path is resolved from the current directory.\nQuoting prevents whitespace and wildcard characters in the expanded value from becoming unintended argument boundaries or pathname expansions.\n&gt; replaces a file with redirected output; &gt;&gt; appends.\nThey are the process’s conventional input, expected output and diagnostic streams, numbered 0, 1 and 2.\nZero means the program reported success. It does not prove that outputs are complete, scientifically sensible or appropriate for the intended use.\nA pipe connects one process’s output to another’s input. Without appropriate shell settings, the final command’s status can hide an earlier failure.\nThe shell normally expands an unquoted wildcard before launching the program.\nCheck pwd, list the directory, inspect spelling and parent paths, then determine whether the file is absent or the working directory is wrong.\nCommands may be stored in history, logs, process listings or transcripts. Use purpose-built credential storage and scoped secrets instead.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#what-to-remember",
+    "href": "chapters/02-terminal-files-paths.html#what-to-remember",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.26 What to remember",
+    "text": "3.26 What to remember\n\nAlways establish the working directory and exact target before changing files.\nThe shell interprets quoting, variables, wildcards, pipes and redirection before or while launching programs.\nStandard output and standard error can be recorded separately, and exit status must be checked immediately.\nA zero exit status is necessary evidence of reported success, not sufficient evidence of a valid scientific result.\nInspect first. Use narrow paths. Avoid destructive shortcuts.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/02-terminal-files-paths.html#next-chapter",
+    "href": "chapters/02-terminal-files-paths.html#next-chapter",
+    "title": "3  The terminal, files, paths and commands",
+    "section": "3.27 Next chapter",
+    "text": "3.27 Next chapter\nChapter 3 uses these command-line skills to inventory and set up the learning workstation. We will distinguish what belongs on a personal machine from what an HPC environment provides, verify every executable path and record the result before installing project packages.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>The terminal, files, paths and commands</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/03-workstation-setup.html",
+    "href": "chapters/03-workstation-setup.html",
+    "title": "4  Set up the learning workstation",
+    "section": "",
+    "text": "This chapter will establish a safe local workstation for the exercises and verify the required software before any project packages are installed.\nThe complete chapter will be developed and tested next.",
+    "crumbs": [
+      "Part I — Build the mental model",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Set up the learning workstation</span>"
     ]
   },
   {

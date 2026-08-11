@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>4&nbsp; Files, paths and Git – From FASTQ to Nextflow</title>
+<title>4&nbsp; Set up the learning workstation – From FASTQ to Nextflow</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -37,7 +37,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../chapters/04-conda-environments.html" rel="next">
-<link href="../chapters/02-terminal-and-hpc.html" rel="prev">
+<link href="../chapters/02-terminal-files-paths.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -89,7 +89,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-files-paths-and-git.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Files, paths and Git</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-workstation-setup.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -146,14 +146,14 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/02-terminal-and-hpc.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The terminal and an HPC cluster</span></span></a>
+  <a href="../chapters/02-terminal-files-paths.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/03-files-paths-and-git.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Files, paths and Git</span></span></a>
+  <a href="../chapters/03-workstation-setup.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></span></a>
   </div>
 </li>
       </ul>
@@ -338,9 +338,9 @@ ul.task-list li input[type="checkbox"] {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-files-paths-and-git.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Files, paths and Git</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-the-whole-shebang.html">Part I — Build the mental model</a></li><li class="breadcrumb-item"><a href="../chapters/03-workstation-setup.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Files, paths and Git</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Set up the learning workstation</span></h1>
 </div>
 
 
@@ -357,7 +357,8 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter develops the minimum command-line vocabulary needed for the rest of the book: working directories, absolute and relative paths, files versus directories, standard output, exit codes, checksums, Git commits and tags.</p>
+<p>This chapter will establish a safe local workstation for the exercises and verify the required software before any project packages are installed.</p>
+<p>The complete chapter will be developed and tested next.</p>
 
 
 
@@ -769,8 +770,8 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../chapters/02-terminal-and-hpc.html" class="pagination-link" aria-label="The terminal and an HPC cluster">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The terminal and an HPC cluster</span></span>
+      <a href="../chapters/02-terminal-files-paths.html" class="pagination-link" aria-label="The terminal, files, paths and commands">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The terminal, files, paths and commands</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
@@ -787,7 +788,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/03-files-paths-and-git.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/03-workstation-setup.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>
