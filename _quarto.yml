@@ -15,8 +15,8 @@ book:
     - part: "Part I — Build the mental model"
       chapters:
         - chapters/01-the-whole-shebang.qmd
-        - chapters/02-terminal-and-hpc.qmd
-        - chapters/03-files-paths-and-git.qmd
+        - chapters/02-terminal-files-paths.qmd
+        - chapters/03-workstation-setup.qmd
     - part: "Part II — Build a trusted manual workflow"
       chapters:
         - chapters/04-conda-environments.qmd

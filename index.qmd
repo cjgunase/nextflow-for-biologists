@@ -57,4 +57,3 @@ Read the chapters in order the first time. Each practical chapter contains:
 6. a verification checkpoint;
 7. common failures and their causes; and
 8. a short exercise.
-

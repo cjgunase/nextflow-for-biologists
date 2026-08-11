@@ -1,0 +1,6 @@
+# Set up the learning workstation
+
+This chapter will establish a safe local workstation for the exercises and
+verify the required software before any project packages are installed.
+
+The complete chapter will be developed and tested next.

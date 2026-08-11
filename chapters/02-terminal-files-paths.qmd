@@ -1,0 +1,795 @@
+# The terminal, files, paths and commands
+
+::: {.chapter-goals}
+**By the end of this chapter, you will be able to:**
+
+- read a shell prompt without copying it as part of a command;
+- distinguish a terminal, shell, command, argument and option;
+- navigate with absolute and relative paths;
+- create, inspect, copy and move practice files safely;
+- explain standard output, standard error, redirection, pipes and exit status;
+- use quoting and wildcards deliberately; and
+- investigate before changing or deleting anything.
+:::
+
+## Why a biologist should care
+
+Graphical applications hide many implementation details. That is convenient
+for interactive work, but it makes a procedure difficult to record exactly.
+The command line turns an action into text that can be reviewed, saved in a
+script, placed under version control and executed by a workflow engine.
+
+For example, “I clicked the alignment button” omits the program version,
+reference, input files and parameters. A command can make those choices
+explicit:
+
+```bash
+bowtie2 -x ref/index/chr22 -1 reads_R1.fastq -2 reads_R2.fastq
+```
+
+You do not need to understand this Bowtie2 command yet. Notice only that it is
+text. Later, the same text can be tested manually, saved in Bash and placed
+inside a Nextflow process.
+
+The terminal is powerful because it exposes exact actions. It is risky for the
+same reason: the shell will attempt exactly what you request, including a badly
+targeted deletion. Safe command-line work begins with orientation and
+verification, not speed.
+
+## Engineering objective
+
+This chapter builds a disposable practice workspace and a small evidence file.
+Nothing touches the bioinformatics pipeline yet. The goals are to:
+
+1. know where you are;
+2. know what a command will target;
+3. inspect the result;
+4. preserve error information; and
+5. leave a reproducible record.
+
+## Terminal, shell and prompt
+
+A **terminal** is the application window that displays text and sends your
+keystrokes. Terminal.app, iTerm2, a VS Code terminal and an SSH terminal are
+examples.
+
+A **shell** is the program that reads and interprets commands. Common shells
+include Bash and Zsh. macOS commonly starts Zsh; many Linux and HPC systems use
+Bash.
+
+A **prompt** is the text the shell displays when it is ready. It may contain a
+username, computer name, directory or active Conda environment.
+
+```text
+(base) [alex@compute-1 project]$
+```
+
+Do **not** copy the prompt into a command. In this book:
+
+```bash
+pwd
+```
+
+means type only `pwd`, then press Return or Enter. The fenced block is not part
+of the command either.
+
+::: {.callout-warning title="Do not copy prompt characters"}
+Documentation sometimes shows commands beginning with `$`. That symbol usually
+represents the prompt, not text to type. Our copyable command blocks omit it.
+Expected output is displayed in separate `text` blocks.
+:::
+
+## Command, arguments and options
+
+Consider:
+
+```bash
+wc -l notes.txt
+```
+
+The pieces are:
+
+| Piece | Role |
+|---|---|
+| `wc` | command/program name |
+| `-l` | option requesting a line count |
+| `notes.txt` | argument naming the input file |
+
+Options often begin with one hyphen for a short form or two hyphens for a long
+form. This is a convention, not an absolute law. Each program defines its own
+interface. `-h` may mean help in one tool and something else in another.
+
+Never guess a destructive option. Read the program's help or official
+documentation.
+
+## Before you type: identify your shell and location
+
+Run:
+
+```bash
+printf 'shell=%s\n' "$SHELL"
+pwd
+```
+
+The first command prints your configured login shell. `pwd` means **print
+working directory**.
+
+Example output on macOS:
+
+```text
+shell=/bin/zsh
+/Users/alex
+```
+
+Example output on Linux or an HPC system:
+
+```text
+shell=/bin/bash
+/home/alex
+```
+
+Your output will differ. A different username or home path is not a failure.
+
+### Read the first command
+
+```text
+printf 'shell=%s\n' "$SHELL"
+│      │             └─ expand the SHELL environment variable safely
+│      └─ format: text, a string placeholder, then a newline
+└─ print formatted text
+```
+
+Double quotes preserve the expanded value as one argument. We will return to
+quoting later.
+
+## Paths: addresses in the filesystem
+
+A **path** identifies a filesystem location.
+
+An **absolute path** begins at the filesystem root:
+
+```text
+/Users/alex/project/data/reads.fastq
+/home/alex/project/data/reads.fastq
+```
+
+A **relative path** begins from the current working directory:
+
+```text
+data/reads.fastq
+../reference/chr22.fa
+```
+
+Special path components:
+
+| Symbol | Meaning |
+|---|---|
+| `/` | filesystem root and path separator on Unix-like systems |
+| `.` | current directory |
+| `..` | parent directory |
+| `~` | your home directory when expanded by the shell |
+| `$HOME` | environment variable containing your home path |
+
+`~` is convenient interactively. In scripts, a quoted `"$HOME"` is often more
+explicit. Do not replace `HOME` with a project directory; many programs depend
+on its real meaning.
+
+## Build a safe practice workspace
+
+First, inspect the intended parent:
+
+```bash
+printf 'home=%s\n' "$HOME"
+ls -ld "$HOME"
+```
+
+Then create a new, narrowly named directory:
+
+```bash
+mkdir -p "$HOME/nextflow-for-biologists-practice/chapter-02"
+cd "$HOME/nextflow-for-biologists-practice/chapter-02"
+pwd
+```
+
+`mkdir` creates a directory. `-p` also creates missing parent directories and
+does not fail if the directory already exists. `cd` changes the shell's current
+directory.
+
+Expected final line, with your home path:
+
+```text
+/Users/alex/nextflow-for-biologists-practice/chapter-02
+```
+
+or:
+
+```text
+/home/alex/nextflow-for-biologists-practice/chapter-02
+```
+
+::: {.callout-important title="The working-directory rule"}
+Before a command creates, moves or changes files, run `pwd` and inspect the
+target path. Most “the command ran but I cannot find the file” problems begin
+with an incorrect working directory.
+:::
+
+## List files, including hidden files
+
+Run:
+
+```bash
+ls
+ls -la
+```
+
+`ls` lists directory entries. `-l` requests a long format. `-a` includes names
+beginning with `.`, which are hidden from a normal listing.
+
+An empty practice directory still contains two special directory entries in
+the `-a` view:
+
+```text
+.
+..
+```
+
+They mean current directory and parent directory; they are not ordinary files
+to remove.
+
+## Create predictable text files
+
+Use `printf` rather than an interactive editor so the starting content is
+exact:
+
+```bash
+printf 'sample\tcondition\nS01\tcontrol\nS02\ttreated\n' > samples.tsv
+printf 'quality-control notes\n' > notes.txt
+```
+
+The `>` operator redirects standard output into a file. It creates the file if
+needed and **replaces its contents** if it already exists.
+
+Inspect before and after using redirection. Do not casually redirect into a
+valuable file.
+
+List the result:
+
+```bash
+ls -lh
+```
+
+`-h` asks `ls` to show human-readable sizes when used with `-l`.
+
+Expected names:
+
+```text
+notes.txt
+samples.tsv
+```
+
+## Inspect content without editing it
+
+Run:
+
+```bash
+cat notes.txt
+head -n 3 samples.tsv
+tail -n 1 samples.tsv
+wc -l samples.tsv
+```
+
+What they do:
+
+- `cat` writes complete file content to standard output. Use it only for small
+  text files.
+- `head -n 3` writes the first three lines.
+- `tail -n 1` writes the final line.
+- `wc -l` counts newline characters, which normally corresponds to line count
+  for a well-formed text file.
+
+Expected output includes:
+
+```text
+quality-control notes
+sample	condition
+S01	control
+S02	treated
+S02	treated
+3 samples.tsv
+```
+
+For a large log or report, use `less filename` to page through content without
+loading everything into an editor. Press `q` to leave `less`.
+
+## File extensions are names, not guarantees
+
+`samples.tsv` suggests tab-separated values, but the extension does not enforce
+the format. The content and the consuming program determine whether the file is
+valid.
+
+Likewise, renaming `notes.txt` to `notes.fastq` would not turn it into FASTQ.
+This is why later chapters use structural checks rather than trusting names.
+
+## Copy and move safely
+
+Create two subdirectories:
+
+```bash
+mkdir -p input archive
+```
+
+Copy the sample sheet:
+
+```bash
+cp samples.tsv input/samples.tsv
+```
+
+Move the notes:
+
+```bash
+mv notes.txt archive/notes.txt
+```
+
+Verify:
+
+```bash
+find . -maxdepth 2 -type f -print
+```
+
+Expected paths:
+
+```text
+./archive/notes.txt
+./input/samples.tsv
+./samples.tsv
+```
+
+`cp` creates another file. `mv` changes a name or location; on the same
+filesystem it does not make a second independent copy.
+
+We supplied explicit destination filenames. That makes the intended result
+clearer than relying on implicit directory behavior.
+
+## Standard input, output and error
+
+A command-line process normally has three standard streams:
+
+| Stream | Number | Default destination/purpose |
+|---|---:|---|
+| standard input | `0` | data entering the process, often the keyboard |
+| standard output | `1` | expected program output, normally the terminal |
+| standard error | `2` | diagnostics and errors, normally the terminal |
+
+Separating output from diagnostics lets us save a clean result while retaining
+an error log.
+
+Run a successful listing and redirect standard output:
+
+```bash
+ls input > input-files.txt
+```
+
+Now deliberately request a missing directory and redirect standard error:
+
+```bash
+ls missing-directory 2> expected-error.txt
+```
+
+The second command should print nothing to the terminal because its error was
+redirected. Inspect it:
+
+```bash
+cat expected-error.txt
+```
+
+The exact wording varies, but it should say that `missing-directory` does not
+exist.
+
+Useful forms:
+
+| Syntax | Effect |
+|---|---|
+| `> file` | replace `file` with standard output |
+| `>> file` | append standard output to `file` |
+| `2> file` | replace `file` with standard error |
+| `2>&1` | send standard error to the current standard-output destination |
+
+Redirection is handled by the shell before the program starts. The program may
+not know that its output is going to a file.
+
+## Exit status: success is a number
+
+When a command finishes, it returns an integer exit status. By Unix convention:
+
+- `0` means success;
+- a nonzero value means some kind of failure or special condition.
+
+Immediately after the deliberate failed `ls`, run:
+
+```bash
+printf 'exit_status=%s\n' "$?"
+```
+
+You should see a nonzero value such as:
+
+```text
+exit_status=1
+```
+
+Now run:
+
+```bash
+ls input
+printf 'exit_status=%s\n' "$?"
+```
+
+Expected final line:
+
+```text
+exit_status=0
+```
+
+`$?` contains only the status of the **most recently completed foreground
+pipeline**. Even `echo` or `printf` replaces it. Capture or inspect it
+immediately.
+
+::: {.callout-warning title="Output is not the same as success"}
+A program can write warnings and still exit zero. A program can also produce a
+partial output before failing. Check exit status **and** validate important
+outputs.
+:::
+
+## Pipes connect processes
+
+The pipe operator `|` connects the standard output of the command on the left
+to the standard input of the command on the right.
+
+```bash
+find . -maxdepth 2 -type f -print | sort
+```
+
+`find` emits paths. `sort` receives those paths and prints them in order.
+
+Another example:
+
+```bash
+printf 'alpha\nbeta\ngamma\n' | wc -l
+```
+
+Expected output:
+
+```text
+3
+```
+
+A pipe passes data; it does not automatically create an intermediate file. In
+Chapter 13 we will see why a failure on the left side of a pipeline can be
+hidden unless Bash `pipefail` behavior is enabled.
+
+## Quoting prevents accidental reinterpretation
+
+The shell performs expansions before launching a program. Spaces can divide
+one intended path into multiple arguments.
+
+Create a file whose name contains a space:
+
+```bash
+printf 'temporary example\n' > "name with spaces.txt"
+```
+
+Read it correctly:
+
+```bash
+cat "name with spaces.txt"
+```
+
+Double quotes allow variable expansion while preserving the result as one
+argument:
+
+```bash
+practice_dir="$HOME/nextflow-for-biologists-practice/chapter-02"
+printf 'practice_dir=%s\n' "$practice_dir"
+```
+
+Single quotes preserve literal text:
+
+```bash
+printf '%s\n' '$HOME is written literally inside single quotes'
+```
+
+Expected output begins with the characters `$HOME`; the variable is not
+expanded.
+
+The safe default is to double-quote variable expansions unless you have a
+specific, understood reason not to.
+
+## Wildcards expand to matching pathnames
+
+Create three small files:
+
+```bash
+printf 'R1\n' > sample_R1.fastq
+printf 'R2\n' > sample_R2.fastq
+printf 'report\n' > sample_report.txt
+```
+
+Inspect a wildcard before using it in a command that modifies files:
+
+```bash
+printf '%s\n' sample_*.fastq
+```
+
+Expected matches:
+
+```text
+sample_R1.fastq
+sample_R2.fastq
+```
+
+The shell expands `*` before starting `printf`. Quoting the pattern changes the
+meaning:
+
+```bash
+printf '%s\n' 'sample_*.fastq'
+```
+
+This prints the literal asterisk.
+
+::: {.callout-important title="Inspect globs before modifying files"}
+Never assume a wildcard matches only the intended files. Print or list the
+matches first. An empty or overly broad match can cause surprising behavior.
+:::
+
+## Hidden files and configuration
+
+Names beginning with `.` are conventionally hidden:
+
+```bash
+printf 'practice configuration\n' > .practice-config
+ls
+ls -la
+```
+
+The first listing normally omits `.practice-config`; the second includes it.
+
+Git metadata lives in a hidden `.git` directory. Conda, Nextflow, Docker and
+other tools also use hidden files or directories. “Hidden” does not mean
+unimportant or secure.
+
+## Command history and sensitive information
+
+Most interactive shells store command history. This helps repeat and audit
+work, but it creates a security risk if a command includes a password, token or
+private URL.
+
+Never paste secrets directly into commands merely because a tutorial shows an
+environment variable. Use the authentication mechanism recommended by the
+service, and treat terminal transcripts as potentially sensitive.
+
+We will never commit secrets, patient paths or credentials to the public
+tutorial repository.
+
+## Investigate before deleting
+
+This chapter does not require `rm`. That is deliberate.
+
+Before any future deletion:
+
+1. print the working directory;
+2. resolve the exact target;
+3. list the target;
+4. confirm that it contains only disposable material; and
+5. prefer a recoverable trash operation when practical.
+
+Never use a recursive deletion command with `/`, `~`, `$HOME`, an unresolved
+variable, a broad project root or an uninspected wildcard.
+
+## What changed on disk
+
+The practice directory should now contain files similar to:
+
+```text
+chapter-02/
+├── .practice-config
+├── archive/
+│   └── notes.txt
+├── expected-error.txt
+├── input/
+│   └── samples.tsv
+├── input-files.txt
+├── name with spaces.txt
+├── sample_R1.fastq
+├── sample_R2.fastq
+├── sample_report.txt
+└── samples.tsv
+```
+
+Verify with:
+
+```bash
+find . -maxdepth 2 -print | sort
+```
+
+Your timestamps, ownership and absolute home path may differ. The relative
+structure and file contents are the acceptance criteria.
+
+## Common failures and how to reason about them
+
+### “No such file or directory”
+
+First ask:
+
+```bash
+pwd
+ls -la
+```
+
+Then inspect the parent directory and spelling. Do not immediately create a new
+file with the missing name; you may simply be in the wrong directory.
+
+### “Permission denied”
+
+Inspect the path and permissions:
+
+```bash
+ls -ld .
+ls -l samples.tsv
+```
+
+Do not solve every permission error with `sudo` or broad write permissions. On
+an HPC system, the correct solution may be to use project storage or ask an
+administrator.
+
+### A command appears to hang
+
+It may be waiting for input, processing a large file or displaying through a
+pager. Read the screen. `q` exits `less`; Control-C requests interruption of a
+foreground command. Interruption may leave partial files, which must be
+validated before reuse.
+
+### A wildcard prints literally
+
+Either it was quoted or no path matched and the shell preserved the pattern.
+Check the working directory and list candidate names.
+
+### `$?` unexpectedly says zero
+
+You probably ran another successful command before inspecting it. Exit status
+must be captured immediately after the command of interest.
+
+## Verification checkpoint
+
+From the chapter practice directory, run:
+
+```bash
+pwd
+test -s samples.tsv
+printf 'samples_nonempty=%s\n' "$?"
+test "$(wc -l < samples.tsv)" -eq 3
+printf 'samples_three_lines=%s\n' "$?"
+test -f archive/notes.txt
+printf 'archived_notes_exists=%s\n' "$?"
+test -f input/samples.tsv
+printf 'input_copy_exists=%s\n' "$?"
+```
+
+This is the one place in the chapter where command substitution appears:
+`$(wc -l < samples.tsv)` runs the count and substitutes its output into the
+`test` expression. Chapter 13 explains the syntax in depth.
+
+All four printed values should be zero:
+
+```text
+samples_nonempty=0
+samples_three_lines=0
+archived_notes_exists=0
+input_copy_exists=0
+```
+
+The `test` command usually produces no text. Its exit status is the result.
+
+## Hands-on exercise: create a miniature sequencing intake
+
+Work inside:
+
+```text
+$HOME/nextflow-for-biologists-practice/chapter-02/exercise
+```
+
+Create this structure using commands from the chapter:
+
+```text
+exercise/
+├── incoming/
+│   ├── patient-free_demo_R1.fastq
+│   └── patient-free_demo_R2.fastq
+├── metadata/
+│   └── samples.tsv
+├── logs/
+│   └── intake.log
+└── README.txt
+```
+
+Requirements:
+
+1. Each FASTQ practice file contains exactly four lines. The content may be a
+   clearly labeled synthetic placeholder; do not use patient data.
+2. `samples.tsv` contains a header and one sample row.
+3. `README.txt` states that the fixture is synthetic and for shell practice.
+4. `intake.log` contains the absolute exercise path and a sorted list of the
+   files.
+5. Capture one deliberate missing-file error in `logs/expected-error.log`.
+6. Verify every required file is nonempty.
+
+Do not use an editor for the initial version; construct the files with `printf`,
+redirection and commands introduced here.
+
+::: {.callout-tip collapse="true" title="Exercise verification hints"}
+Useful commands include:
+
+```bash
+find . -maxdepth 3 -type f -print | sort
+wc -l incoming/*.fastq
+test -s metadata/samples.tsv
+test -s README.txt
+```
+
+The two FASTQ placeholders should total eight lines. Every `test -s` command
+should return exit status zero.
+:::
+
+## Interview grill: ten questions
+
+Try answering aloud before opening the model points. A strong answer explains
+behavior and risk; it does not merely expand an acronym.
+
+1. What is the difference between a terminal and a shell?
+2. What is the difference between an absolute and a relative path?
+3. Why should a script quote a variable such as `"$input_file"`?
+4. What is the difference between `>` and `>>`?
+5. What do standard input, standard output and standard error represent?
+6. What does exit status zero mean, and what does it **not** prove?
+7. What does a pipe do, and why can pipelines complicate error detection?
+8. Who expands `*.fastq`: the shell or the bioinformatics program?
+9. How would you investigate “No such file or directory” safely?
+10. Why is placing a password or token directly in a shell command dangerous?
+
+::: {.callout-note collapse="true" title="Model answer points"}
+1. A terminal is the interface; a shell interprets commands.
+2. An absolute path starts at root; a relative path is resolved from the current
+   directory.
+3. Quoting prevents whitespace and wildcard characters in the expanded value
+   from becoming unintended argument boundaries or pathname expansions.
+4. `>` replaces a file with redirected output; `>>` appends.
+5. They are the process's conventional input, expected output and diagnostic
+   streams, numbered 0, 1 and 2.
+6. Zero means the program reported success. It does not prove that outputs are
+   complete, scientifically sensible or appropriate for the intended use.
+7. A pipe connects one process's output to another's input. Without appropriate
+   shell settings, the final command's status can hide an earlier failure.
+8. The shell normally expands an unquoted wildcard before launching the
+   program.
+9. Check `pwd`, list the directory, inspect spelling and parent paths, then
+   determine whether the file is absent or the working directory is wrong.
+10. Commands may be stored in history, logs, process listings or transcripts.
+    Use purpose-built credential storage and scoped secrets instead.
+:::
+
+## What to remember
+
+- Always establish the working directory and exact target before changing
+  files.
+- The shell interprets quoting, variables, wildcards, pipes and redirection
+  before or while launching programs.
+- Standard output and standard error can be recorded separately, and exit
+  status must be checked immediately.
+- A zero exit status is necessary evidence of reported success, not sufficient
+  evidence of a valid scientific result.
+- Inspect first. Use narrow paths. Avoid destructive shortcuts.
+
+## Next chapter
+
+Chapter 3 uses these command-line skills to inventory and set up the learning
+workstation. We will distinguish what belongs on a personal machine from what
+an HPC environment provides, verify every executable path and record the result
+before installing project packages.

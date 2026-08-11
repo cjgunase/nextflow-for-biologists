@@ -50,6 +50,8 @@ Every practical chapter will contain these sections in this order:
 11. **Commit checkpoint** — a suggested Git commit when appropriate.
 12. **Try it yourself** — one safe exercise plus a solution or hint.
 13. **What to remember** — three to five durable takeaways.
+14. **Interview grill** — ten questions that test explanation and judgment,
+    not memorized product slogans.
 
 Commands will never silently assume a working directory. Destructive commands
 will be avoided or fenced with explicit target checks. Site-specific DLDCC
@@ -90,7 +92,20 @@ layers. Ends with a diagram readers can explain in their own words.
 **Pass condition:** correctly assign four scenarios to Conda/container,
 Nextflow or SLURM.
 
-### Chapter 2 — Set up the learning workstation
+### Chapter 2 — The terminal, files and paths
+
+Teach the prompt, command/argument/option structure, quoting, tab completion,
+working directories, absolute and relative paths, hidden files, wildcards,
+standard output/error, pipes, redirection and exit codes.
+
+Core commands: `pwd`, `ls`, `cd`, `mkdir`, `touch`, `cp`, `mv`, `head`, `tail`,
+`less`, `wc`, `find`, `rg`, `which`/`command -v`, `echo` and `printf`.
+
+**Artifact:** a small practice directory tree.
+**Pass condition:** locate a file, count its lines and explain `$?` without
+changing unrelated files.
+
+### Chapter 3 — Set up the learning workstation
 
 Install or verify Git, Conda or Miniforge, Java, Nextflow, Docker where
 available, Quarto for the tutorial and a text editor. Explain why Docker is
@@ -103,19 +118,6 @@ Provide macOS, Linux and HPC decision paths without mixing their commands.
 **Artifact:** `setup-check.txt`.  
 **Pass condition:** every required command is either verified or explicitly
 marked “provided later by the cluster/container.”
-
-### Chapter 3 — The terminal, files and paths
-
-Teach the prompt, command/argument/option structure, quoting, tab completion,
-working directories, absolute and relative paths, hidden files, wildcards,
-standard output/error, pipes, redirection and exit codes.
-
-Core commands: `pwd`, `ls`, `cd`, `mkdir`, `touch`, `cp`, `mv`, `head`, `tail`,
-`less`, `wc`, `find`, `rg`, `which`/`command -v`, `echo` and `printf`.
-
-**Artifact:** a small practice directory tree.  
-**Pass condition:** locate a file, count its lines and explain `$?` without
-changing unrelated files.
 
 ### Chapter 4 — HPC mental model: login nodes, compute nodes and storage
 
@@ -554,4 +556,3 @@ one chapter before beginning the next:
 7. write Chapters 26–29 from SLURM, CI, comparison and release evidence;
 8. write Chapters 30–32 and finish the appendices; and
 9. perform a clean beginner walkthrough of the entire published book.
-

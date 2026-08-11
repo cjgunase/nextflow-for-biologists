@@ -1,6 +1,0 @@
-# Files, paths and Git
-
-This chapter develops the minimum command-line vocabulary needed for the rest
-of the book: working directories, absolute and relative paths, files versus
-directories, standard output, exit codes, checksums, Git commits and tags.
-
