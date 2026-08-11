@@ -1,8 +1,9 @@
 ---
-title: "From FASTQ to Nextflow"
 subtitle: "Reproducible bioinformatics for complete beginners"
 description: "Learn Conda, containers, Nextflow DSL2, Singularity and SLURM by building and validating a small paired-end NGS workflow."
 ---
+
+# From FASTQ to Nextflow {.unnumbered}
 
 You can understand modern bioinformatics workflow engineering without already
 being a programmer. This book starts with ordinary sequencing files and shell

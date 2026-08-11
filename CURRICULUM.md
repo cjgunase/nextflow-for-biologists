@@ -115,7 +115,7 @@ later.
 Cover `command -v`, `--version`, architecture and operating-system checks.
 Provide macOS, Linux and HPC decision paths without mixing their commands.
 
-**Artifact:** `setup-check.txt`.  
+**Artifact:** `setup-check.txt`.
 **Pass condition:** every required command is either verified or explicitly
 marked “provided later by the cluster/container.”
 

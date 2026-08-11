@@ -1,6 +1,800 @@
-# Set up the learning workstation
+# Set up and audit the learning workstation
 
-This chapter will establish a safe local workstation for the exercises and
-verify the required software before any project packages are installed.
+::: {.chapter-goals}
+**By the end of this chapter, you will be able to:**
 
-The complete chapter will be developed and tested next.
+- distinguish host software from project software and cluster software;
+- identify your operating system, processor architecture and active shell;
+- use `command -v` and version commands to audit executables;
+- decide what belongs on a workstation and what an HPC administrator provides;
+- verify Git, Conda, Java, Nextflow, Docker, Quarto and an editor;
+- avoid installing a second copy merely because a command is not on `PATH`; and
+- create a shareable `setup-check.txt` without exposing secrets.
+:::
+
+## Why a biologist should care
+
+Most installation trouble is not caused by biology. It comes from answering the
+wrong question.
+
+“Is Nextflow installed?” sounds simple, but it can mean several different
+things:
+
+- Does a file named `nextflow` exist somewhere?
+- Can this shell find it?
+- Is its Java runtime compatible?
+- Can it write to its cache directory?
+- Is this the same executable that worked yesterday?
+
+A reliable setup records evidence for each layer. That habit prevents hours of
+guessing later and produces useful information when asking a colleague or
+administrator for help.
+
+## Engineering objective
+
+The objective is **not** to install everything everywhere. It is to establish a
+known starting state:
+
+```text
+machine identity
+      ↓
+executable location
+      ↓
+version and runtime check
+      ↓
+responsibility decision
+      ↓
+install, request, defer or mark optional
+      ↓
+recorded setup evidence
+```
+
+We will create `setup-check.txt`. It is an inventory, not a guarantee that every
+future pipeline will run.
+
+## Three software layers
+
+Treat the tools in this book as three different layers.
+
+| Layer | Examples | Who normally manages it? | Why it belongs there |
+|---|---|---|---|
+| Host/workstation | Git, Java, Nextflow launcher, Docker, Quarto, editor | You or desktop IT | Starts projects and provides system-level services |
+| Project environment | FastQC, Trim Galore, Bowtie2, SAMtools | Conda or a container recipe | Must be reproducible per analysis |
+| HPC site | Java module, Singularity/Apptainer, SLURM | Cluster administrators | Integrates with shared hardware and policy |
+
+Installing Bowtie2 globally on your laptop is not necessary for this book. We
+will declare it in a project environment. Installing Docker inside a Conda
+environment would not create the privileged container service Docker needs.
+
+::: {.callout-important title="One machine is enough"}
+You do not need both a workstation and an HPC account to understand the book.
+A workstation can complete the local path. An HPC reader can perform the audit
+and mark workstation-only tools as unavailable or deferred.
+:::
+
+## The vocabulary: distribution, package manager, environment and channel
+
+These names are easy to blur together.
+
+- **Conda** is a package and environment manager.
+- A **Conda distribution** is a bootstrap installation containing Conda and
+  supporting files.
+- **Miniforge** is a small Conda distribution configured for the community-run
+  `conda-forge` package channel.
+- **Anaconda Distribution** is a larger commercial distribution containing many
+  packages and additional products.
+- A **package** is an installable unit such as `samtools` plus metadata.
+- An **environment** is an isolated directory containing a selected collection
+  of packages.
+- A **channel** is a repository from which Conda obtains packages and metadata.
+
+This book recommends Miniforge for a new personal installation because it is a
+small, community-focused entry point. It does not require replacing a working,
+institutionally managed Conda installation.
+
+The [official Miniforge project](https://github.com/conda-forge/miniforge)
+publishes installers for supported operating systems and architectures. Always
+recheck that page because filenames and requirements change.
+
+## Audit before installing
+
+Open a new terminal. Do not activate a project environment yet.
+
+### Identify the shell
+
+```bash
+printf 'login_shell=%s\n' "$SHELL"
+printf 'current_process=%s\n' "$0"
+```
+
+`$SHELL` usually records your configured login shell. `$0` describes the
+current shell or script. They can differ—for example, a Bash script can run
+from an interactive Zsh session.
+
+### Identify the operating system and architecture
+
+Commands and installer files are platform-specific:
+
+```bash
+uname -s
+uname -m
+```
+
+Common results include:
+
+| `uname -s` | `uname -m` | Meaning |
+|---|---|---|
+| `Darwin` | `arm64` | macOS on Apple silicon |
+| `Darwin` | `x86_64` | macOS on an Intel processor |
+| `Linux` | `x86_64` | 64-bit Intel/AMD Linux |
+| `Linux` | `aarch64` | 64-bit ARM Linux |
+
+On macOS, add:
+
+```bash
+sw_vers
+```
+
+On Linux, inspect the distribution metadata:
+
+```bash
+cat /etc/os-release
+```
+
+Do not run macOS installation commands merely because they appear above Linux
+commands on a webpage. First match both the operating system and architecture.
+
+### Understand `PATH`
+
+When you type a command without a slash, the shell searches directories listed
+in `PATH`, from left to right:
+
+```bash
+printf '%s\n' "$PATH" | tr ':' '\n'
+```
+
+If two directories contain `java`, the first matching path wins. Conda
+activation and HPC modules work partly by changing this search order.
+
+Use the shell's own lookup command:
+
+```bash
+command -v java
+command -v conda
+command -v git
+```
+
+Possible interpretations:
+
+- a path: the shell found an executable;
+- an alias or function description: the name is being intercepted by the shell;
+- no output with a nonzero status: the shell cannot currently resolve it.
+
+`which` is widely available, but `command -v` is a shell builtin with more
+predictable behavior for scripts.
+
+::: {.callout-warning title="Not found does not mean not installed"}
+If `command -v tool` prints nothing, the tool may be absent, installed outside
+`PATH`, available only after loading an HPC module, or provided only inside a
+container. Investigate before installing another copy.
+:::
+
+## Build a read-only inventory
+
+Create a practice directory:
+
+```bash
+mkdir -p "$HOME/nextflow-for-biologists-practice/chapter-03"
+cd "$HOME/nextflow-for-biologists-practice/chapter-03"
+pwd
+```
+
+Start the report without including environment variables, which may contain
+tokens or credentials:
+
+```bash
+{
+  printf '=== WORKSTATION IDENTITY ===\n'
+  date
+  printf 'os=%s\n' "$(uname -s)"
+  printf 'architecture=%s\n' "$(uname -m)"
+  printf 'login_shell=%s\n' "$SHELL"
+  printf 'working_directory=%s\n' "$PWD"
+} > setup-check.txt
+```
+
+The braces group several commands so one redirection captures their combined
+standard output. `$(...)` is command substitution: the shell runs the inner
+command and inserts its output.
+
+Inspect before continuing:
+
+```bash
+cat setup-check.txt
+```
+
+## A reusable audit function
+
+Typing the same test seven times invites inconsistency. Define a small function
+for the current shell:
+
+```bash
+check_command() {
+  command_name="$1"
+
+  if command -v "$command_name" >/dev/null 2>&1; then
+    printf '%-12s FOUND  %s\n' \
+      "$command_name" \
+      "$(command -v "$command_name")"
+  else
+    printf '%-12s MISSING_OR_NOT_ON_PATH\n' "$command_name"
+  fi
+}
+```
+
+Use it:
+
+```bash
+{
+  printf '\n=== COMMAND LOCATIONS ===\n'
+  check_command git
+  check_command conda
+  check_command mamba
+  check_command java
+  check_command nextflow
+  check_command docker
+  check_command quarto
+  check_command code
+  check_command singularity
+  check_command apptainer
+  check_command sbatch
+} >> setup-check.txt
+```
+
+This function reports state; it does not modify the machine.
+
+## Tool-by-tool decisions
+
+### Git: required on a workstation
+
+Git records changes to the book project and pipeline repository. Chapter 5
+teaches its mental model; here we only verify the executable.
+
+```bash
+command -v git
+git --version
+```
+
+If Git is absent:
+
+- **macOS:** follow the [official Git installation guidance](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
+  which describes the Xcode Command Line Tools and official installer paths;
+- **Debian/Ubuntu workstation:** use the distribution package manager only if
+  you administer the machine;
+- **Fedora/RHEL workstation:** use the documented distribution package manager;
+- **managed HPC:** ask whether Git is already installed or available as a
+  module. Do not use `sudo`.
+
+Example commands for a personally administered Linux workstation are:
+
+```bash
+# Debian or Ubuntu workstation only
+sudo apt update
+sudo apt install git
+
+# Fedora workstation only
+sudo dnf install git
+```
+
+Do not copy both branches. Choose the one matching your distribution.
+
+### Conda through Miniforge: required for the local Conda path
+
+Audit both the command and its base installation:
+
+```bash
+command -v conda
+conda --version
+conda info --base
+```
+
+If those commands work, keep the installation for now. Record it. Do not stack
+a second Miniforge installation on top.
+
+For a new personal macOS or Linux installation, use the installer appropriate
+to `uname -s` and `uname -m` from the
+[official Miniforge releases](https://github.com/conda-forge/miniforge/releases).
+The interactive shell installer pattern documented by Miniforge is:
+
+```bash
+curl -L -O \
+  "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+
+ls -lh "Miniforge3-$(uname)-$(uname -m).sh"
+bash "Miniforge3-$(uname)-$(uname -m).sh"
+```
+
+The installer asks where to install and whether to initialize Conda for the
+current shell. Read each prompt. After installation, close and reopen the
+terminal, then verify:
+
+```bash
+conda --version
+conda info --base
+```
+
+On a shared HPC system, first ask whether Conda is provided and where personal
+environments should live. Home quotas are often too small for large package
+caches.
+
+::: {.callout-note title="Miniforge, Miniconda and Anaconda"}
+All can provide the `conda` command. Seeing `(base)` in a prompt means a base
+environment is active; it does not identify the distribution reliably. Use
+`conda info --base` and institutional documentation instead of guessing.
+:::
+
+### Java: required to launch Nextflow
+
+Nextflow is a Java application. Its current official installation guidance
+requires Java 17 or later. Verify the executable and read the first lines of
+its diagnostic output:
+
+```bash
+command -v java
+java -version
+```
+
+Java traditionally writes version information to standard error, so this is
+normal:
+
+```bash
+java -version > java-version.txt 2>&1
+head -n 3 java-version.txt
+```
+
+Do not assume a larger Java version number is always safer. A workflow may be
+validated against a supported range, and an HPC build may behave differently
+from a desktop build. Record the exact runtime.
+
+On HPC, Java is commonly selected through a module:
+
+```bash
+module avail java
+module load java/<site-version>
+java -version
+```
+
+`<site-version>` is a placeholder. Never type angle-bracket placeholders
+literally. Chapter 4 explains modules and the DLDCC Java workaround from the
+companion project.
+
+### Nextflow: required, but keep the launcher separate
+
+Verify:
+
+```bash
+command -v nextflow
+nextflow -version
+```
+
+The launcher and workflow dependencies solve different problems. Nextflow can
+live in a user-controlled `bin` directory while FastQC and Bowtie2 live in a
+Conda environment or container.
+
+For a personal Unix-like workstation, consult the
+[official Nextflow installation page](https://www.nextflow.io/docs/latest/install.html)
+and verify Java first. A cautious form of the official bootstrap process is:
+
+```bash
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/nextflow-download"
+cd "$HOME/nextflow-download"
+
+curl -fsSLo get-nextflow.sh https://get.nextflow.io
+less get-nextflow.sh
+bash get-nextflow.sh
+chmod u+x nextflow
+mv nextflow "$HOME/.local/bin/nextflow"
+```
+
+Then ensure the user bin directory is on `PATH` for the current session:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+command -v nextflow
+nextflow -version
+```
+
+Persisting the `PATH` change belongs in the startup file for your actual shell,
+such as `~/.zshrc` or `~/.bashrc`. Do not edit both blindly.
+
+The companion project uses a repository-local launcher at `./bin/nextflow` so
+the execution evidence refers to a known project entry point.
+
+### Docker: required only for building locally
+
+`docker --version` verifies the client program, but not the engine:
+
+```bash
+command -v docker
+docker --version
+docker info
+```
+
+Interpret them separately:
+
+- `docker --version` can succeed while Docker Desktop or the daemon is stopped;
+- `docker info` must communicate with the engine;
+- `docker run --rm hello-world` additionally tests pulling and executing an
+  image, which requires network access on the first run.
+
+On macOS, follow Docker's
+[official Docker Desktop installation guide](https://docs.docker.com/desktop/setup/install/mac-install/)
+and choose the Apple-silicon or Intel download that matches `uname -m`. Check
+your organization's Docker Desktop licensing policy before professional use.
+
+On a personally administered Linux workstation, follow the
+[official Docker Engine instructions for your distribution](https://docs.docker.com/engine/install/).
+Do not copy a package recipe for a different Linux distribution.
+
+Docker is commonly unavailable on multi-user HPC compute nodes because its
+daemon and privilege model require site-level administration. This is not a
+defect in the cluster. We build an OCI image on an appropriate workstation or
+CI runner, then run it through Singularity/Apptainer in Chapter 19.
+
+::: {.callout-warning title="The Docker group is security-sensitive"}
+On Linux, membership in the `docker` group can confer root-equivalent control
+of the host. Do not change groups, socket permissions or daemon configuration
+on a managed system. Follow local security policy.
+:::
+
+### Quarto: required only for writing this book
+
+Readers following the bioinformatics workflow do not need Quarto. Authors and
+contributors use it to render the tutorial:
+
+```bash
+command -v quarto
+quarto --version
+```
+
+Installers and current platform requirements are on the
+[official Quarto download page](https://quarto.org/docs/download/). Treat
+Quarto as documentation tooling, not a biological dependency.
+
+### A text editor: required; an IDE is optional
+
+Any plain-text editor is sufficient. Visual Studio Code is a convenient option
+because the Nextflow project provides an official extension, but the concepts
+do not depend on it.
+
+If the `code` command is configured:
+
+```bash
+command -v code
+code --version
+```
+
+The graphical editor may be installed even when its terminal command is not on
+`PATH`. That is another example of “not found” not proving “not installed.”
+
+Never use a word processor that silently adds rich-text formatting to `.nf`,
+`.yml`, `.sh` or `.md` files.
+
+## Workstation, Linux and HPC decision paths
+
+### Personal macOS workstation
+
+1. Identify `arm64` versus `x86_64`.
+2. Verify or install Git.
+3. Install Miniforge only if Conda is absent or intentionally being replaced.
+4. Install a supported Java runtime.
+5. install the Nextflow launcher in a user bin directory.
+6. Install and start Docker Desktop if you will build images locally.
+7. Install Quarto only if you will render the book.
+8. Record all paths and versions.
+
+### Personal Linux workstation
+
+1. Identify the distribution and architecture.
+2. Prefer its package manager for host tools such as Git and Java.
+3. Use the official Miniforge installer for the matching architecture.
+4. Install Nextflow in a user bin directory.
+5. Follow Docker's distribution-specific repository instructions.
+6. Record both Docker client and daemon checks.
+
+### Managed HPC system
+
+1. Do not use `sudo` or install a system daemon.
+2. Inventory commands and available modules.
+3. Ask which storage area should hold Conda caches and Nextflow work files.
+4. Use administrator-provided Java, scheduler and Singularity/Apptainer.
+5. Use a user-managed Conda environment only where policy permits.
+6. Build Docker images elsewhere and transfer or pull an approved artifact.
+7. Record missing workstation-only tools as `NOT_REQUIRED_ON_HPC`.
+
+## Complete the setup report
+
+Append version evidence only for commands that exist:
+
+```bash
+{
+  printf '\n=== VERSION EVIDENCE ===\n'
+
+  if command -v git >/dev/null 2>&1; then
+    git --version
+  fi
+
+  if command -v conda >/dev/null 2>&1; then
+    conda --version
+    printf 'conda_base=%s\n' "$(conda info --base)"
+  fi
+
+  if command -v java >/dev/null 2>&1; then
+    java -version 2>&1 | head -n 3
+  fi
+
+  if command -v nextflow >/dev/null 2>&1; then
+    nextflow -version
+  fi
+
+  if command -v docker >/dev/null 2>&1; then
+    docker --version
+  fi
+
+  if command -v quarto >/dev/null 2>&1; then
+    quarto --version
+  fi
+} >> setup-check.txt
+```
+
+Add a responsibility table using your editor or `printf`:
+
+```text
+=== RESPONSIBILITY DECISIONS ===
+git=REQUIRED_HOST
+conda=REQUIRED_LOCAL_PROFILE
+java=REQUIRED_NEXTFLOW_RUNTIME
+nextflow=REQUIRED_WORKFLOW_ENGINE
+docker=OPTIONAL_IF_BUILDING_ELSE_CI
+quarto=OPTIONAL_BOOK_AUTHORING
+singularity_or_apptainer=HPC_ADMIN_PROVIDED
+slurm=HPC_ADMIN_PROVIDED
+bioinformatics_tools=PROJECT_ENVIRONMENT_LATER
+```
+
+## Expected evidence, not expected versions
+
+Exact version numbers change. A valid report resembles:
+
+```text
+=== WORKSTATION IDENTITY ===
+...
+os=Darwin
+architecture=arm64
+login_shell=/bin/zsh
+working_directory=/Users/learner/nextflow-for-biologists-practice/chapter-03
+
+=== COMMAND LOCATIONS ===
+git          FOUND  /usr/bin/git
+conda        FOUND  /Users/learner/miniforge3/condabin/conda
+java         FOUND  /usr/bin/java
+nextflow     FOUND  /Users/learner/.local/bin/nextflow
+docker       FOUND  /usr/local/bin/docker
+quarto       FOUND  /usr/local/bin/quarto
+singularity  MISSING_OR_NOT_ON_PATH
+sbatch       MISSING_OR_NOT_ON_PATH
+```
+
+A missing Singularity or SLURM command on a laptop is expected. A missing
+Docker daemon on HPC is expected. Context determines whether absence is a
+problem.
+
+## Common failures and how to reason about them
+
+### `command not found` after installation
+
+Open a new terminal, identify the current shell, inspect `PATH`, and locate the
+installation directory. Do not reinstall immediately.
+
+```bash
+printf 'shell=%s\n' "$SHELL"
+printf '%s\n' "$PATH" | tr ':' '\n'
+```
+
+### The wrong architecture installer was downloaded
+
+Stop before running it. Compare the filename with `uname -m`. Apple `arm64`
+and Intel `x86_64` binaries are not interchangeable assumptions.
+
+### `java -version` shows an unexpected runtime
+
+Compare:
+
+```bash
+command -v java
+type -a java
+printf '%s\n' "$JAVA_HOME"
+```
+
+`type -a` can reveal several candidates. Conda activation or a module may have
+placed another Java earlier in `PATH`.
+
+### Nextflow says Java is missing or incompatible
+
+Run Java independently before debugging Nextflow:
+
+```bash
+java -version
+printf 'java_exit=%s\n' "$?"
+```
+
+Then record `JAVA_HOME`, `JAVA_CMD` and `NXF_OPTS` only if they are set. Do not
+paste an entire environment dump into a public issue because it may contain
+secrets.
+
+### `docker --version` works but `docker info` fails
+
+The client exists but cannot reach an engine. On a workstation, start Docker
+Desktop or the approved Docker service. On HPC, stop: a Docker daemon may be
+intentionally unavailable.
+
+### Conda appears twice
+
+Inspect all resolutions:
+
+```bash
+type -a conda
+conda info --base
+printf '%s\n' "$CONDA_PREFIX"
+```
+
+Multiple installations can create incompatible base libraries and confusing
+shell initialization. Choose deliberately rather than deleting paths at random.
+
+### A home directory fills during setup
+
+Caches can be large. Inspect usage with site-approved commands and move caches
+only to an approved project or scratch path. Chapter 4 covers quotas and the
+real DLDCC failure in which Nextflow's downloaded JAR was truncated.
+
+## Verification checkpoint
+
+From the Chapter 3 practice directory, run:
+
+```bash
+test -s setup-check.txt
+printf 'report_nonempty=%s\n' "$?"
+
+grep -q '^os=' setup-check.txt
+printf 'os_recorded=%s\n' "$?"
+
+grep -q '^architecture=' setup-check.txt
+printf 'architecture_recorded=%s\n' "$?"
+
+grep -q '^=== COMMAND LOCATIONS ===' setup-check.txt
+printf 'locations_recorded=%s\n' "$?"
+
+grep -q '^=== RESPONSIBILITY DECISIONS ===' setup-check.txt
+printf 'decisions_recorded=%s\n' "$?"
+```
+
+All five values should be zero. Finally, inspect the report manually:
+
+```bash
+less setup-check.txt
+```
+
+Confirm that it contains no access tokens, passwords, private keys, full
+environment dump or patient information.
+
+## Hands-on exercise: audit a second execution context
+
+Create a second report named `context-comparison.txt`.
+
+Choose one comparison available to you:
+
+- a new terminal before and after `conda activate base`;
+- the workstation versus an HPC login session;
+- an HPC shell before and after loading a Java module; or
+- the host shell versus a container shell later in the book.
+
+For both contexts, record:
+
+1. `uname -s` and `uname -m`;
+2. `$SHELL` and `$0`;
+3. `command -v` for Git, Conda, Java and Nextflow;
+4. the first three lines of `java -version`;
+5. `conda info --base` when Conda exists;
+6. whether Docker, Singularity/Apptainer and SLURM are expected there; and
+7. one sentence explaining every changed executable path.
+
+Finish with this conclusion template:
+
+```text
+Context A is responsible for:
+Context B is responsible for:
+The most important PATH change was:
+The change was expected because:
+One missing command that is not an error is:
+```
+
+::: {.callout-tip collapse="true" title="Exercise verification hints"}
+Use labeled command groups rather than copying an unstructured terminal
+history. Redirect Java's standard error when capturing it:
+
+```bash
+{
+  printf '=== CONTEXT A ===\n'
+  command -v java || true
+  java -version 2>&1 | head -n 3
+} > context-comparison.txt
+```
+
+`|| true` prevents an expected missing command from stopping a larger strict
+script, but it also discards that failure status. Use it only when absence is
+explicitly part of the test.
+:::
+
+## Interview grill: ten questions
+
+Answer aloud before opening the model points.
+
+1. What is the difference between software being installed and being on
+   `PATH`?
+2. Why do `uname -s` and `uname -m` matter before downloading an installer?
+3. What does `command -v` prove, and what does it not prove?
+4. Why keep bioinformatics tools in a project environment instead of installing
+   them globally?
+5. What is the difference between Conda, Miniforge, an environment and a
+   channel?
+6. Why can `docker --version` succeed while `docker info` fails?
+7. Why is Docker commonly unavailable on managed HPC systems?
+8. How can activating Conda or loading a module change which Java runs?
+9. What evidence would you collect before reporting that Nextflow cannot find
+   Java?
+10. Why is an unfiltered environment dump unsafe to attach to a public bug
+    report?
+
+::: {.callout-note collapse="true" title="Model answer points"}
+1. Installed software may exist on disk while its directory is absent from the
+   shell's search path. `PATH` controls name resolution, not existence.
+2. Installers target an operating system and processor architecture. A Darwin
+   ARM binary is not the same artifact as Linux x86-64.
+3. It proves how the current shell resolves a name. It does not prove that the
+   program runs correctly, that a service is available or that the version is
+   suitable.
+4. Project isolation records dependencies, reduces conflicts and lets another
+   person reconstruct the analysis without modifying the whole host.
+5. Conda manages packages/environments; Miniforge bootstraps Conda with
+   conda-forge defaults; an environment is an isolated package prefix; a
+   channel is a package repository.
+6. The client executable can print its own version without communicating with
+   the Docker engine. `docker info` requires a reachable, authorized daemon.
+7. Docker's daemon and privilege model require host administration and can
+   conflict with multi-user security. HPC sites commonly provide
+   Singularity/Apptainer instead.
+8. Both can prepend directories to `PATH` and may set variables such as
+   `JAVA_HOME`, causing a different executable to resolve first.
+9. Record the OS/architecture, `command -v java`, `type -a java`,
+   `java -version`, `command -v nextflow`, `nextflow -version` output and only
+   relevant Java/Nextflow variables.
+10. Environment variables may contain tokens, credentials, private endpoints,
+    usernames or other sensitive configuration unrelated to the failure.
+:::
+
+## What to remember
+
+- Audit first; absence from `PATH` is only one hypothesis.
+- Host tools, project dependencies and HPC services have different owners.
+- Match both operating system and architecture before installing.
+- Record executable paths as well as versions.
+- Missing Docker on HPC or missing SLURM on a laptop can be correct.
+- Share focused diagnostics, never secrets or an unfiltered environment dump.
+
+## Next chapter
+
+Chapter 4 moves from a personal workstation to the HPC mental model. We will
+separate login nodes from compute nodes, explore modules and SLURM, understand
+home/project/scratch storage, and explain exactly how modules interact with a
+Conda environment through `PATH`.
