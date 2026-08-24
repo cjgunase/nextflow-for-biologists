@@ -553,18 +553,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#complete-sample-acceptance-gate" id="toc-complete-sample-acceptance-gate" class="nav-link" data-scroll-target="#complete-sample-acceptance-gate"><span class="header-section-number">34.16</span> Complete-sample acceptance gate</a></li>
   <li><a href="#run-manifests-and-checksums" id="toc-run-manifests-and-checksums" class="nav-link" data-scroll-target="#run-manifests-and-checksums"><span class="header-section-number">34.17</span> Run manifests and checksums</a></li>
-  <li><a href="#what-belongs-in-the-public-repository" id="toc-what-belongs-in-the-public-repository" class="nav-link" data-scroll-target="#what-belongs-in-the-public-repository"><span class="header-section-number">34.18</span> What belongs in the public repository</a></li>
-  <li><a href="#failure-to-control-map" id="toc-failure-to-control-map" class="nav-link" data-scroll-target="#failure-to-control-map"><span class="header-section-number">34.19</span> Failure-to-control map</a></li>
-  <li><a href="#decision-record" id="toc-decision-record" class="nav-link" data-scroll-target="#decision-record"><span class="header-section-number">34.20</span> Decision record</a></li>
-  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">34.21</span> Try it yourself</a>
+  <li><a href="#use-the-companion-repository-for-your-own-wgbs-analysis" id="toc-use-the-companion-repository-for-your-own-wgbs-analysis" class="nav-link" data-scroll-target="#use-the-companion-repository-for-your-own-wgbs-analysis"><span class="header-section-number">34.18</span> Use the companion repository for your own WGBS analysis</a>
   <ul class="collapse">
-  <li><a href="#exercise-1-classify-the-evidence" id="toc-exercise-1-classify-the-evidence" class="nav-link" data-scroll-target="#exercise-1-classify-the-evidence"><span class="header-section-number">34.21.1</span> Exercise 1: classify the evidence</a></li>
-  <li><a href="#exercise-2-design-a-safe-chunk-fallback" id="toc-exercise-2-design-a-safe-chunk-fallback" class="nav-link" data-scroll-target="#exercise-2-design-a-safe-chunk-fallback"><span class="header-section-number">34.21.2</span> Exercise 2: design a safe chunk fallback</a></li>
-  <li><a href="#exercise-3-review-a-production-claim" id="toc-exercise-3-review-a-production-claim" class="nav-link" data-scroll-target="#exercise-3-review-a-production-claim"><span class="header-section-number">34.21.3</span> Exercise 3: review a production claim</a></li>
+  <li><a href="#clone-versus-fork" id="toc-clone-versus-fork" class="nav-link" data-scroll-target="#clone-versus-fork"><span class="header-section-number">34.18.1</span> Clone versus fork</a></li>
+  <li><a href="#what-the-repository-supplies" id="toc-what-the-repository-supplies" class="nav-link" data-scroll-target="#what-the-repository-supplies"><span class="header-section-number">34.18.2</span> What the repository supplies</a></li>
+  <li><a href="#host-prerequisites" id="toc-host-prerequisites" class="nav-link" data-scroll-target="#host-prerequisites"><span class="header-section-number">34.18.3</span> Host prerequisites</a></li>
+  <li><a href="#step-1-create-the-private-site-environment" id="toc-step-1-create-the-private-site-environment" class="nav-link" data-scroll-target="#step-1-create-the-private-site-environment"><span class="header-section-number">34.18.4</span> Step 1: create the private site environment</a></li>
+  <li><a href="#step-2-verify-the-host-on-a-compute-node" id="toc-step-2-verify-the-host-on-a-compute-node" class="nav-link" data-scroll-target="#step-2-verify-the-host-on-a-compute-node"><span class="header-section-number">34.18.5</span> Step 2: verify the host on a compute node</a></li>
+  <li><a href="#step-3-run-the-tiny-infrastructure-smoke-test" id="toc-step-3-run-the-tiny-infrastructure-smoke-test" class="nav-link" data-scroll-target="#step-3-run-the-tiny-infrastructure-smoke-test"><span class="header-section-number">34.18.6</span> Step 3: run the tiny infrastructure smoke test</a></li>
+  <li><a href="#step-4-prepare-a-species--and-assembly-specific-reference" id="toc-step-4-prepare-a-species--and-assembly-specific-reference" class="nav-link" data-scroll-target="#step-4-prepare-a-species--and-assembly-specific-reference"><span class="header-section-number">34.18.7</span> Step 4: prepare a species- and assembly-specific reference</a></li>
+  <li><a href="#step-5-prepare-and-validate-input-metadata" id="toc-step-5-prepare-and-validate-input-metadata" class="nav-link" data-scroll-target="#step-5-prepare-and-validate-input-metadata"><span class="header-section-number">34.18.8</span> Step 5: prepare and validate input metadata</a></li>
+  <li><a href="#step-6-run-a-synchronized-real-data-pilot" id="toc-step-6-run-a-synchronized-real-data-pilot" class="nav-link" data-scroll-target="#step-6-run-a-synchronized-real-data-pilot"><span class="header-section-number">34.18.9</span> Step 6: run a synchronized real-data pilot</a></li>
+  <li><a href="#step-7-configure-one-complete-sample-qualification" id="toc-step-7-configure-one-complete-sample-qualification" class="nav-link" data-scroll-target="#step-7-configure-one-complete-sample-qualification"><span class="header-section-number">34.18.10</span> Step 7: configure one complete-sample qualification</a></li>
+  <li><a href="#step-8-preserve-the-exact-launch-record" id="toc-step-8-preserve-the-exact-launch-record" class="nav-link" data-scroll-target="#step-8-preserve-the-exact-launch-record"><span class="header-section-number">34.18.11</span> Step 8: preserve the exact launch record</a></li>
+  <li><a href="#step-9-prepare-the-cohort-only-after-qualification" id="toc-step-9-prepare-the-cohort-only-after-qualification" class="nav-link" data-scroll-target="#step-9-prepare-the-cohort-only-after-qualification"><span class="header-section-number">34.18.12</span> Step 9: prepare the cohort only after qualification</a></li>
+  <li><a href="#step-10-monitor-resume-and-clean-deliberately" id="toc-step-10-monitor-resume-and-clean-deliberately" class="nav-link" data-scroll-target="#step-10-monitor-resume-and-clean-deliberately"><span class="header-section-number">34.18.13</span> Step 10: monitor, resume and clean deliberately</a></li>
+  <li><a href="#what-users-should-customizeand-what-they-should-not" id="toc-what-users-should-customizeand-what-they-should-not" class="nav-link" data-scroll-target="#what-users-should-customizeand-what-they-should-not"><span class="header-section-number">34.18.14</span> What users should customize—and what they should not</a></li>
+  <li><a href="#honest-readiness-statement" id="toc-honest-readiness-statement" class="nav-link" data-scroll-target="#honest-readiness-statement"><span class="header-section-number">34.18.15</span> Honest readiness statement</a></li>
   </ul></li>
-  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">34.22</span> What to remember</a></li>
-  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">34.23</span> Interview grill</a></li>
-  <li><a href="#primary-references" id="toc-primary-references" class="nav-link" data-scroll-target="#primary-references"><span class="header-section-number">34.24</span> Primary references</a></li>
+  <li><a href="#what-belongs-in-the-public-repository" id="toc-what-belongs-in-the-public-repository" class="nav-link" data-scroll-target="#what-belongs-in-the-public-repository"><span class="header-section-number">34.19</span> What belongs in the public repository</a></li>
+  <li><a href="#failure-to-control-map" id="toc-failure-to-control-map" class="nav-link" data-scroll-target="#failure-to-control-map"><span class="header-section-number">34.20</span> Failure-to-control map</a></li>
+  <li><a href="#decision-record" id="toc-decision-record" class="nav-link" data-scroll-target="#decision-record"><span class="header-section-number">34.21</span> Decision record</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">34.22</span> Try it yourself</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-classify-the-evidence" id="toc-exercise-1-classify-the-evidence" class="nav-link" data-scroll-target="#exercise-1-classify-the-evidence"><span class="header-section-number">34.22.1</span> Exercise 1: classify the evidence</a></li>
+  <li><a href="#exercise-2-design-a-safe-chunk-fallback" id="toc-exercise-2-design-a-safe-chunk-fallback" class="nav-link" data-scroll-target="#exercise-2-design-a-safe-chunk-fallback"><span class="header-section-number">34.22.2</span> Exercise 2: design a safe chunk fallback</a></li>
+  <li><a href="#exercise-3-review-a-production-claim" id="toc-exercise-3-review-a-production-claim" class="nav-link" data-scroll-target="#exercise-3-review-a-production-claim"><span class="header-section-number">34.22.3</span> Exercise 3: review a production claim</a></li>
+  </ul></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">34.23</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">34.24</span> Interview grill</a></li>
+  <li><a href="#primary-references" id="toc-primary-references" class="nav-link" data-scroll-target="#primary-references"><span class="header-section-number">34.25</span> Primary references</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/34-rwe-wgbs-production-case-study.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -1129,8 +1147,299 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 </ul>
 <p>Checksums provide file-identity evidence. They do not prove that metadata are correct, a method is validated or an output is scientifically acceptable. In a regulated environment, integrate this engineering evidence into the applicable quality system rather than labeling a public tutorial “CLIA validated.”</p>
 </section>
-<section id="what-belongs-in-the-public-repository" class="level2" data-number="34.18">
-<h2 data-number="34.18" class="anchored" data-anchor-id="what-belongs-in-the-public-repository"><span class="header-section-number">34.18</span> What belongs in the public repository</h2>
+<section id="use-the-companion-repository-for-your-own-wgbs-analysis" class="level2" data-number="34.18">
+<h2 data-number="34.18" class="anchored" data-anchor-id="use-the-companion-repository-for-your-own-wgbs-analysis"><span class="header-section-number">34.18</span> Use the companion repository for your own WGBS analysis</h2>
+<p>The public <a href="https://github.com/cjgunase/wgbs-methylseq-pipeline">WGBS methylseq pipeline repository</a> is the reusable implementation behind this case study. A new user can clone or fork it, but cannot safely launch a large cohort without supplying and validating their own infrastructure, reference, inputs and capacity policy.</p>
+<section id="clone-versus-fork" class="level3" data-number="34.18.1">
+<h3 data-number="34.18.1" class="anchored" data-anchor-id="clone-versus-fork"><span class="header-section-number">34.18.1</span> Clone versus fork</h3>
+<p>Clone when you want to use the documented workflow without maintaining a public variant:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/cjgunase/wgbs-methylseq-pipeline.git</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> wgbs-methylseq-pipeline</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rev-parse HEAD</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Fork first when your group intends to maintain reviewed changes, site profiles or additional features. Keep private paths and regulated metadata out of both the original repository and the fork.</p>
+<p>Record the commit from <code>git rev-parse HEAD</code> in every run manifest. A Git branch name such as <code>main</code> can move; a commit identifies the code reviewed at launch.</p>
+</section>
+<section id="what-the-repository-supplies" class="level3" data-number="34.18.2">
+<h3 data-number="34.18.2" class="anchored" data-anchor-id="what-the-repository-supplies"><span class="header-section-number">34.18.2</span> What the repository supplies</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Repository component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>bin/check_environment.sh</code></td>
+<td>Check host prerequisites and report actionable failures</td>
+</tr>
+<tr class="even">
+<td><code>bin/run_nfcore_test.sbatch</code></td>
+<td>Run the tiny bundled methylseq test through Slurm/Singularity</td>
+</tr>
+<tr class="odd">
+<td><code>bin/build_bismark_index.sbatch</code></td>
+<td>Build a containerized Bismark index from a supplied FASTA</td>
+</tr>
+<tr class="even">
+<td><code>bin/make_samplesheet.sh</code></td>
+<td>Generate paired samplesheet rows from regular R1/R2 filenames</td>
+</tr>
+<tr class="odd">
+<td><code>bin/run_pilot.sbatch</code></td>
+<td>Run a real-data subset with the production-like pipeline</td>
+</tr>
+<tr class="even">
+<td><code>bin/preflight.sh</code></td>
+<td>Check paths, pairing, reference/index, output collision and storage</td>
+</tr>
+<tr class="odd">
+<td><code>bin/run_production.sbatch</code></td>
+<td>Guarded full-sample/cohort Nextflow controller</td>
+</tr>
+<tr class="even">
+<td><code>bin/monitor_run.sh</code></td>
+<td>Read-only Slurm/controller progress summary</td>
+</tr>
+<tr class="odd">
+<td><code>conf/*.example</code></td>
+<td>Portable templates without private site values</td>
+</tr>
+<tr class="even">
+<td><code>params/*.example.yaml</code></td>
+<td>Analysis parameter templates</td>
+</tr>
+<tr class="odd">
+<td><code>assets/run-manifest.template.md</code></td>
+<td>Private execution/provenance record</td>
+</tr>
+<tr class="even">
+<td><code>docs/</code></td>
+<td>Beginner explanations, troubleshooting and acceptance gates</td>
+</tr>
+</tbody>
+</table>
+<p>The repository does <strong>not</strong> supply your sequencing data, reference assembly, scheduler account, storage allocation, Java installation or permission to use the cluster.</p>
+</section>
+<section id="host-prerequisites" class="level3" data-number="34.18.3">
+<h3 data-number="34.18.3" class="anchored" data-anchor-id="host-prerequisites"><span class="header-section-number">34.18.3</span> Host prerequisites</h3>
+<p>For a Slurm HPC system, obtain or verify:</p>
+<ul>
+<li>Java compatible with the selected Nextflow version;</li>
+<li>a pinned Nextflow launcher/framework;</li>
+<li>Git and a download tool such as <code>curl</code>;</li>
+<li>Slurm commands including <code>sbatch</code> and <code>squeue</code>;</li>
+<li>Singularity or Apptainer allowed by the site;</li>
+<li>shared storage readable from compute nodes; and</li>
+<li>sufficient quota for inputs, <code>work/</code>, results, framework and image caches.</li>
+</ul>
+<p>Bioinformatics tools such as FastQC, Trim Galore, Bismark and SAMtools are provided by nf-core’s versioned containers. Users normally do not rebuild one large custom container for this workflow. The first run downloads the required images; offline sites must pre-stage them according to local policy.</p>
+<p>On a laptop or workstation, follow the repository’s local installation guide and use Docker where supported. Production-scale WGBS generally requires an HPC or cloud environment with adequate storage and scheduler capacity.</p>
+</section>
+<section id="step-1-create-the-private-site-environment" class="level3" data-number="34.18.4">
+<h3 data-number="34.18.4" class="anchored" data-anchor-id="step-1-create-the-private-site-environment"><span class="header-section-number">34.18.4</span> Step 1: create the private site environment</h3>
+<p>From the repository root:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> conf/site.env.example conf/site.env</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Edit the ignored <code>conf/site.env</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="va">PROJECT</span><span class="op">=</span>/project/xxx/wgbs-pilot</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="va">JAVA_MODULE</span><span class="op">=</span>java/xxx</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="va">CONTAINER_MODULE</span><span class="op">=</span>singularity/xxx</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="va">CONTAINER_PROFILE</span><span class="op">=</span>singularity</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="va">NEXTFLOW_VERSION</span><span class="op">=</span>25.10.7</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="va">METHYLSEQ_VERSION</span><span class="op">=</span>4.2.0</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="va">NEXTFLOW_BIN</span><span class="op">=</span>/absolute/path/to/bin/nextflow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Values shown are placeholders except the versions validated in this case study. If your site requires different versions, treat that as a new compatibility combination: rerun the environment check and smoke test and record the result.</p>
+<p>Place <code>PROJECT</code>, <code>NXF_HOME</code>, work data and container caches on an appropriate large filesystem—not automatically in a quota-limited home directory.</p>
+</section>
+<section id="step-2-verify-the-host-on-a-compute-node" class="level3" data-number="34.18.5">
+<h3 data-number="34.18.5" class="anchored" data-anchor-id="step-2-verify-the-host-on-a-compute-node"><span class="header-section-number">34.18.5</span> Step 2: verify the host on a compute node</h3>
+<p>Request a small interactive allocation using your site’s documented syntax, then run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> bin/check_environment.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Proceed only when Java, Nextflow, the container runtime and Slurm tools report <code>OK</code>. A missing bioinformatics executable on the host is not necessarily an error because task software runs in containers.</p>
+</section>
+<section id="step-3-run-the-tiny-infrastructure-smoke-test" class="level3" data-number="34.18.6">
+<h3 data-number="34.18.6" class="anchored" data-anchor-id="step-3-run-the-tiny-infrastructure-smoke-test"><span class="header-section-number">34.18.6</span> Step 3: run the tiny infrastructure smoke test</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> logs</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> bin/run_nfcore_test.sbatch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Record the controller job ID, monitor it and require the final success marker. Confirm that the test produces BAM/BAI, <code>.cov.gz</code>, FastQC, Bismark reports and MultiQC. This stage uses nf-core test data and its test reference; it does not validate your species assembly or sequencing data.</p>
+</section>
+<section id="step-4-prepare-a-species--and-assembly-specific-reference" class="level3" data-number="34.18.7">
+<h3 data-number="34.18.7" class="anchored" data-anchor-id="step-4-prepare-a-species--and-assembly-specific-reference"><span class="header-section-number">34.18.7</span> Step 4: prepare a species- and assembly-specific reference</h3>
+<p>Choose a traceable FASTA. Record:</p>
+<ul>
+<li>species and assembly name/release;</li>
+<li>authoritative source and retrieval date;</li>
+<li>primary/alternate/decoy content decisions;</li>
+<li>chromosome naming convention; and</li>
+<li>SHA-256 checksum.</li>
+</ul>
+<p>Build a self-contained index:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> bin/build_bismark_index.sbatch <span class="dt">\</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  /absolute/path/to/reference.fa <span class="dt">\</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  /absolute/path/to/bismark_species_assembly</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The destination should contain the FASTA plus <code>Bisulfite_Genome/CT_conversion</code> and <code>GA_conversion</code>, each with six Bowtie2 index files. The index must match the exact FASTA supplied to methylseq.</p>
+<p>For mouse, plant or another organism, substitute the correct assembly and build a new index. The workflow is species-independent; the reference is not.</p>
+</section>
+<section id="step-5-prepare-and-validate-input-metadata" class="level3" data-number="34.18.8">
+<h3 data-number="34.18.8" class="anchored" data-anchor-id="step-5-prepare-and-validate-input-metadata"><span class="header-section-number">34.18.8</span> Step 5: prepare and validate input metadata</h3>
+<p>Expected paired filename pattern for the generator:</p>
+<pre class="text"><code>SAMPLE_001_R1.fastq.gz
+SAMPLE_001_R2.fastq.gz</code></pre>
+<p>Generate a samplesheet:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> bin/make_samplesheet.sh <span class="dt">\</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  /absolute/path/to/fastq-directory <span class="dt">\</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  /absolute/path/to/study.samplesheet.csv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Inspect it rather than trusting generation:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> /absolute/path/to/study.samplesheet.csv</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-l</span> /absolute/path/to/study.samplesheet.csv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The methylseq 4.2.0 paired-end shape used here is:</p>
+<pre class="csv"><code>sample,fastq_1,fastq_2,genome
+SAMPLE_001,/data/SAMPLE_001_R1.fastq.gz,/data/SAMPLE_001_R2.fastq.gz,</code></pre>
+<p>If filenames do not follow the supported pattern, create and validate the CSV deliberately. Confirm every sample ID, R1/R2 association, file existence, readability and study-metadata mapping. The generator cannot detect a FASTQ that was mislabeled before it reached the directory.</p>
+</section>
+<section id="step-6-run-a-synchronized-real-data-pilot" class="level3" data-number="34.18.9">
+<h3 data-number="34.18.9" class="anchored" data-anchor-id="step-6-run-a-synchronized-real-data-pilot"><span class="header-section-number">34.18.9</span> Step 6: run a synchronized real-data pilot</h3>
+<p>Create the same number of records from R1 and R2 on a compute node. The repository guide uses 10,000,000 read pairs:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> head <span class="at">--number</span> 10000000 SAMPLE_001_R1.fastq.gz <span class="dt">\</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--out-file</span> SAMPLE_001_10M_R1.fastq.gz</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> head <span class="at">--number</span> 10000000 SAMPLE_001_R2.fastq.gz <span class="dt">\</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--out-file</span> SAMPLE_001_10M_R2.fastq.gz</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> stats SAMPLE_001_10M_R1.fastq.gz SAMPLE_001_10M_R2.fastq.gz</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="fu">gzip</span> <span class="at">-t</span> SAMPLE_001_10M_R1.fastq.gz SAMPLE_001_10M_R2.fastq.gz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Copy and edit the pilot parameter template:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> params/pilot.example.yaml /private/path/pilot.params.yaml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set <code>input</code>, a new <code>outdir</code>, <code>aligner: bismark</code>, the FASTA and its matching <code>bismark_index</code>. Submit:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> bin/run_pilot.sbatch /private/path/pilot.params.yaml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Review trace, required outputs and MultiQC. Use the pilot for engineering throughput and compatibility—not final duplication, coverage or biology.</p>
+</section>
+<section id="step-7-configure-one-complete-sample-qualification" class="level3" data-number="34.18.10">
+<h3 data-number="34.18.10" class="anchored" data-anchor-id="step-7-configure-one-complete-sample-qualification"><span class="header-section-number">34.18.10</span> Step 7: configure one complete-sample qualification</h3>
+<p>Do not use the cohort samplesheet yet. Select one representative complete paired sample and create a new production project root with separate work, results, logs and caches.</p>
+<p>Create private production files:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> conf/production.env.example conf/production.env</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> conf/production.shared.config.example conf/production.local.config</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> params/production.example.yaml params/one-sample.production.yaml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Edit every placeholder. The parameter file should resemble:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">input</span><span class="kw">:</span><span class="at"> /storage/xxx/samplesheets/one-sample.csv</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">outdir</span><span class="kw">:</span><span class="at"> /storage/xxx/results/SAMPLE_001</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">aligner</span><span class="kw">:</span><span class="at"> bismark</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">fasta</span><span class="kw">:</span><span class="at"> /storage/xxx/reference/bismark_species_assembly/reference.fa</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="fu">bismark_index</span><span class="kw">:</span><span class="at"> /storage/xxx/reference/bismark_species_assembly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Preflight using the production environment explicitly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="va">SITE_ENV</span><span class="op">=</span>conf/production.env <span class="dt">\</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bash</span> bin/preflight.sh params/one-sample.production.yaml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Resolve every <code>STOP</code> and review every warning. Submit from the repository root:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> logs</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> bin/run_production.sbatch params/one-sample.production.yaml</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not call the repository qualified for your environment merely because the job started. Apply the complete-sample acceptance gate in this chapter.</p>
+</section>
+<section id="step-8-preserve-the-exact-launch-record" class="level3" data-number="34.18.11">
+<h3 data-number="34.18.11" class="anchored" data-anchor-id="step-8-preserve-the-exact-launch-record"><span class="header-section-number">34.18.11</span> Step 8: preserve the exact launch record</h3>
+<p>At submission, create a private run manifest and snapshot the submitted files:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /storage/xxx/run_manifests</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> assets/run-manifest.template.md <span class="dt">\</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  /storage/xxx/run_manifests/JOB_ID.run-manifest.md</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /private/path/samplesheet.csv <span class="dt">\</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>  /storage/xxx/run_manifests/JOB_ID.samplesheet.csv</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /private/path/params.yaml <span class="dt">\</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  /storage/xxx/run_manifests/JOB_ID.params.yaml</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> /storage/xxx/run_manifests/JOB_ID.samplesheet.csv</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> /storage/xxx/run_manifests/JOB_ID.params.yaml</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rev-parse HEAD</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Complete the manifest with the reference checksum, workflow revisions, container/software evidence, deviations, task trace and QC disposition.</p>
+</section>
+<section id="step-9-prepare-the-cohort-only-after-qualification" class="level3" data-number="34.18.12">
+<h3 data-number="34.18.12" class="anchored" data-anchor-id="step-9-prepare-the-cohort-only-after-qualification"><span class="header-section-number">34.18.12</span> Step 9: prepare the cohort only after qualification</h3>
+<p>When the representative full sample passes:</p>
+<ol type="1">
+<li>replace pilot projections with measured full-sample runtime, peak RSS, CPU efficiency, I/O and storage;</li>
+<li>inspect sample-size variability across the cohort;</li>
+<li>review <code>conf/production.local.config</code> with the HPC team;</li>
+<li>choose concurrency that respects shared resources and controller wall-time;</li>
+<li>create a new unused cohort output directory;</li>
+<li>rerun preflight with the complete samplesheet; and</li>
+<li>submit the same pinned workflow/reference configuration.</li>
+</ol>
+<p>The example policy limits Bismark alignment to ten concurrent samples. It is a starting point derived from one cluster and pilot—not a universal safe value. Sites with different node sizes, fair-share rules or memory must choose their own reviewed limit.</p>
+</section>
+<section id="step-10-monitor-resume-and-clean-deliberately" class="level3" data-number="34.18.13">
+<h3 data-number="34.18.13" class="anchored" data-anchor-id="step-10-monitor-resume-and-clean-deliberately"><span class="header-section-number">34.18.13</span> Step 10: monitor, resume and clean deliberately</h3>
+<p>Monitor the controller and task jobs:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> bin/monitor_run.sh CONTROLLER_JOB_ID</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If the controller or a task fails, diagnose before changing configuration. Relaunch the same run with the same work directory and <code>-resume</code> through the guarded launcher. Do not delete <code>work/</code> while recovery or review remains possible.</p>
+<p>Clean work data only after:</p>
+<ul>
+<li>every required result and report is verified;</li>
+<li>provenance and checksums are complete;</li>
+<li>outputs have the required backup/retention protection;</li>
+<li>no resume is expected; and</li>
+<li>the exact cleanup target has been reviewed.</li>
+</ul>
+</section>
+<section id="what-users-should-customizeand-what-they-should-not" class="level3" data-number="34.18.14">
+<h3 data-number="34.18.14" class="anchored" data-anchor-id="what-users-should-customizeand-what-they-should-not"><span class="header-section-number">34.18.14</span> What users should customize—and what they should not</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Customize for your project/site</th>
+<th>Keep stable unless deliberately revalidated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>storage roots and cache paths</td>
+<td>biological process ordering</td>
+</tr>
+<tr class="even">
+<td>Java/container module names</td>
+<td>whole-sample deduplication semantics</td>
+</tr>
+<tr class="odd">
+<td>scheduler account/partition policy</td>
+<td>pairing and samplesheet contracts</td>
+</tr>
+<tr class="even">
+<td>species/assembly FASTA and index</td>
+<td>reference/index identity requirement</td>
+</tr>
+<tr class="odd">
+<td>samplesheet and output directory</td>
+<td>provenance and checksum requirements</td>
+</tr>
+<tr class="even">
+<td>reviewed CPU/memory/time/concurrency</td>
+<td>smoke → pilot → full-sample gates</td>
+</tr>
+<tr class="odd">
+<td>optional methylseq parameters justified by assay</td>
+<td>pinned versions used for an accepted run</td>
+</tr>
+</tbody>
+</table>
+<p>Do not edit cached nf-core pipeline source to make site-specific changes. Use parameters and layered configuration so the upstream revision remains identifiable and updateable.</p>
+</section>
+<section id="honest-readiness-statement" class="level3" data-number="34.18.15">
+<h3 data-number="34.18.15" class="anchored" data-anchor-id="honest-readiness-statement"><span class="header-section-number">34.18.15</span> Honest readiness statement</h3>
+<p>Before the complete-sample qualification finishes, the correct description is:</p>
+<blockquote class="blockquote">
+<p>The companion repository provides a containerized, Slurm-ready and documented framework. Host bootstrap, the nf-core smoke test, the matching GRCh38 Bismark index and the 10M-pair real-data pilot have been demonstrated. Complete-sample production qualification is in progress.</p>
+</blockquote>
+<p>After a user’s own complete representative sample passes all gates, they may state that the configuration was qualified in that specific environment for that reference, assay, workflow revision and acceptance procedure. They should not generalize that claim automatically to another cluster, species, pipeline version or regulated intended use.</p>
+</section>
+</section>
+<section id="what-belongs-in-the-public-repository" class="level2" data-number="34.19">
+<h2 data-number="34.19" class="anchored" data-anchor-id="what-belongs-in-the-public-repository"><span class="header-section-number">34.19</span> What belongs in the public repository</h2>
 <p>Publish:</p>
 <ul>
 <li>portable scripts and templates;</li>
@@ -1151,8 +1460,8 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 <li>claims beyond the recorded evidence.</li>
 </ul>
 </section>
-<section id="failure-to-control-map" class="level2" data-number="34.19">
-<h2 data-number="34.19" class="anchored" data-anchor-id="failure-to-control-map"><span class="header-section-number">34.19</span> Failure-to-control map</h2>
+<section id="failure-to-control-map" class="level2" data-number="34.20">
+<h2 data-number="34.20" class="anchored" data-anchor-id="failure-to-control-map"><span class="header-section-number">34.20</span> Failure-to-control map</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -1220,8 +1529,8 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 </tbody>
 </table>
 </section>
-<section id="decision-record" class="level2" data-number="34.20">
-<h2 data-number="34.20" class="anchored" data-anchor-id="decision-record"><span class="header-section-number">34.20</span> Decision record</h2>
+<section id="decision-record" class="level2" data-number="34.21">
+<h2 data-number="34.21" class="anchored" data-anchor-id="decision-record"><span class="header-section-number">34.21</span> Decision record</h2>
 <p>The final production design was:</p>
 <ul>
 <li>reuse nf-core/methylseq rather than reimplement Bismark orchestration;</li>
@@ -1237,10 +1546,10 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 <li>scale to 30 samples only after complete-sample MultiQC and resource review.</li>
 </ul>
 </section>
-<section id="try-it-yourself" class="level2" data-number="34.21">
-<h2 data-number="34.21" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">34.21</span> Try it yourself</h2>
-<section id="exercise-1-classify-the-evidence" class="level3" data-number="34.21.1">
-<h3 data-number="34.21.1" class="anchored" data-anchor-id="exercise-1-classify-the-evidence"><span class="header-section-number">34.21.1</span> Exercise 1: classify the evidence</h3>
+<section id="try-it-yourself" class="level2" data-number="34.22">
+<h2 data-number="34.22" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">34.22</span> Try it yourself</h2>
+<section id="exercise-1-classify-the-evidence" class="level3" data-number="34.22.1">
+<h3 data-number="34.22.1" class="anchored" data-anchor-id="exercise-1-classify-the-evidence"><span class="header-section-number">34.22.1</span> Exercise 1: classify the evidence</h3>
 <p>Place each statement under measured, projected or pending:</p>
 <ul>
 <li>pilot alignment peak RSS was 38.9 GB;</li>
@@ -1250,17 +1559,17 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 </ul>
 <p>Answer: measured; projected (and “exactly” is unjustified); calculated planning maximum; pending MultiQC review.</p>
 </section>
-<section id="exercise-2-design-a-safe-chunk-fallback" class="level3" data-number="34.21.2">
-<h3 data-number="34.21.2" class="anchored" data-anchor-id="exercise-2-design-a-safe-chunk-fallback"><span class="header-section-number">34.21.2</span> Exercise 2: design a safe chunk fallback</h3>
+<section id="exercise-2-design-a-safe-chunk-fallback" class="level3" data-number="34.22.2">
+<h3 data-number="34.22.2" class="anchored" data-anchor-id="exercise-2-design-a-safe-chunk-fallback"><span class="header-section-number">34.22.2</span> Exercise 2: design a safe chunk fallback</h3>
 <p>Draw the graph required if alignment must be chunked. It must include synchronized paired chunks, per-chunk alignment, completeness verification, BAM merge and sort, one global sample-level deduplication, methylation extraction and an equivalence test against an unsplit subset.</p>
 </section>
-<section id="exercise-3-review-a-production-claim" class="level3" data-number="34.21.3">
-<h3 data-number="34.21.3" class="anchored" data-anchor-id="exercise-3-review-a-production-claim"><span class="header-section-number">34.21.3</span> Exercise 3: review a production claim</h3>
+<section id="exercise-3-review-a-production-claim" class="level3" data-number="34.22.3">
+<h3 data-number="34.22.3" class="anchored" data-anchor-id="exercise-3-review-a-production-claim"><span class="header-section-number">34.22.3</span> Exercise 3: review a production claim</h3>
 <p>A colleague says, “Slurm no longer shows the job, so methylation calling passed.” List the log, output, integrity, QC and provenance evidence still required.</p>
 </section>
 </section>
-<section id="what-to-remember" class="level2" data-number="34.22">
-<h2 data-number="34.22" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">34.22</span> What to remember</h2>
+<section id="what-to-remember" class="level2" data-number="34.23">
+<h2 data-number="34.23" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">34.23</span> What to remember</h2>
 <ul>
 <li>Installation success, pilot success and production validation are different claims.</li>
 <li>Measure the dominant task before designing cohort concurrency.</li>
@@ -1271,8 +1580,8 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 <li>Public documentation should retain engineering knowledge without exposing private infrastructure or data.</li>
 </ul>
 </section>
-<section id="interview-grill" class="level2" data-number="34.23">
-<h2 data-number="34.23" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">34.23</span> Interview grill</h2>
+<section id="interview-grill" class="level2" data-number="34.24">
+<h2 data-number="34.24" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">34.24</span> Interview grill</h2>
 <ol type="1">
 <li>Why did the smoke test align without the project’s human Bismark index?</li>
 <li>Why could BWA-Meth index files not be reused by Bismark?</li>
@@ -1286,8 +1595,8 @@ complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days</code></pre>
 <li>Which evidence belongs in a private run manifest versus a public repository?</li>
 </ol>
 </section>
-<section id="primary-references" class="level2" data-number="34.24">
-<h2 data-number="34.24" class="anchored" data-anchor-id="primary-references"><span class="header-section-number">34.24</span> Primary references</h2>
+<section id="primary-references" class="level2" data-number="34.25">
+<h2 data-number="34.25" class="anchored" data-anchor-id="primary-references"><span class="header-section-number">34.25</span> Primary references</h2>
 <ul>
 <li><a href="https://nf-co.re/docs/running/run-pipelines">nf-core: running pipelines</a></li>
 <li><a href="https://nf-co.re/methylseq/4.2.0/parameters">nf-core/methylseq 4.2.0 parameters</a></li>
