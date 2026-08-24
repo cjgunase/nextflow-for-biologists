@@ -47,6 +47,9 @@ jobs:
           test "$(cat results/02-one-file/sequence.character_count.txt)" = '15'
           test "$(cat results/03-many-samples/alpha.line_count.txt)" = '3'
           test "$(cat results/03-many-samples/beta.line_count.txt)" = '2'
+          for fastq in data/reads/*.fastq; do
+            test "$(( $(wc -l < "$fastq") % 4 ))" -eq 0
+          done
           grep -q '^R1_reads=2$' results/04-paired-reads/mouse_A.pair_summary.txt
           grep -q '^R2_reads=2$' results/04-paired-reads/mouse_A.pair_summary.txt
           grep -q $'mouse_A\t2\t2' results/05-two-step/mouse_A.report.txt

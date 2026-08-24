@@ -16,10 +16,15 @@ process SUMMARIZE_READS {
     r1 = reads[0]
     r2 = reads[1]
     """
+    r1_lines=\$(wc -l < ${r1})
+    r2_lines=\$(wc -l < ${r2})
+    test \$(( r1_lines % 4 )) -eq 0
+    test \$(( r2_lines % 4 )) -eq 0
+
     printf 'sample\\tR1_reads\\tR2_reads\\n%s\\t%s\\t%s\\n' \\
       '${sample_id}' \\
-      "\$(( \$(wc -l < ${r1}) / 4 ))" \\
-      "\$(( \$(wc -l < ${r2}) / 4 ))" \\
+      "\$(( r1_lines / 4 ))" \\
+      "\$(( r2_lines / 4 ))" \\
       > ${sample_id}.counts.tsv
     """
 }

@@ -17,12 +17,17 @@ process CHECK_PAIRS {
     r1 = reads[0]
     r2 = reads[1]
     """
+    r1_lines=\$(wc -l < ${r1})
+    r2_lines=\$(wc -l < ${r2})
+    test \$(( r1_lines % 4 )) -eq 0
+    test \$(( r2_lines % 4 )) -eq 0
+
     printf 'sample=%s\\nR1=%s\\nR2=%s\\nR1_reads=%s\\nR2_reads=%s\\n' \\
       '${sample_id}' \\
       '${r1.name}' \\
       '${r2.name}' \\
-      "\$(( \$(wc -l < ${r1}) / 4 ))" \\
-      "\$(( \$(wc -l < ${r2}) / 4 ))" \\
+      "\$(( r1_lines / 4 ))" \\
+      "\$(( r2_lines / 4 ))" \\
       > ${sample_id}.pair_summary.txt
     """
 }
