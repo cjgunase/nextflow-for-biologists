@@ -34,7 +34,7 @@
     "href": "index.html#how-to-use-the-book",
     "title": "From FASTQ to Nextflow",
     "section": "How to use the book",
-    "text": "How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.\n\nWhen you reach the Nextflow section, run the repository’s five tiny examples in order. They progress from one value to paired FASTQs and a connected workflow before introducing real bioinformatics tools, containers and Slurm. Every example is executed automatically in continuous integration with the pinned tutorial version of Nextflow.",
+    "text": "How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.\n\nWhen you reach the Nextflow section, run the repository’s five tiny examples in order. They progress from one value to paired FASTQs and a connected workflow before introducing real bioinformatics tools, containers and Slurm. Every example is executed automatically in continuous integration with the pinned tutorial version of Nextflow.\nAfter the core learning path, the bonus real-world case study follows a multi-terabyte WGBS project from failed environment setup through a measured pilot, one complete-sample qualification and 30-sample capacity planning. It uses sanitized infrastructure and de-identified metrics and clearly separates measured results, projections and pending validation.",
     "crumbs": [
       "From FASTQ to Nextflow"
     ]
@@ -3019,47 +3019,322 @@
     ]
   },
   {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "",
+    "text": "34.1 Why a biologist should care\nTutorial datasets finish in minutes. Production WGBS datasets can contain billions of paired reads, terabytes of compressed FASTQs and tasks that run for days. At that scale, a small misunderstanding becomes expensive:\nThis chapter reconstructs a real engineering qualification in sanitized form. It is a real-world evidence (RWE) operations case study, not clinical validation and not a replacement for the official pipeline documentation.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#why-a-biologist-should-care",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#why-a-biologist-should-care",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "",
+    "text": "using the wrong reference index can invalidate alignment;\nlaunching Java on a restricted login node can crash before Nextflow starts;\nstoring framework and image caches in a small home quota can corrupt downloads;\ninterpreting two Slurm task jobs as two samples can cause unnecessary intervention;\ndeduplicating independent chunks before merging can change the biological result;\ndeleting work/ too early can turn a recoverable interruption into a complete rerun; and\nscheduler completion can be mistaken for a validated methylation dataset.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#case-scope",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#case-scope",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.2 Case scope",
+    "text": "34.2 Case scope\nThe project contained 30 paired-end human WGBS samples:\n30 biological samples\n× 2 mates per sample\n= 60 compressed FASTQ files\n≈ 3.7 TB total compressed input\nIndividual FASTQs were approximately 47–88 GB. A representative pair was about 101 GB compressed with 151-base reads.\nThe required deliverables were:\n\nraw and trimmed read QC;\nBismark alignment to GRCh38;\nwhole-sample duplicate removal;\ncoordinate-sorted BAM and BAI;\nBismark methylation coverage (.cov.gz);\nBismark reports and summary;\nMultiQC; and\nreproducible execution and provenance evidence.\n\nThe portable implementation used nf-core/methylseq 4.2.0, Nextflow, Singularity and Slurm.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#the-decision-ladder",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#the-decision-ladder",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.3 The decision ladder",
+    "text": "34.3 The decision ladder\nThe team did not begin by submitting all 30 samples:\nhost prerequisites\n        ↓\ntiny nf-core smoke test\n        ↓\n10M-pair real-data pilot\n        ↓\none complete-sample qualification\n        ↓\nreview MultiQC + trace + storage + provenance\n        ↓\n30-sample production cohort\nEach gate answers a different question.\n\n\n\n\n\n\n\n\nGate\nQuestion answered\nWhat it cannot establish\n\n\n\n\nEnvironment check\nCan Java, Nextflow, Slurm and Singularity start?\nBiological correctness\n\n\nnf-core test profile\nCan the workflow, containers and executor communicate?\nHuman-genome performance\n\n\n10M real-data pilot\nAre real reads/reference compatible, and what is approximate throughput?\nComplete-sample QC and exact wall-time\n\n\nOne complete sample\nDo whole-sample outputs, QC, runtime, memory and storage pass?\nCohort-wide sample variation\n\n\nCohort\nCan all samples complete under reviewed capacity policy?\nAutomatic scientific interpretation",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#architecture-selected",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#architecture-selected",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.4 Architecture selected",
+    "text": "34.4 Architecture selected\npaired FASTQs\n    ├── FastQC\n    └── Trim Galore\n            ↓\n       Bismark alignment\n            ↓\n       whole-sample deduplication\n            ↓\n       SAMtools sort + index\n            ↓\n       Bismark methylation extraction\n            ↓\n       Bismark reports + MultiQC\nThe workflow logic came from versioned nf-core/methylseq. Site configuration selected Slurm and Singularity without editing the upstream pipeline.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#why-the-initial-chunking-plan-was-reconsidered",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#why-the-initial-chunking-plan-was-reconsidered",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.5 Why the initial chunking plan was reconsidered",
+    "text": "34.5 Why the initial chunking plan was reconsidered\nThe first idea was:\nsplit FASTQ into 10M-read chunks\n→ align chunks\n→ merge BAMs\n→ split BAM by chromosome\n→ extract methylation\nChunking alignment can reduce the wall-time of one enormous task, but it adds new correctness and operations obligations:\n\nR1/R2 records must remain synchronized;\nchunk identity must remain attached to the biological sample;\nevery alignment must use identical software, reference and parameters;\nread groups and headers must be compatible before merge;\nall chunks must be merged before one global sample-level deduplication;\nmissing or duplicate chunks must be detected;\nmerged and unsplit results require equivalence testing;\ntask count, I/O and temporary storage rise substantially; and\nchromosome splitting can complicate paired reads and cross-contig behavior.\n\nThe dangerous design is to deduplicate each chunk independently and merge the results. Duplicates occurring in different chunks cannot see one another, so the final duplicate set may differ from whole-sample deduplication.\nThe default decision was therefore:\n\nProcess each biological sample as one paired dataset with the established nf-core/methylseq workflow. Consider chunked alignment only if measured complete-sample tasks exceed site limits, and merge before one global deduplication step.\n\nThis is an evidence-based default, not a claim that chunking is universally wrong.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-1-establish-a-usable-host-environment",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-1-establish-a-usable-host-environment",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.6 Phase 1: establish a usable host environment",
+    "text": "34.6 Phase 1: establish a usable host environment\n\n34.6.1 Inventory before installation\nOn a compute node, inspect rather than assume:\ncommand -v java\ncommand -v nextflow\ncommand -v singularity\ncommand -v apptainer\nmodule spider java\nmodule spider singularity\nThe observed cluster supplied Java and Singularity modules but no Nextflow module. The user’s existing Conda Java crashed during JVM initialization. This was a host-runtime failure before any workflow or WGBS code ran.\n\n\n34.6.2 Lesson: use a validated Java module\nsource /etc/profile.d/lmod.sh\nmodule purge\nmodule load java/xxx\nmodule load singularity/xxx\n\njava -version\nsingularity --version\nModule names are site-specific. The public repository must use placeholders; the real names belong in an ignored environment file.\n\n\n34.6.3 Failure: Nextflow framework download exceeded home quota\nThe first launcher attempt wrote its framework JAR below a small home directory and failed with Disk quota exceeded, leaving an invalid/corrupt JAR.\nThe correction was to put the runtime home on project storage:\nexport PROJECT=/project/xxx/wgbs-project\nexport NXF_HOME=\"$PROJECT/nextflow_home\"\nexport NXF_VER=25.10.7\nexport NXF_TEMP=\"$PROJECT/tmp\"\n\nmkdir -p \"$NXF_HOME\" \"$NXF_TEMP\"\nNXF_HOME stores Nextflow framework and asset data. It is not the same as the pipeline’s work/ directory.\n\n\n34.6.4 Failure: launcher location and framework version were confused\nThe small nextflow launcher script and the downloaded framework JAR are different files. Running ./nextflow works only from the directory containing the executable launcher, or through its absolute path:\n/project/xxx/wgbs-project/bin/nextflow -version\nVerify the version under the same NXF_HOME and NXF_VER that production will use.\n\n\n34.6.5 Failure: incompatible Nextflow/plugin versions\nAn early pinned Nextflow release was too old for the nf-schema plugin required by methylseq. Jumping to a newer unvalidated framework exposed a separate legacy configuration-parsing incompatibility. The working response was not “always use latest”; it was to identify and pin a compatible combination, then test it.\nThe qualification recorded:\nNextflow:          25.10.7\nnf-core/methylseq: 4.2.0\nSingularity CE:    4.0.3\nBismark:           0.25.1 (containerized task)\nThese are case-study facts, not permanent universal requirements.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-2-configure-container-storage",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-2-configure-container-storage",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.7 Phase 2: configure container storage",
+    "text": "34.7 Phase 2: configure container storage\nContainer pulls and OCI-to-SIF conversion are too large for many home quotas:\nexport NXF_SINGULARITY_CACHEDIR=\"$PROJECT/singularity_cache\"\nexport SINGULARITY_CACHEDIR=\"$PROJECT/singularity_cache\"\nmkdir -p \"$SINGULARITY_CACHEDIR\"\nTest one small container on a compute node:\nsingularity exec \\\n  docker://quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0 \\\n  seqkit version\nContainer conversion logs may contain alarming informational messages. The acceptance evidence is the final exit status and expected tool version, not one isolated line.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-3-run-the-tiny-nf-core-smoke-test",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-3-run-the-tiny-nf-core-smoke-test",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.8 Phase 3: run the tiny nf-core smoke test",
+    "text": "34.8 Phase 3: run the tiny nf-core smoke test\nThe smoke test used versioned pipeline and container profiles:\nnextflow run nf-core/methylseq \\\n  -r 4.2.0 \\\n  -profile test,singularity \\\n  -c conf/slurm.config \\\n  --outdir results/nfcore-test \\\n  -work-dir work \\\n  -with-trace logs/smoke.trace.tsv \\\n  -with-report logs/smoke.report.html \\\n  -with-timeline logs/smoke.timeline.html\nThe test profile downloaded a tiny test genome and built the matching Bismark index inside a task work directory. This explains how alignment succeeded even though the project’s human reference did not yet contain Bisulfite_Genome.\nSmoke-test acceptance required:\nfind results/nfcore-test -type f -name '*.cov.gz' -print\nfind results/nfcore-test -type f -name '*.bam' -print\nfind results/nfcore-test -type f -name 'multiqc_report.html' -print\nThe test proved workflow plumbing and expected output types. It did not prove that the human GRCh38 reference was ready.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-4-prepare-the-correct-bismark-reference",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-4-prepare-the-correct-bismark-reference",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.9 Phase 4: prepare the correct Bismark reference",
+    "text": "34.9 Phase 4: prepare the correct Bismark reference\nThe existing GRCh38 directory contained BWA and BWA-Meth indexes. Those cannot substitute for a Bismark/Bowtie2 bisulfite index.\nA valid Bismark reference directory has this shape:\nbismark_species_assembly/\n├── reference.fa\n└── Bisulfite_Genome/\n    ├── CT_conversion/\n    │   ├── BS_CT.1.bt2\n    │   ├── ...\n    │   └── BS_CT.rev.2.bt2\n    └── GA_conversion/\n        ├── BS_GA.1.bt2\n        ├── ...\n        └── BS_GA.rev.2.bt2\nThe FASTA was copied—not symlinked—into the self-contained index directory so the same path remained visible inside container bind mounts. Its checksum was verified before and after copying:\nsha256sum reference.fa\nThe index was built through a Slurm task using the same containerized Bismark version as the workflow. Acceptance required all 12 Bowtie2 index files and the matching FASTA. A partial Bisulfite_Genome from a failed attempt was preserved with a .failed.JOB_ID suffix for diagnosis rather than presented as valid.\nFor another species, repeat the procedure with that species and assembly. Never reuse a human index for mouse, or an index from another assembly release.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-5-create-a-synchronized-10m-pair-pilot",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-5-create-a-synchronized-10m-pair-pilot",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.10 Phase 5: create a synchronized 10M-pair pilot",
+    "text": "34.10 Phase 5: create a synchronized 10M-pair pilot\nThe pilot sampled the same first 10,000,000 records from R1 and R2:\nseqkit head --number 10000000 SAMPLE_R1.fastq.gz \\\n  --out-file SAMPLE_10M_R1.fastq.gz\n\nseqkit head --number 10000000 SAMPLE_R2.fastq.gz \\\n  --out-file SAMPLE_10M_R2.fastq.gz\nVerification:\nseqkit stats SAMPLE_10M_R1.fastq.gz SAMPLE_10M_R2.fastq.gz\ngzip -t SAMPLE_10M_R1.fastq.gz SAMPLE_10M_R2.fastq.gz\nBoth mates contained exactly 10,000,000 reads of length 151. Taking the same record count from ordered mates preserves pairing without loading complete FASTQs into memory.\n\n34.10.1 Pilot samplesheet\nsample,fastq_1,fastq_2,genome\nSAMPLE_10M,/project/xxx/subsets/SAMPLE_10M_R1.fastq.gz,/project/xxx/subsets/SAMPLE_10M_R2.fastq.gz,\n\n\n34.10.2 Pilot parameters\ninput: /project/xxx/samplesheets/SAMPLE_10M.csv\noutdir: /project/xxx/results/SAMPLE_10M\n\naligner: bismark\nfasta: /project/xxx/reference/bismark_grch38/reference.fa\nbismark_index: /project/xxx/reference/bismark_grch38\nResource policy belongs in Nextflow configuration, not invented YAML keys. The pipeline’s Bismark alignment defaults requested 12 CPUs and 72 GB, with an eight-day task ceiling.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#measured-pilot-evidence",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#measured-pilot-evidence",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.11 Measured pilot evidence",
+    "text": "34.11 Measured pilot evidence\nThe 10M-pair workflow completed successfully:\n\n\n\n\n\n\n\nMetric\nMeasured value\n\n\n\n\nWorkflow wall-time\n2 h 3 m 44 s\n\n\nTotal CPU consumption\n24.6 CPU-hours\n\n\nBismark alignment runtime\n1 h 45 m 52 s\n\n\nAlignment CPU utilization\n1168.1% with 12 CPUs (~97% effective use)\n\n\nAlignment peak RSS\n38.9 GB\n\n\nAlignment read I/O\n126.9 GB\n\n\nAlignment write I/O\n81.4 GB\n\n\nDeduplicated BAM\n1.16 GB\n\n\nBAM index\n2.21 MB\n\n\nMethylation coverage\n39.2 MB compressed\n\n\nMultiQC report\n2.41 MB\n\n\n\nAlignment dominated runtime. This justified focusing capacity planning on Bismark rather than prematurely optimizing very short reporting tasks.\n\n34.11.1 What the pilot can and cannot say\nUseful evidence:\n\ncompatible reference/index and real WGBS reads;\ntool/container compatibility;\napproximate alignment throughput;\nCPU efficiency and peak memory;\nexpected output types; and\npreliminary storage/I/O behavior.\n\nNot final biological evidence:\n\nwhole-sample duplication rate;\ngenome/CpG coverage distribution;\ncomplete mapping behavior;\nfinal methylation conclusions; or\nexact whole-sample duration.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#projection-to-a-complete-sample",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#projection-to-a-complete-sample",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.12 Projection to a complete sample",
+    "text": "34.12 Projection to a complete sample\nThe representative full pair contained 100.83 GB compressed versus 1.327 GB for the pilot, a ratio of about 75.97.\nSimple linear projection:\ncomplete alignment ≈ pilot alignment × 75.97 ≈ 5.6 days\ncomplete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days\nPlanning range: approximately 6–8 days, excluding queue delay and retries. This is a model, not a promise; compression, trimming, duplication, filesystem contention and sample complexity may scale nonlinearly.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-6-create-reusable-production-controls",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-6-create-reusable-production-controls",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.13 Phase 6: create reusable production controls",
+    "text": "34.13 Phase 6: create reusable production controls\n\n34.13.1 Private site environment\nPROJECT=/storage/xxx/wgbs-production\nJAVA_MODULE=java/xxx\nCONTAINER_MODULE=singularity/xxx\nCONTAINER_PROFILE=singularity\nNEXTFLOW_VERSION=25.10.7\nMETHYLSEQ_VERSION=4.2.0\nNEXTFLOW_BIN=/absolute/path/to/bin/nextflow\nThis real file is ignored by Git. A tracked .example file contains only placeholders.\n\n\n34.13.2 Shared-cluster concurrency policy\nprocess {\n    withName: BISMARK_ALIGN {\n        maxForks = 10\n    }\n}\n\nexecutor {\n    queueSize = 30\n    submitRateLimit = '2 sec'\n}\nInterpretation:\n\nat most ten Bismark alignment tasks run concurrently;\nup to 30 tasks may be managed in the executor queue; and\nsubmissions are rate-limited as scheduler courtesy.\n\nWith 12 CPUs and 72 GB requested per alignment, ten concurrent alignments imply up to 120 CPUs and 720 GB requested memory. The policy was chosen to avoid occupying an entire shared cluster.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#capacity-planning-for-30-samples",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#capacity-planning-for-30-samples",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.14 Capacity planning for 30 samples",
+    "text": "34.14 Capacity planning for 30 samples\nIdealized cohort makespan from the pilot projection:\n\n\n\nConcurrent alignments\nIdealized cohort time\n\n\n\n\n1\n195.8 days\n\n\n3\n65.3 days\n\n\n5\n39.2 days\n\n\n10\n19.6 days\n\n\n30\n6.5 days\n\n\n\nThe selected policy was ten, not 30. Shared-resource stewardship was part of the engineering requirement.\nThe 10M pilot projected approximately 1,869 CPU-hours per full sample and 56,069 CPU-hours for 30 samples. Replace these estimates with complete-sample measurements before final cohort scheduling.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#phase-7-qualify-one-complete-sample",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#phase-7-qualify-one-complete-sample",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.15 Phase 7: qualify one complete sample",
+    "text": "34.15 Phase 7: qualify one complete sample\nThe complete sample was launched in a separate project root:\n/storage/xxx/wgbs-one-sample-production/\n├── bin/\n├── conf/\n├── logs/\n├── nextflow_home/\n├── params/\n├── results/\n├── run_manifests/\n├── samplesheets/\n├── singularity_cache/\n├── tmp/\n└── work/\nThe original FASTQs remained in their authoritative location; the samplesheet referenced them without creating another 101 GB copy.\n\n34.15.1 Full-sample parameter file\ninput: /storage/xxx/wgbs-one-sample-production/samplesheets/SAMPLE_01.csv\noutdir: /storage/xxx/wgbs-one-sample-production/results/SAMPLE_01\n\naligner: bismark\nfasta: /storage/xxx/reference/bismark_grch38/reference.fa\nbismark_index: /storage/xxx/reference/bismark_grch38\n\n\n34.15.2 Preflight\nThe preflight checked:\n\nJava, Nextflow, Singularity, Slurm and launcher paths;\nunused output location;\nwritable output parent;\nmatching FASTA and complete 12-file Bismark index;\nsamplesheet header and one readable R1/R2 pair;\nunresolved placeholders; and\ninput-scaled free-storage estimate.\n\nPreflight is a convenience gate. It does not replace nf-core schema validation, task checks or biological QC.\n\n\n34.15.3 Submit\nsbatch bin/run_production.sbatch \\\n  /storage/xxx/wgbs-one-sample-production/params/SAMPLE_01.yaml\nThe visible wgbs-production job was the Nextflow controller. FastQC and Trim Galore appeared as two simultaneous nf-... Slurm jobs for the same sample. Bismark alignment began only after trimmed reads were available.\n\n\n34.15.4 Monitor\nsqueue -u \"$USER\" -o \"%.18i %.55j %.2t %.10M %.30R\"\ntail -n 60 logs/wgbs-production.JOB_ID.out\ntail -n 40 logs/wgbs-production.JOB_ID.err\nRepeated Nextflow tables in the captured output were display refreshes, not duplicate submissions. A notice that a newer Nextflow version existed was informational because the project deliberately used a validated pin.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#complete-sample-acceptance-gate",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#complete-sample-acceptance-gate",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.16 Complete-sample acceptance gate",
+    "text": "34.16 Complete-sample acceptance gate\nThe case study was still running when this chapter was written. It must remain labeled in progress, and no complete-sample MultiQC conclusion should be claimed yet.\nAcceptance requires:\n\ncontroller log contains Pipeline completed successfully;\nno failed or unresolved task remains;\ndeduplicated BAM and matching BAI exist and pass format checks;\nBismark .cov.gz exists, is nonempty and passes gzip -t;\nBismark sample report and summary exist;\nMultiQC contains the intended sample and is reviewed;\ntrace records actual runtime, CPU, peak RSS and I/O;\ntotal work/ and results/ storage are measured; and\nprivate provenance/checksum manifest is complete.\n\nReview MultiQC for at least:\n\nraw and trimmed read quality;\nadapter/quality trimming behavior;\nmapping efficiency;\nduplicate percentage;\nmethylation-extraction metrics; and\nmissing or unexpectedly duplicated samples.\n\nDo not publish an unredacted report until sample identifiers, paths, command lines and infrastructure details have been reviewed for privacy.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#run-manifests-and-checksums",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#run-manifests-and-checksums",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.17 Run manifests and checksums",
+    "text": "34.17 Run manifests and checksums\nFor every pilot and production execution, retain a private manifest containing:\n\nanalysis purpose and operator;\ncontroller and task identifiers;\nrepository commit and pipeline revision;\nJava, Nextflow, container runtime and tool versions;\nsamplesheet and parameter-file copies;\nSHA-256 checksums for those inputs;\nreference source, release and FASTA checksum;\nexact command and configuration layers;\nexceptions/deviations;\ntrace/report/timeline/DAG paths;\nrequired-output checks; and\nQC review and approval status.\n\nChecksums provide file-identity evidence. They do not prove that metadata are correct, a method is validated or an output is scientifically acceptable. In a regulated environment, integrate this engineering evidence into the applicable quality system rather than labeling a public tutorial “CLIA validated.”",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#what-belongs-in-the-public-repository",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#what-belongs-in-the-public-repository",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.18 What belongs in the public repository",
+    "text": "34.18 What belongs in the public repository\nPublish:\n\nportable scripts and templates;\nplaceholder site configuration;\nde-identified aggregate performance metrics;\nassumptions and limitations;\nscientific capacity figures; and\nsanitized troubleshooting knowledge.\n\nDo not publish:\n\ncredentials, tokens or private keys;\ninternal hostnames, accounts or topology;\ninstitutional paths and support contacts;\nraw FASTQs, BAMs or coverage files;\nprotected sample identifiers;\nunreviewed MultiQC/logs containing private metadata; or\nclaims beyond the recorded evidence.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#failure-to-control-map",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#failure-to-control-map",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.19 Failure-to-control map",
+    "text": "34.19 Failure-to-control map\n\n\n\n\n\n\n\n\nObserved problem\nRoot layer\nDurable control\n\n\n\n\nJVM crashes before Nextflow\nhost Java/login-node constraint\nvalidated Java module on compute node\n\n\ncorrupt framework JAR\nhome quota exhausted\nproject-based NXF_HOME\n\n\nlauncher “not found”\npath/installation confusion\nstable absolute NEXTFLOW_BIN\n\n\nplugin requires newer framework\nversion compatibility\ntested version matrix and pins\n\n\ncontainer pulls fill home\nruntime cache placement\nproject-based Singularity cache\n\n\nhuman alignment index missing\nreference mismatch\nself-contained matching Bismark index\n\n\ntwo task jobs mistaken for samples\nmental-model error\nprocess names + validated samplesheet\n\n\nreport/timeline already exists\nartifact naming collision\njob-specific report filenames\n\n\nunsupported max_* YAML keys\nconfig/parameter mismatch\nschema-aware params and config selectors\n\n\nuncertain cohort load\nno measured capacity model\npilot trace + one-sample qualification",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#decision-record",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#decision-record",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.20 Decision record",
+    "text": "34.20 Decision record\nThe final production design was:\n\nreuse nf-core/methylseq rather than reimplement Bismark orchestration;\nuse complete paired samples as the biological unit;\nuse containers for task software;\nuse Slurm per process task;\nkeep site paths and modules in ignored configuration;\npin workflow and Nextflow versions;\nbuild one traceable index per species/assembly;\nvalidate with smoke test, real-data pilot and one full sample;\ncap Bismark alignment concurrency at ten for shared-resource fairness;\nretain work/ until acceptance so -resume remains available; and\nscale to 30 samples only after complete-sample MultiQC and resource review.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#try-it-yourself",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#try-it-yourself",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.21 Try it yourself",
+    "text": "34.21 Try it yourself\n\n34.21.1 Exercise 1: classify the evidence\nPlace each statement under measured, projected or pending:\n\npilot alignment peak RSS was 38.9 GB;\na complete sample will take exactly 6.5 days;\nten concurrent alignments may request 720 GB;\ncomplete-sample duplication is acceptable.\n\nAnswer: measured; projected (and “exactly” is unjustified); calculated planning maximum; pending MultiQC review.\n\n\n34.21.2 Exercise 2: design a safe chunk fallback\nDraw the graph required if alignment must be chunked. It must include synchronized paired chunks, per-chunk alignment, completeness verification, BAM merge and sort, one global sample-level deduplication, methylation extraction and an equivalence test against an unsplit subset.\n\n\n34.21.3 Exercise 3: review a production claim\nA colleague says, “Slurm no longer shows the job, so methylation calling passed.” List the log, output, integrity, QC and provenance evidence still required.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#what-to-remember",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#what-to-remember",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.22 What to remember",
+    "text": "34.22 What to remember\n\nInstallation success, pilot success and production validation are different claims.\nMeasure the dominant task before designing cohort concurrency.\nKeep complete-sample deduplication global unless a validated alternative exists.\nReferences are software inputs with versions and checksums, not generic folders.\nOne sample creates many workflow tasks and scheduler jobs.\nPreserve cache and provenance until outputs pass acceptance.\nPublic documentation should retain engineering knowledge without exposing private infrastructure or data.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#interview-grill",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#interview-grill",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.23 Interview grill",
+    "text": "34.23 Interview grill\n\nWhy did the smoke test align without the project’s human Bismark index?\nWhy could BWA-Meth index files not be reused by Bismark?\nWhat is the difference between NXF_HOME, container cache, work/ and results/?\nWhy was the 10M pilot scientifically incomplete but operationally valuable?\nHow was the 6.5-day projection calculated, and what are its limitations?\nWhy does independently deduplicating chunks risk a changed result?\nWhat does maxForks = 10 mean for 30 samples?\nWhy can one sample show two or more Slurm task jobs?\nWhat must pass before publishing complete-sample MultiQC conclusions?\nWhich evidence belongs in a private run manifest versus a public repository?",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/34-rwe-wgbs-production-case-study.html#primary-references",
+    "href": "chapters/34-rwe-wgbs-production-case-study.html#primary-references",
+    "title": "34  Real-world case study: production WGBS with nf-core/methylseq",
+    "section": "34.24 Primary references",
+    "text": "34.24 Primary references\n\nnf-core: running pipelines\nnf-core/methylseq 4.2.0 parameters\nnf-core/methylseq output documentation\nnf-core system configuration\nNextflow configuration\nNextflow Slurm executor\nNextflow cache and resume\n\nThe complete portable implementation and continuously updated WGBS operations guide are maintained separately in the WGBS methylseq pipeline repository.",
+    "crumbs": [
+      "Bonus — Real-world production case study",
+      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Real-world case study: production WGBS with nf-core/methylseq</span>"
+    ]
+  },
+  {
     "objectID": "appendices/glossary.html",
     "href": "appendices/glossary.html",
-    "title": "34  Glossary",
+    "title": "35  Glossary",
     "section": "",
     "text": "Channel\nA Nextflow dataflow object that carries values between workflow components.\nConda environment\nAn isolated collection of software packages and their dependencies.\nContainer image\nAn immutable package of files and metadata used to create a container runtime.\nExecutor\nThe Nextflow component that determines how tasks are launched, such as locally or through SLURM.\nProcess\nA Nextflow definition describing a repeatable unit of work, its inputs, outputs and command script.\nSLURM\nA workload manager that schedules jobs and allocates shared cluster resources.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>34</span>  <span class='chapter-title'>Glossary</span>"
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>Glossary</span>"
     ]
   },
   {
     "objectID": "appendices/troubleshooting.html",
     "href": "appendices/troubleshooting.html",
-    "title": "35  Troubleshooting",
+    "title": "36  Troubleshooting",
     "section": "",
     "text": "The final appendix will organize the real failures from the companion project by symptom, diagnostic observation, root cause, fix and durable lesson.\nInitial cases include Java G1 initialization failure, home-directory quota exhaustion, Conda dependency solving, missing container PATH entries, missing ps, invalid SAMtools options and misleading whole-file BAM hashes.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>35</span>  <span class='chapter-title'>Troubleshooting</span>"
+      "<span class='chapter-number'>36</span>  <span class='chapter-title'>Troubleshooting</span>"
     ]
   },
   {
     "objectID": "appendices/command-reference.html",
     "href": "appendices/command-reference.html",
-    "title": "36  Command reference",
+    "title": "37  Command reference",
     "section": "",
     "text": "This appendix will collect the small set of shell, Git, Conda, Singularity, Nextflow and SLURM commands introduced in the lessons. It is a memory aid, not a replacement for understanding the commands in context.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>36</span>  <span class='chapter-title'>Command reference</span>"
+      "<span class='chapter-number'>37</span>  <span class='chapter-title'>Command reference</span>"
     ]
   },
   {
     "objectID": "appendices/next-steps.html",
     "href": "appendices/next-steps.html",
-    "title": "37  Next steps",
+    "title": "38  Next steps",
     "section": "",
     "text": "After completing the book, readers will be directed toward Nextflow training, nf-core conventions, larger test suites, workflow modules, continuous integration and domain-appropriate aligners. These are presented as future skills rather than accomplishments of the teaching pipeline.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>37</span>  <span class='chapter-title'>Next steps</span>"
+      "<span class='chapter-number'>38</span>  <span class='chapter-title'>Next steps</span>"
     ]
   }
 ]
