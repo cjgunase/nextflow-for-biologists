@@ -518,6 +518,22 @@ topics—not as skills earned automatically by this book.
 **Pass condition:** learner can distinguish current demonstrated capability
 from the next capability they intend to build.
 
+## Bonus — Real-world production case study
+
+### Chapter 34 — Production WGBS with nf-core/methylseq
+
+Reconstruct the sanitized production qualification developed from a real
+30-sample WGBS project. Connect Java/Nextflow/container bootstrap failures,
+storage-aware caches, Bismark reference indexing, the nf-core smoke test, a
+measured 10M-pair pilot, complete-sample acceptance, MultiQC review, provenance,
+Slurm resource measurement and shared-cluster concurrency planning.
+
+**Artifact:** an evidence table and decision record connecting each observed
+failure or measurement to a durable production control.
+
+**Pass condition:** reader can distinguish measured, projected and pending
+claims and explain why the cohort must wait for complete-sample acceptance.
+
 ## Appendices
 
 ### Appendix A — Glossary

@@ -15,6 +15,12 @@ The Nextflow section includes a five-stage executable ladder in
 many samples, paired FASTQs and a connected two-process workflow. GitHub Actions
 runs the examples with a pinned Nextflow version on every change.
 
+The bonus [real-world production WGBS case study](chapters/34-rwe-wgbs-production-case-study.qmd)
+shows how the same concepts were applied to nf-core/methylseq on Slurm: runtime
+bootstrap failures, container and framework caches, Bismark reference indexing,
+a measured 10M-pair pilot, full-sample qualification and a shared-resource
+capacity plan for 30 samples.
+
 ## Read the book
 
 The published site will be available at:

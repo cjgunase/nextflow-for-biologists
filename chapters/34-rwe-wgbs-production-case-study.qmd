@@ -1,0 +1,723 @@
+# Real-world case study: production WGBS with nf-core/methylseq
+
+::: {.chapter-goals}
+**By the end of this bonus chapter, you will be able to:**
+
+- turn a multi-terabyte WGBS request into staged engineering questions;
+- explain why smoke tests, data pilots and complete-sample qualification are different;
+- configure nf-core/methylseq for Bismark on Slurm with containers;
+- diagnose failures across Java, Nextflow, plugins, storage, containers and references;
+- use measured traces to plan memory, runtime and cohort concurrency;
+- explain why routine FASTQ/chromosome splitting is not the default design; and
+- define the evidence required before scaling from one sample to a cohort.
+:::
+
+## Why a biologist should care
+
+Tutorial datasets finish in minutes. Production WGBS datasets can contain
+billions of paired reads, terabytes of compressed FASTQs and tasks that run for
+days. At that scale, a small misunderstanding becomes expensive:
+
+- using the wrong reference index can invalidate alignment;
+- launching Java on a restricted login node can crash before Nextflow starts;
+- storing framework and image caches in a small home quota can corrupt downloads;
+- interpreting two Slurm task jobs as two samples can cause unnecessary intervention;
+- deduplicating independent chunks before merging can change the biological result;
+- deleting `work/` too early can turn a recoverable interruption into a complete rerun; and
+- scheduler completion can be mistaken for a validated methylation dataset.
+
+This chapter reconstructs a real engineering qualification in sanitized form.
+It is a **real-world evidence (RWE) operations case study**, not clinical
+validation and not a replacement for the official pipeline documentation.
+
+## Case scope
+
+The project contained 30 paired-end human WGBS samples:
+
+```text
+30 biological samples
+× 2 mates per sample
+= 60 compressed FASTQ files
+≈ 3.7 TB total compressed input
+```
+
+Individual FASTQs were approximately 47–88 GB. A representative pair was about
+101 GB compressed with 151-base reads.
+
+The required deliverables were:
+
+- raw and trimmed read QC;
+- Bismark alignment to GRCh38;
+- whole-sample duplicate removal;
+- coordinate-sorted BAM and BAI;
+- Bismark methylation coverage (`.cov.gz`);
+- Bismark reports and summary;
+- MultiQC; and
+- reproducible execution and provenance evidence.
+
+The portable implementation used
+[nf-core/methylseq 4.2.0](https://nf-co.re/methylseq/4.2.0), Nextflow, Singularity
+and Slurm.
+
+## The decision ladder
+
+The team did not begin by submitting all 30 samples:
+
+```text
+host prerequisites
+        ↓
+tiny nf-core smoke test
+        ↓
+10M-pair real-data pilot
+        ↓
+one complete-sample qualification
+        ↓
+review MultiQC + trace + storage + provenance
+        ↓
+30-sample production cohort
+```
+
+Each gate answers a different question.
+
+| Gate | Question answered | What it cannot establish |
+|---|---|---|
+| Environment check | Can Java, Nextflow, Slurm and Singularity start? | Biological correctness |
+| nf-core test profile | Can the workflow, containers and executor communicate? | Human-genome performance |
+| 10M real-data pilot | Are real reads/reference compatible, and what is approximate throughput? | Complete-sample QC and exact wall-time |
+| One complete sample | Do whole-sample outputs, QC, runtime, memory and storage pass? | Cohort-wide sample variation |
+| Cohort | Can all samples complete under reviewed capacity policy? | Automatic scientific interpretation |
+
+## Architecture selected
+
+```text
+paired FASTQs
+    ├── FastQC
+    └── Trim Galore
+            ↓
+       Bismark alignment
+            ↓
+       whole-sample deduplication
+            ↓
+       SAMtools sort + index
+            ↓
+       Bismark methylation extraction
+            ↓
+       Bismark reports + MultiQC
+```
+
+The workflow logic came from versioned nf-core/methylseq. Site configuration
+selected Slurm and Singularity without editing the upstream pipeline.
+
+## Why the initial chunking plan was reconsidered
+
+The first idea was:
+
+```text
+split FASTQ into 10M-read chunks
+→ align chunks
+→ merge BAMs
+→ split BAM by chromosome
+→ extract methylation
+```
+
+Chunking alignment can reduce the wall-time of one enormous task, but it adds
+new correctness and operations obligations:
+
+- R1/R2 records must remain synchronized;
+- chunk identity must remain attached to the biological sample;
+- every alignment must use identical software, reference and parameters;
+- read groups and headers must be compatible before merge;
+- all chunks must be merged before **one global sample-level deduplication**;
+- missing or duplicate chunks must be detected;
+- merged and unsplit results require equivalence testing;
+- task count, I/O and temporary storage rise substantially; and
+- chromosome splitting can complicate paired reads and cross-contig behavior.
+
+The dangerous design is to deduplicate each chunk independently and merge the
+results. Duplicates occurring in different chunks cannot see one another, so
+the final duplicate set may differ from whole-sample deduplication.
+
+The default decision was therefore:
+
+> Process each biological sample as one paired dataset with the established
+> nf-core/methylseq workflow. Consider chunked alignment only if measured
+> complete-sample tasks exceed site limits, and merge before one global
+> deduplication step.
+
+This is an evidence-based default, not a claim that chunking is universally
+wrong.
+
+## Phase 1: establish a usable host environment
+
+### Inventory before installation
+
+On a compute node, inspect rather than assume:
+
+```bash
+command -v java
+command -v nextflow
+command -v singularity
+command -v apptainer
+module spider java
+module spider singularity
+```
+
+The observed cluster supplied Java and Singularity modules but no Nextflow
+module. The user's existing Conda Java crashed during JVM initialization. This
+was a host-runtime failure before any workflow or WGBS code ran.
+
+### Lesson: use a validated Java module
+
+```bash
+source /etc/profile.d/lmod.sh
+module purge
+module load java/xxx
+module load singularity/xxx
+
+java -version
+singularity --version
+```
+
+Module names are site-specific. The public repository must use placeholders;
+the real names belong in an ignored environment file.
+
+### Failure: Nextflow framework download exceeded home quota
+
+The first launcher attempt wrote its framework JAR below a small home directory
+and failed with `Disk quota exceeded`, leaving an invalid/corrupt JAR.
+
+The correction was to put the runtime home on project storage:
+
+```bash
+export PROJECT=/project/xxx/wgbs-project
+export NXF_HOME="$PROJECT/nextflow_home"
+export NXF_VER=25.10.7
+export NXF_TEMP="$PROJECT/tmp"
+
+mkdir -p "$NXF_HOME" "$NXF_TEMP"
+```
+
+`NXF_HOME` stores Nextflow framework and asset data. It is not the same as the
+pipeline's `work/` directory.
+
+### Failure: launcher location and framework version were confused
+
+The small `nextflow` launcher script and the downloaded framework JAR are
+different files. Running `./nextflow` works only from the directory containing
+the executable launcher, or through its absolute path:
+
+```bash
+/project/xxx/wgbs-project/bin/nextflow -version
+```
+
+Verify the version under the same `NXF_HOME` and `NXF_VER` that production will
+use.
+
+### Failure: incompatible Nextflow/plugin versions
+
+An early pinned Nextflow release was too old for the `nf-schema` plugin required
+by methylseq. Jumping to a newer unvalidated framework exposed a separate legacy
+configuration-parsing incompatibility. The working response was not “always use
+latest”; it was to identify and pin a compatible combination, then test it.
+
+The qualification recorded:
+
+```text
+Nextflow:          25.10.7
+nf-core/methylseq: 4.2.0
+Singularity CE:    4.0.3
+Bismark:           0.25.1 (containerized task)
+```
+
+These are case-study facts, not permanent universal requirements.
+
+## Phase 2: configure container storage
+
+Container pulls and OCI-to-SIF conversion are too large for many home quotas:
+
+```bash
+export NXF_SINGULARITY_CACHEDIR="$PROJECT/singularity_cache"
+export SINGULARITY_CACHEDIR="$PROJECT/singularity_cache"
+mkdir -p "$SINGULARITY_CACHEDIR"
+```
+
+Test one small container on a compute node:
+
+```bash
+singularity exec \
+  docker://quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0 \
+  seqkit version
+```
+
+Container conversion logs may contain alarming informational messages. The
+acceptance evidence is the final exit status and expected tool version, not one
+isolated line.
+
+## Phase 3: run the tiny nf-core smoke test
+
+The smoke test used versioned pipeline and container profiles:
+
+```bash
+nextflow run nf-core/methylseq \
+  -r 4.2.0 \
+  -profile test,singularity \
+  -c conf/slurm.config \
+  --outdir results/nfcore-test \
+  -work-dir work \
+  -with-trace logs/smoke.trace.tsv \
+  -with-report logs/smoke.report.html \
+  -with-timeline logs/smoke.timeline.html
+```
+
+The test profile downloaded a tiny test genome and built the matching Bismark
+index inside a task work directory. This explains how alignment succeeded even
+though the project's human reference did not yet contain `Bisulfite_Genome`.
+
+Smoke-test acceptance required:
+
+```bash
+find results/nfcore-test -type f -name '*.cov.gz' -print
+find results/nfcore-test -type f -name '*.bam' -print
+find results/nfcore-test -type f -name 'multiqc_report.html' -print
+```
+
+The test proved workflow plumbing and expected output types. It did not prove
+that the human GRCh38 reference was ready.
+
+## Phase 4: prepare the correct Bismark reference
+
+The existing GRCh38 directory contained BWA and BWA-Meth indexes. Those cannot
+substitute for a Bismark/Bowtie2 bisulfite index.
+
+A valid Bismark reference directory has this shape:
+
+```text
+bismark_species_assembly/
+├── reference.fa
+└── Bisulfite_Genome/
+    ├── CT_conversion/
+    │   ├── BS_CT.1.bt2
+    │   ├── ...
+    │   └── BS_CT.rev.2.bt2
+    └── GA_conversion/
+        ├── BS_GA.1.bt2
+        ├── ...
+        └── BS_GA.rev.2.bt2
+```
+
+The FASTA was copied—not symlinked—into the self-contained index directory so
+the same path remained visible inside container bind mounts. Its checksum was
+verified before and after copying:
+
+```bash
+sha256sum reference.fa
+```
+
+The index was built through a Slurm task using the same containerized Bismark
+version as the workflow. Acceptance required all 12 Bowtie2 index files and the
+matching FASTA. A partial `Bisulfite_Genome` from a failed attempt was preserved
+with a `.failed.JOB_ID` suffix for diagnosis rather than presented as valid.
+
+For another species, repeat the procedure with that species and assembly. Never
+reuse a human index for mouse, or an index from another assembly release.
+
+## Phase 5: create a synchronized 10M-pair pilot
+
+The pilot sampled the same first 10,000,000 records from R1 and R2:
+
+```bash
+seqkit head --number 10000000 SAMPLE_R1.fastq.gz \
+  --out-file SAMPLE_10M_R1.fastq.gz
+
+seqkit head --number 10000000 SAMPLE_R2.fastq.gz \
+  --out-file SAMPLE_10M_R2.fastq.gz
+```
+
+Verification:
+
+```bash
+seqkit stats SAMPLE_10M_R1.fastq.gz SAMPLE_10M_R2.fastq.gz
+gzip -t SAMPLE_10M_R1.fastq.gz SAMPLE_10M_R2.fastq.gz
+```
+
+Both mates contained exactly 10,000,000 reads of length 151. Taking the same
+record count from ordered mates preserves pairing without loading complete
+FASTQs into memory.
+
+### Pilot samplesheet
+
+```csv
+sample,fastq_1,fastq_2,genome
+SAMPLE_10M,/project/xxx/subsets/SAMPLE_10M_R1.fastq.gz,/project/xxx/subsets/SAMPLE_10M_R2.fastq.gz,
+```
+
+### Pilot parameters
+
+```yaml
+input: /project/xxx/samplesheets/SAMPLE_10M.csv
+outdir: /project/xxx/results/SAMPLE_10M
+
+aligner: bismark
+fasta: /project/xxx/reference/bismark_grch38/reference.fa
+bismark_index: /project/xxx/reference/bismark_grch38
+```
+
+Resource policy belongs in Nextflow configuration, not invented YAML keys. The
+pipeline's Bismark alignment defaults requested 12 CPUs and 72 GB, with an
+eight-day task ceiling.
+
+## Measured pilot evidence
+
+The 10M-pair workflow completed successfully:
+
+| Metric | Measured value |
+|---|---:|
+| Workflow wall-time | 2 h 3 m 44 s |
+| Total CPU consumption | 24.6 CPU-hours |
+| Bismark alignment runtime | 1 h 45 m 52 s |
+| Alignment CPU utilization | 1168.1% with 12 CPUs (~97% effective use) |
+| Alignment peak RSS | 38.9 GB |
+| Alignment read I/O | 126.9 GB |
+| Alignment write I/O | 81.4 GB |
+| Deduplicated BAM | 1.16 GB |
+| BAM index | 2.21 MB |
+| Methylation coverage | 39.2 MB compressed |
+| MultiQC report | 2.41 MB |
+
+Alignment dominated runtime. This justified focusing capacity planning on
+Bismark rather than prematurely optimizing very short reporting tasks.
+
+### What the pilot can and cannot say
+
+Useful evidence:
+
+- compatible reference/index and real WGBS reads;
+- tool/container compatibility;
+- approximate alignment throughput;
+- CPU efficiency and peak memory;
+- expected output types; and
+- preliminary storage/I/O behavior.
+
+Not final biological evidence:
+
+- whole-sample duplication rate;
+- genome/CpG coverage distribution;
+- complete mapping behavior;
+- final methylation conclusions; or
+- exact whole-sample duration.
+
+## Projection to a complete sample
+
+The representative full pair contained 100.83 GB compressed versus 1.327 GB
+for the pilot, a ratio of about 75.97.
+
+Simple linear projection:
+
+```text
+complete alignment ≈ pilot alignment × 75.97 ≈ 5.6 days
+complete workflow  ≈ pilot workflow  × 75.97 ≈ 6.5 days
+```
+
+Planning range: approximately 6–8 days, excluding queue delay and retries.
+This is a model, not a promise; compression, trimming, duplication, filesystem
+contention and sample complexity may scale nonlinearly.
+
+## Phase 6: create reusable production controls
+
+### Private site environment
+
+```bash
+PROJECT=/storage/xxx/wgbs-production
+JAVA_MODULE=java/xxx
+CONTAINER_MODULE=singularity/xxx
+CONTAINER_PROFILE=singularity
+NEXTFLOW_VERSION=25.10.7
+METHYLSEQ_VERSION=4.2.0
+NEXTFLOW_BIN=/absolute/path/to/bin/nextflow
+```
+
+This real file is ignored by Git. A tracked `.example` file contains only
+placeholders.
+
+### Shared-cluster concurrency policy
+
+```groovy
+process {
+    withName: BISMARK_ALIGN {
+        maxForks = 10
+    }
+}
+
+executor {
+    queueSize = 30
+    submitRateLimit = '2 sec'
+}
+```
+
+Interpretation:
+
+- at most ten Bismark alignment tasks run concurrently;
+- up to 30 tasks may be managed in the executor queue; and
+- submissions are rate-limited as scheduler courtesy.
+
+With 12 CPUs and 72 GB requested per alignment, ten concurrent alignments imply
+up to 120 CPUs and 720 GB requested memory. The policy was chosen to avoid
+occupying an entire shared cluster.
+
+## Capacity planning for 30 samples
+
+Idealized cohort makespan from the pilot projection:
+
+| Concurrent alignments | Idealized cohort time |
+|---:|---:|
+| 1 | 195.8 days |
+| 3 | 65.3 days |
+| 5 | 39.2 days |
+| 10 | 19.6 days |
+| 30 | 6.5 days |
+
+The selected policy was ten, not 30. Shared-resource stewardship was part of
+the engineering requirement.
+
+The 10M pilot projected approximately 1,869 CPU-hours per full sample and
+56,069 CPU-hours for 30 samples. Replace these estimates with complete-sample
+measurements before final cohort scheduling.
+
+## Phase 7: qualify one complete sample
+
+The complete sample was launched in a separate project root:
+
+```text
+/storage/xxx/wgbs-one-sample-production/
+├── bin/
+├── conf/
+├── logs/
+├── nextflow_home/
+├── params/
+├── results/
+├── run_manifests/
+├── samplesheets/
+├── singularity_cache/
+├── tmp/
+└── work/
+```
+
+The original FASTQs remained in their authoritative location; the samplesheet
+referenced them without creating another 101 GB copy.
+
+### Full-sample parameter file
+
+```yaml
+input: /storage/xxx/wgbs-one-sample-production/samplesheets/SAMPLE_01.csv
+outdir: /storage/xxx/wgbs-one-sample-production/results/SAMPLE_01
+
+aligner: bismark
+fasta: /storage/xxx/reference/bismark_grch38/reference.fa
+bismark_index: /storage/xxx/reference/bismark_grch38
+```
+
+### Preflight
+
+The preflight checked:
+
+- Java, Nextflow, Singularity, Slurm and launcher paths;
+- unused output location;
+- writable output parent;
+- matching FASTA and complete 12-file Bismark index;
+- samplesheet header and one readable R1/R2 pair;
+- unresolved placeholders; and
+- input-scaled free-storage estimate.
+
+Preflight is a convenience gate. It does not replace nf-core schema validation,
+task checks or biological QC.
+
+### Submit
+
+```bash
+sbatch bin/run_production.sbatch \
+  /storage/xxx/wgbs-one-sample-production/params/SAMPLE_01.yaml
+```
+
+The visible `wgbs-production` job was the Nextflow controller. FastQC and Trim
+Galore appeared as two simultaneous `nf-...` Slurm jobs for the **same** sample.
+Bismark alignment began only after trimmed reads were available.
+
+### Monitor
+
+```bash
+squeue -u "$USER" -o "%.18i %.55j %.2t %.10M %.30R"
+tail -n 60 logs/wgbs-production.JOB_ID.out
+tail -n 40 logs/wgbs-production.JOB_ID.err
+```
+
+Repeated Nextflow tables in the captured output were display refreshes, not
+duplicate submissions. A notice that a newer Nextflow version existed was
+informational because the project deliberately used a validated pin.
+
+## Complete-sample acceptance gate
+
+The case study was still running when this chapter was written. It must remain
+labeled **in progress**, and no complete-sample MultiQC conclusion should be
+claimed yet.
+
+Acceptance requires:
+
+1. controller log contains `Pipeline completed successfully`;
+2. no failed or unresolved task remains;
+3. deduplicated BAM and matching BAI exist and pass format checks;
+4. Bismark `.cov.gz` exists, is nonempty and passes `gzip -t`;
+5. Bismark sample report and summary exist;
+6. MultiQC contains the intended sample and is reviewed;
+7. trace records actual runtime, CPU, peak RSS and I/O;
+8. total `work/` and `results/` storage are measured; and
+9. private provenance/checksum manifest is complete.
+
+Review MultiQC for at least:
+
+- raw and trimmed read quality;
+- adapter/quality trimming behavior;
+- mapping efficiency;
+- duplicate percentage;
+- methylation-extraction metrics; and
+- missing or unexpectedly duplicated samples.
+
+Do not publish an unredacted report until sample identifiers, paths, command
+lines and infrastructure details have been reviewed for privacy.
+
+## Run manifests and checksums
+
+For every pilot and production execution, retain a private manifest containing:
+
+- analysis purpose and operator;
+- controller and task identifiers;
+- repository commit and pipeline revision;
+- Java, Nextflow, container runtime and tool versions;
+- samplesheet and parameter-file copies;
+- SHA-256 checksums for those inputs;
+- reference source, release and FASTA checksum;
+- exact command and configuration layers;
+- exceptions/deviations;
+- trace/report/timeline/DAG paths;
+- required-output checks; and
+- QC review and approval status.
+
+Checksums provide file-identity evidence. They do not prove that metadata are
+correct, a method is validated or an output is scientifically acceptable. In a
+regulated environment, integrate this engineering evidence into the applicable
+quality system rather than labeling a public tutorial “CLIA validated.”
+
+## What belongs in the public repository
+
+Publish:
+
+- portable scripts and templates;
+- placeholder site configuration;
+- de-identified aggregate performance metrics;
+- assumptions and limitations;
+- scientific capacity figures; and
+- sanitized troubleshooting knowledge.
+
+Do not publish:
+
+- credentials, tokens or private keys;
+- internal hostnames, accounts or topology;
+- institutional paths and support contacts;
+- raw FASTQs, BAMs or coverage files;
+- protected sample identifiers;
+- unreviewed MultiQC/logs containing private metadata; or
+- claims beyond the recorded evidence.
+
+## Failure-to-control map
+
+| Observed problem | Root layer | Durable control |
+|---|---|---|
+| JVM crashes before Nextflow | host Java/login-node constraint | validated Java module on compute node |
+| corrupt framework JAR | home quota exhausted | project-based `NXF_HOME` |
+| launcher “not found” | path/installation confusion | stable absolute `NEXTFLOW_BIN` |
+| plugin requires newer framework | version compatibility | tested version matrix and pins |
+| container pulls fill home | runtime cache placement | project-based Singularity cache |
+| human alignment index missing | reference mismatch | self-contained matching Bismark index |
+| two task jobs mistaken for samples | mental-model error | process names + validated samplesheet |
+| report/timeline already exists | artifact naming collision | job-specific report filenames |
+| unsupported `max_*` YAML keys | config/parameter mismatch | schema-aware params and config selectors |
+| uncertain cohort load | no measured capacity model | pilot trace + one-sample qualification |
+
+## Decision record
+
+The final production design was:
+
+- reuse nf-core/methylseq rather than reimplement Bismark orchestration;
+- use complete paired samples as the biological unit;
+- use containers for task software;
+- use Slurm per process task;
+- keep site paths and modules in ignored configuration;
+- pin workflow and Nextflow versions;
+- build one traceable index per species/assembly;
+- validate with smoke test, real-data pilot and one full sample;
+- cap Bismark alignment concurrency at ten for shared-resource fairness;
+- retain `work/` until acceptance so `-resume` remains available; and
+- scale to 30 samples only after complete-sample MultiQC and resource review.
+
+## Try it yourself
+
+### Exercise 1: classify the evidence
+
+Place each statement under measured, projected or pending:
+
+- pilot alignment peak RSS was 38.9 GB;
+- a complete sample will take exactly 6.5 days;
+- ten concurrent alignments may request 720 GB;
+- complete-sample duplication is acceptable.
+
+Answer: measured; projected (and “exactly” is unjustified); calculated planning
+maximum; pending MultiQC review.
+
+### Exercise 2: design a safe chunk fallback
+
+Draw the graph required if alignment must be chunked. It must include synchronized
+paired chunks, per-chunk alignment, completeness verification, BAM merge and
+sort, one global sample-level deduplication, methylation extraction and an
+equivalence test against an unsplit subset.
+
+### Exercise 3: review a production claim
+
+A colleague says, “Slurm no longer shows the job, so methylation calling passed.”
+List the log, output, integrity, QC and provenance evidence still required.
+
+## What to remember
+
+- Installation success, pilot success and production validation are different claims.
+- Measure the dominant task before designing cohort concurrency.
+- Keep complete-sample deduplication global unless a validated alternative exists.
+- References are software inputs with versions and checksums, not generic folders.
+- One sample creates many workflow tasks and scheduler jobs.
+- Preserve cache and provenance until outputs pass acceptance.
+- Public documentation should retain engineering knowledge without exposing private infrastructure or data.
+
+## Interview grill
+
+1. Why did the smoke test align without the project's human Bismark index?
+2. Why could BWA-Meth index files not be reused by Bismark?
+3. What is the difference between `NXF_HOME`, container cache, `work/` and `results/`?
+4. Why was the 10M pilot scientifically incomplete but operationally valuable?
+5. How was the 6.5-day projection calculated, and what are its limitations?
+6. Why does independently deduplicating chunks risk a changed result?
+7. What does `maxForks = 10` mean for 30 samples?
+8. Why can one sample show two or more Slurm task jobs?
+9. What must pass before publishing complete-sample MultiQC conclusions?
+10. Which evidence belongs in a private run manifest versus a public repository?
+
+## Primary references
+
+- [nf-core: running pipelines](https://nf-co.re/docs/running/run-pipelines)
+- [nf-core/methylseq 4.2.0 parameters](https://nf-co.re/methylseq/4.2.0/parameters)
+- [nf-core/methylseq output documentation](https://nf-co.re/methylseq/4.2.0/docs/output/)
+- [nf-core system configuration](https://nf-co.re/docs/running/configuration/nextflow-for-your-system)
+- [Nextflow configuration](https://www.nextflow.io/docs/latest/config.html)
+- [Nextflow Slurm executor](https://www.nextflow.io/docs/latest/executor.html#slurm)
+- [Nextflow cache and resume](https://www.nextflow.io/docs/latest/cache-and-resume.html)
+
+The complete portable implementation and continuously updated WGBS operations
+guide are maintained separately in the
+[WGBS methylseq pipeline repository](https://github.com/cjgunase/wgbs-methylseq-pipeline).
+

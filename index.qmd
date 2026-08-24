@@ -64,3 +64,9 @@ order. They progress from one value to paired FASTQs and a connected workflow
 before introducing real bioinformatics tools, containers and Slurm. Every
 example is executed automatically in continuous integration with the pinned
 tutorial version of Nextflow.
+
+After the core learning path, the bonus real-world case study follows a
+multi-terabyte WGBS project from failed environment setup through a measured
+pilot, one complete-sample qualification and 30-sample capacity planning. It
+uses sanitized infrastructure and de-identified metrics and clearly separates
+measured results, projections and pending validation.

@@ -61,6 +61,9 @@ book:
         - chapters/31-security-privacy-regulated-boundaries.qmd
         - chapters/32-team-practices-operations.qmd
         - chapters/33-where-to-go-next.qmd
+    - part: "Bonus — Real-world production case study"
+      chapters:
+        - chapters/34-rwe-wgbs-production-case-study.qmd
     - part: "Appendices"
       chapters:
         - appendices/glossary.qmd
