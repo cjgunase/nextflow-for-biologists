@@ -34,7 +34,7 @@
     "href": "index.html#how-to-use-the-book",
     "title": "From FASTQ to Nextflow",
     "section": "How to use the book",
-    "text": "How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.",
+    "text": "How to use the book\nRead the chapters in order the first time. Each practical chapter contains:\n\na biological objective;\nan engineering objective;\na mental model;\nsmall copyable commands;\nexpected output;\na verification checkpoint;\ncommon failures and their causes; and\na short exercise.\n\nWhen you reach the Nextflow section, run the repository’s five tiny examples in order. They progress from one value to paired FASTQs and a connected workflow before introducing real bioinformatics tools, containers and Slurm. Every example is executed automatically in continuous integration with the pinned tutorial version of Nextflow.",
     "crumbs": [
       "From FASTQ to Nextflow"
     ]
@@ -1736,7 +1736,194 @@
     "href": "chapters/11-nextflow-mental-model.html",
     "title": "21  Nextflow mental model",
     "section": "",
-    "text": "This chapter introduces processes, channels, values, paths, task working directories, dataflow and publishDir without yet constructing the complete workflow.",
+    "text": "21.1 Why a biologist should care\nA manual analysis often becomes a notebook of commands: run QC, trim reads, align, sort, deduplicate and calculate summaries. The commands may be correct, but the notebook does not automatically remember which outputs belong to which inputs, which steps may run together, or which completed work can be reused.\nNextflow describes those relationships. It launches ordinary programs when their declared inputs become available, records task evidence and connects outputs to downstream steps.\nNextflow does not perform alignment, trimming or methylation calling. Those jobs belong to tools such as Bismark, Bowtie2, Trim Galore and FastQC.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#engineering-objective",
+    "href": "chapters/11-nextflow-mental-model.html#engineering-objective",
+    "title": "21  Nextflow mental model",
+    "section": "21.2 Engineering objective",
+    "text": "21.2 Engineering objective\nLearn this sentence:\n\nNextflow is a workflow engine that moves values and files through declared process contracts and delegates each resulting task to an executor.\n\nThat sentence contains the important layers:\npipeline code     process contracts and data connections\nsoftware          FastQC, Bismark, SAMtools, ordinary shell commands\nruntime           Conda, Docker, Singularity/Apptainer\nexecutor          local computer, Slurm, cloud batch service\nstorage           inputs, work directories, published results, caches\nChanging the executor should not change the scientific intention of the workflow. It changes where tasks run.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#start-from-a-manual-command",
+    "href": "chapters/11-nextflow-mental-model.html#start-from-a-manual-command",
+    "title": "21  Nextflow mental model",
+    "section": "21.3 Start from a manual command",
+    "text": "21.3 Start from a manual command\nSuppose you can count lines in one file manually:\nwc -l sample.txt &gt; sample.line_count.txt\nA workflow representation must answer:\n\nWhat file is the input?\nWhat command runs?\nWhat output proves completion?\nWhat should receive that output next?\nWhere should the task run and with which software and resources?\n\nNextflow separates these answers instead of hiding them in one long script.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#process-versus-task",
+    "href": "chapters/11-nextflow-mental-model.html#process-versus-task",
+    "title": "21  Nextflow mental model",
+    "section": "21.4 Process versus task",
+    "text": "21.4 Process versus task\nA process is a reusable recipe. A task is one execution of that recipe for one set of inputs.\nprocess COUNT_LINES\n        │\n        ├── task for alpha.txt\n        ├── task for beta.txt\n        └── task for gamma.txt\nThis distinction explains Slurm output that surprises beginners. One biological sample can generate multiple scheduler jobs because FastQC, trimming, alignment and reporting are different tasks. Conversely, one process can generate 30 tasks when 30 samples arrive.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#processes-are-contracts",
+    "href": "chapters/11-nextflow-mental-model.html#processes-are-contracts",
+    "title": "21  Nextflow mental model",
+    "section": "21.5 Processes are contracts",
+    "text": "21.5 Processes are contracts\nA process normally has four important sections:\nprocess COUNT_LINES {\n    input:\n    path sample_file\n\n    output:\n    path 'count.txt'\n\n    script:\n    \"\"\"\n    wc -l &lt; ${sample_file} &gt; count.txt\n    \"\"\"\n}\n\ninput declares what the task needs.\noutput declares what successful execution must create.\nscript contains the command executed by the task.\ndirectives placed above input, such as cpus, memory, container, tag and publishDir, describe execution behavior.\n\nIf the command exits zero but does not create count.txt, the process fails because its output contract was not satisfied.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#values-paths-and-tuples",
+    "href": "chapters/11-nextflow-mental-model.html#values-paths-and-tuples",
+    "title": "21  Nextflow mental model",
+    "section": "21.6 Values, paths and tuples",
+    "text": "21.6 Values, paths and tuples\nA channel item has a shape. Say the shape aloud before writing compact syntax.\n\n\n\nShape\nExample\nTypical use\n\n\n\n\nvalue\n\"mouse_A\"\nsample ID, threshold, mode\n\n\npath\n/data/mouse_A_R1.fastq.gz\na staged file\n\n\ntuple\n[\"mouse_A\", R1, R2]\nmetadata kept with paired files\n\n\nstream of tuples\none tuple per sample\na cohort\n\n\n\nval inputs are ordinary values. path inputs tell Nextflow that a filesystem object must be staged into the task directory. A tuple keeps related values together while they travel through the workflow.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#channels-carry-data",
+    "href": "chapters/11-nextflow-mental-model.html#channels-carry-data",
+    "title": "21  Nextflow mental model",
+    "section": "21.7 Channels carry data",
+    "text": "21.7 Channels carry data\nA channel is not a directory and not a CSV file. It is the runtime connection through which values move.\npaired FASTQ channel\n        │\n        ├──► raw QC\n        │\n        └──► trimming ──► alignment ──► BAM QC\nWhen two independent processes receive the same input channel, Nextflow may run them concurrently. When alignment needs trimmed reads, it waits for trimming. You describe dependencies through data, not by manually waiting for job IDs.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#workflow-block",
+    "href": "chapters/11-nextflow-mental-model.html#workflow-block",
+    "title": "21  Nextflow mental model",
+    "section": "21.8 Workflow block",
+    "text": "21.8 Workflow block\nDSL2 connects channels and processes inside workflow:\nworkflow {\n    samples = channel.fromPath('data/*.txt')\n    COUNT_LINES(samples)\n}\nThis reads as: create a stream of paths, then invoke COUNT_LINES for each item. The process definition says how; the workflow block says how things connect.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#task-work-directories",
+    "href": "chapters/11-nextflow-mental-model.html#task-work-directories",
+    "title": "21  Nextflow mental model",
+    "section": "21.9 Task work directories",
+    "text": "21.9 Task work directories\nEvery task runs in an isolated hashed directory below work/:\nwork/a3/7be2fa...\n├── .command.sh\n├── .command.run\n├── .command.log\n├── .command.out\n├── .command.err\n├── .exitcode\n├── staged inputs\n└── declared outputs\nIsolation prevents 30 samples from overwriting one another’s output.txt. The hash also contributes to caching. The short string printed beside a process, such as [a3/7be2fa], points to this directory; it is not a scheduler job ID.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#work-is-not-results",
+    "href": "chapters/11-nextflow-mental-model.html#work-is-not-results",
+    "title": "21  Nextflow mental model",
+    "section": "21.10 Work is not results",
+    "text": "21.10 Work is not results\nwork/ is Nextflow’s execution record and cache. A results directory contains selected outputs exposed for people and downstream use. Publishing does not mean that work files are disposable immediately: -resume needs the cache.\nKeep these ideas separate:\n\ninput data are authoritative sources;\nwork data are task-level intermediates and cache;\npublished results are selected deliverables;\nexecution reports and logs are provenance evidence.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#executor-mental-model",
+    "href": "chapters/11-nextflow-mental-model.html#executor-mental-model",
+    "title": "21  Nextflow mental model",
+    "section": "21.11 Executor mental model",
+    "text": "21.11 Executor mental model\nWith the local executor, Nextflow starts task processes on the current machine. With the Slurm executor, Nextflow submits task wrappers to Slurm. The small Nextflow controller must remain alive to observe completed tasks and submit downstream work.\nNextflow controller\n    ├── submits FASTQC task ─────► Slurm\n    ├── submits TRIM task ───────► Slurm\n    ├── observes their outputs\n    └── submits ALIGN task ──────► Slurm\nThe controller is not the alignment job. Requesting 4 GB for the controller does not force Bismark to use 4 GB; process directives control task resources.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#cache-and--resume",
+    "href": "chapters/11-nextflow-mental-model.html#cache-and--resume",
+    "title": "21  Nextflow mental model",
+    "section": "21.12 Cache and -resume",
+    "text": "21.12 Cache and -resume\nFor each task, Nextflow computes a cache key from relevant inputs, process code, configuration and environment information. A matching successful task can be reused with -resume while its work directory and cache metadata remain.\nResume is selective recomputation, not magic checkpointing inside a running aligner. A failed alignment normally restarts that task; already completed upstream tasks may be cached.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#verification-checkpoint",
+    "href": "chapters/11-nextflow-mental-model.html#verification-checkpoint",
+    "title": "21  Nextflow mental model",
+    "section": "21.13 Verification checkpoint",
+    "text": "21.13 Verification checkpoint\nFor this graph:\nreads ──► FASTQC_RAW\n  └─────► TRIM ──► FASTQC_TRIMMED\n                └► ALIGN ──► BAM_QC\nPredict before reading the answer:\n\nFASTQC_RAW and TRIM may begin together.\nFASTQC_TRIMMED waits for TRIM.\nALIGN waits for TRIM.\nFASTQC_TRIMMED and ALIGN may run together after trimmed reads exist.\nBAM_QC waits for ALIGN.\n\nIf you can explain those statements using data availability rather than line order, the core mental model is working.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#common-failure-reading-the-console-as-a-sample-count",
+    "href": "chapters/11-nextflow-mental-model.html#common-failure-reading-the-console-as-a-sample-count",
+    "title": "21  Nextflow mental model",
+    "section": "21.14 Common failure: reading the console as a sample count",
+    "text": "21.14 Common failure: reading the console as a sample count\nSeeing two nf-... jobs for one sample does not mean the samplesheet was read twice. Inspect the full process names. They may be FastQC and trimming tasks for the same sample. Count biological samples from validated input metadata; count tasks from the workflow graph.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#try-it-yourself",
+    "href": "chapters/11-nextflow-mental-model.html#try-it-yourself",
+    "title": "21  Nextflow mental model",
+    "section": "21.15 Try it yourself",
+    "text": "21.15 Try it yourself\nDraw a graph for: raw QC, trimming, post-trim QC and alignment. Circle the steps that can run concurrently. Then add a final MultiQC step that needs all reports. Where must it wait?",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#what-to-remember",
+    "href": "chapters/11-nextflow-mental-model.html#what-to-remember",
+    "title": "21  Nextflow mental model",
+    "section": "21.16 What to remember",
+    "text": "21.16 What to remember\n\nProcesses are recipes; tasks are executions.\nChannels carry shaped data and create dependencies.\nEach task has an isolated work directory.\nExecutors decide where tasks run; containers decide which software runs.\nPublished results and cached work serve different purposes.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#interview-grill",
+    "href": "chapters/11-nextflow-mental-model.html#interview-grill",
+    "title": "21  Nextflow mental model",
+    "section": "21.17 Interview grill",
+    "text": "21.17 Interview grill\n\nWhat is the difference between Nextflow and an aligner?\nWhat is the difference between a process and a task?\nWhy can one sample create many Slurm jobs?\nWhat does a path input promise that a val input does not?\nWhy attach a sample ID to files in a tuple?\nHow does data availability express dependencies?\nWhat evidence lives in a task work directory?\nWhy can deleting work/ prevent efficient resume?\nWhat changes when switching from local to Slurm execution?\nWhy is scheduler completion insufficient evidence of scientific success?",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-nextflow-mental-model.html#primary-references",
+    "href": "chapters/11-nextflow-mental-model.html#primary-references",
+    "title": "21  Nextflow mental model",
+    "section": "21.18 Primary references",
+    "text": "21.18 Primary references\n\nNextflow processes\nNextflow channels\nNextflow executors\nNextflow cache and resume",
     "crumbs": [
       "Part VI — Nextflow DSL2 from first process to complete pipeline",
       "<span class='chapter-number'>21</span>  <span class='chapter-title'>Nextflow mental model</span>"
@@ -1747,7 +1934,150 @@
     "href": "chapters/12-first-nextflow-process.html",
     "title": "22  Your first Nextflow process",
     "section": "",
-    "text": "This chapter builds a minimal DSL2 workflow, examines .command.sh, .command.run, .command.log and .exitcode, then ports raw FastQC as the first real process.",
+    "text": "22.1 Why a biologist should care\nThe safest way to learn a workflow language is to remove the biology briefly. If a one-line command fails, you can focus on Nextflow rather than wondering whether the reference genome, sample chemistry or tool parameters are wrong.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#engineering-objective",
+    "href": "chapters/12-first-nextflow-process.html#engineering-objective",
+    "title": "22  Your first Nextflow process",
+    "section": "22.2 Engineering objective",
+    "text": "22.2 Engineering objective\nRun one process, locate its task directory, inspect the exact command, verify the output and rerun it from cache.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#before-you-type",
+    "href": "chapters/12-first-nextflow-process.html#before-you-type",
+    "title": "22  Your first Nextflow process",
+    "section": "22.3 Before you type",
+    "text": "22.3 Before you type\nVerify Java and Nextflow:\njava -version\nnextflow -version\nThen enter the examples directory from the book repository:\ncd examples/nextflow-basics\npwd\nls 01-hello.nf\nDo not run computational tutorials on an HPC login node if local policy forbids Java or analysis processes there. Request a small compute allocation.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#build-it-read-the-complete-file",
+    "href": "chapters/12-first-nextflow-process.html#build-it-read-the-complete-file",
+    "title": "22  Your first Nextflow process",
+    "section": "22.4 Build it: read the complete file",
+    "text": "22.4 Build it: read the complete file\nOpen 01-hello.nf:\nnextflow.enable.dsl=2\n\nparams.name = 'biologist'\n\nprocess MAKE_GREETING {\n    tag \"${name}\"\n    publishDir 'results/01-hello', mode: 'copy'\n\n    input:\n    val name\n\n    output:\n    path 'greeting.txt'\n\n    script:\n    \"\"\"\n    echo \"Hello, ${name}!\" &gt; greeting.txt\n    \"\"\"\n}\n\nworkflow {\n    MAKE_GREETING(params.name)\n}\n\n22.4.1 Read the syntax\n\nnextflow.enable.dsl=2 makes the DSL generation explicit for learners.\nparams.name declares a command-line parameter with a default.\nMAKE_GREETING is the process definition.\ntag places a meaningful value in logs instead of only a task hash.\nval name accepts an ordinary value.\npath 'greeting.txt' declares the file that success must produce.\nthe triple-quoted block is the shell script.\nMAKE_GREETING(params.name) invokes the process in the workflow.\npublishDir ... mode: 'copy' copies the selected result out of work/.\n\nThis book uses process-level publishDir because it remains common in production and nf-core pipelines and is supported by the validated tutorial version. Newer Nextflow training also teaches workflow-level output publishing; learn to recognize both and follow the version policy of the project you join.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#run-it",
+    "href": "chapters/12-first-nextflow-process.html#run-it",
+    "title": "22  Your first Nextflow process",
+    "section": "22.5 Run it",
+    "text": "22.5 Run it\nnextflow run 01-hello.nf --name Ada\nWhy two dashes before name: pipeline parameters use --. Core Nextflow options such as -resume, -profile and -with-trace use one dash.\nExpected status shape:\n[ab/cdef12] MAKE_GREETING (Ada) | 1 of 1 ✔\nThe hash will differ. Verify the published result:\ncat results/01-hello/greeting.txt\nExpected:\nHello, Ada!",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#inspect-task-anatomy",
+    "href": "chapters/12-first-nextflow-process.html#inspect-task-anatomy",
+    "title": "22  Your first Nextflow process",
+    "section": "22.6 Inspect task anatomy",
+    "text": "22.6 Inspect task anatomy\nAsk Nextflow for the most recent task directory:\nnextflow log last -f hash,name,status,workdir\nCopy the printed work-directory path into a variable:\nTASK_DIR=/absolute/path/printed/by/nextflow\nls -la \"$TASK_DIR\"\nInspect evidence one file at a time:\ncat \"$TASK_DIR/.command.sh\"\ncat \"$TASK_DIR/.command.log\"\ncat \"$TASK_DIR/.exitcode\"\n\n.command.sh is the scientific command generated for the process.\n.command.run is Nextflow’s execution wrapper, including staging/runtime.\n.command.out and .command.err capture standard streams.\n.command.log combines task output useful for diagnosis.\n.exitcode should contain 0 for success.\n\nDo not edit files in a task directory to “fix” a run. Fix tracked pipeline code or configuration, then rerun.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#prove-caching",
+    "href": "chapters/12-first-nextflow-process.html#prove-caching",
+    "title": "22  Your first Nextflow process",
+    "section": "22.7 Prove caching",
+    "text": "22.7 Prove caching\nRun the same command with -resume:\nnextflow run 01-hello.nf --name Ada -resume\nExpected status includes cached: 1.\nNow change the input value:\nnextflow run 01-hello.nf --name Grace -resume\nThis creates a new task because an input changed. Cache reuse is based on task identity, not merely the process name.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#what-changed-on-disk",
+    "href": "chapters/12-first-nextflow-process.html#what-changed-on-disk",
+    "title": "22  Your first Nextflow process",
+    "section": "22.8 What changed on disk",
+    "text": "22.8 What changed on disk\nAfter the first run you should have:\n.nextflow.log\n.nextflow/\nwork/\nresults/01-hello/greeting.txt\nThe hidden metadata and work/ support history, diagnosis and resume. They are normally ignored by Git.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#common-failures",
+    "href": "chapters/12-first-nextflow-process.html#common-failures",
+    "title": "22  Your first Nextflow process",
+    "section": "22.9 Common failures",
+    "text": "22.9 Common failures\n\n22.9.1 nextflow: command not found\nThe launcher is absent or not in PATH. Return to the setup chapter and verify command -v nextflow.\n\n\n22.9.2 Java fails before the pipeline starts\nNextflow itself requires Java. On HPC, load a validated Java module inside a compute allocation and place NXF_HOME on a filesystem with adequate quota.\n\n\n22.9.3 Output already exists\nRepeated publishing may overwrite or conflict depending on publish settings and Nextflow version. Use a new result directory for independent production runs; use -resume for continuation of the same run.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#verification-checkpoint",
+    "href": "chapters/12-first-nextflow-process.html#verification-checkpoint",
+    "title": "22  Your first Nextflow process",
+    "section": "22.10 Verification checkpoint",
+    "text": "22.10 Verification checkpoint\nPass only if:\ntest \"$(cat results/01-hello/greeting.txt)\" = 'Hello, Grace!'\nnextflow log last -f name,status\nThe shell test must exit zero and the latest task must be COMPLETED or CACHED as appropriate.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#commit-checkpoint",
+    "href": "chapters/12-first-nextflow-process.html#commit-checkpoint",
+    "title": "22  Your first Nextflow process",
+    "section": "22.11 Commit checkpoint",
+    "text": "22.11 Commit checkpoint\nIn your practice repository, a useful message would be:\ngit add 01-hello.nf\ngit commit -m \"feat: add first Nextflow greeting process\"\nNever commit work/, .nextflow/ or large generated results.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#try-it-yourself",
+    "href": "chapters/12-first-nextflow-process.html#try-it-yourself",
+    "title": "22  Your first Nextflow process",
+    "section": "22.12 Try it yourself",
+    "text": "22.12 Try it yourself\nAdd a --species parameter and produce Hello, Ada! Species: mouse. Predict whether changing only --species with -resume should create a new task.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#what-to-remember",
+    "href": "chapters/12-first-nextflow-process.html#what-to-remember",
+    "title": "22  Your first Nextflow process",
+    "section": "22.13 What to remember",
+    "text": "22.13 What to remember\n\nPipeline parameters use --; Nextflow options use -.\nA declared output is part of the process contract.\nThe work hash points to task evidence.\n-resume reuses only matching successful work.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/12-first-nextflow-process.html#interview-grill",
+    "href": "chapters/12-first-nextflow-process.html#interview-grill",
+    "title": "22  Your first Nextflow process",
+    "section": "22.14 Interview grill",
+    "text": "22.14 Interview grill\n\nWhat launches the process in this file?\nWhy is name a val rather than a path?\nWhat proves the shell command ran successfully?\nWhat happens if greeting.txt is not created?\nWhy is tag useful in a cohort?\nWhich directory supports resume?\nWhy should task files not be edited manually?\nWhat invalidates the cached greeting task?\nHow do pipeline parameters differ from core options?\nWhat does publishing add beyond a work-directory output?",
     "crumbs": [
       "Part VI — Nextflow DSL2 from first process to complete pipeline",
       "<span class='chapter-number'>22</span>  <span class='chapter-title'>Your first Nextflow process</span>"
@@ -1758,7 +2088,172 @@
     "href": "chapters/23-channels-tuples-paired-files.html",
     "title": "23  Channels, tuples and paired files",
     "section": "",
-    "text": "This planned chapter will teach explicit channel shapes, metadata tuples, paired inputs and the operators that connect Nextflow processes safely.",
+    "text": "23.1 Why a biologist should care\nMost dangerous workflow bugs are not exotic syntax errors. They are metadata errors: R1 paired with the wrong R2, a sample label separated from its file, or results silently overwritten because every task chose the same name. Channel design protects biological identity while data move.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#engineering-objective",
+    "href": "chapters/23-channels-tuples-paired-files.html#engineering-objective",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.2 Engineering objective",
+    "text": "23.2 Engineering objective\nProgress from one file to a cohort, then represent each paired-end sample as:\n[sample_id, [R1_path, R2_path]]\nYou will inspect that shape before any biological program runs.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#before-you-type",
+    "href": "chapters/23-channels-tuples-paired-files.html#before-you-type",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.3 Before you type",
+    "text": "23.3 Before you type\ncd examples/nextflow-basics\nfind data -maxdepth 3 -type f | sort\nThe fixtures are tiny text and FASTQ files. They are deterministic teaching data, not real sequencing results.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#one-path-input",
+    "href": "chapters/23-channels-tuples-paired-files.html#one-path-input",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.4 One path input",
+    "text": "23.4 One path input\nRun the second example:\nnextflow run 02-one-file.nf\ncat results/02-one-file/sequence.character_count.txt\nThe important lines are:\nparams.input = \"${projectDir}/data/sequence.txt\"\n\nworkflow {\n    input_file = file(params.input, checkIfExists: true)\n    COUNT_CHARACTERS(input_file)\n}\nprojectDir is the pipeline-code directory, making the default independent of the terminal’s launch directory. file(..., checkIfExists: true) converts the parameter into a path value and fails early if it is absent.\nThe process declares path sequence. Nextflow stages that file into an isolated task directory. The script should refer to ${sequence}, not reach back to an undeclared absolute path.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#many-files-create-many-tasks",
+    "href": "chapters/23-channels-tuples-paired-files.html#many-files-create-many-tasks",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.5 Many files create many tasks",
+    "text": "23.5 Many files create many tasks\nRun:\nnextflow run 03-many-samples.nf\nfind results/03-many-samples -type f -maxdepth 1 -print -exec cat {} \\;\nThe channel is built in two steps:\nsamples = channel\n    .fromPath(params.input, checkIfExists: true)\n    .map { sample_file -&gt; tuple(sample_file.baseName, sample_file) }\nRead the shape transition:\nbefore map: path\nafter map:  [sample_id, path]\nFor alpha.txt, the tuple is conceptually:\n[\"alpha\", /.../data/samples/alpha.txt]\nThe process contract must match that shape:\ninput:\ntuple val(sample_id), path(sample_file)\nNextflow creates one COUNT_LINES task per tuple. The sample_id travels with the staged file and is used in output naming.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#observe-without-changing-data",
+    "href": "chapters/23-channels-tuples-paired-files.html#observe-without-changing-data",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.6 Observe without changing data",
+    "text": "23.6 Observe without changing data\nThe example uses:\nCOUNT_LINES.out.counts.view { sample_id, count_file -&gt;\n    \"completed sample=${sample_id}; task_output=${count_file}\"\n}\nview is a development aid. It displays items flowing through a channel and returns them unchanged. Do not print protected sample metadata into public or widely readable logs.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#paired-fastq-shape",
+    "href": "chapters/23-channels-tuples-paired-files.html#paired-fastq-shape",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.7 Paired FASTQ shape",
+    "text": "23.7 Paired FASTQ shape\nList the teaching reads:\nfind data/reads -type f -maxdepth 1 -print | sort\nThe naming rule is:\nmouse_A_R1.fastq\nmouse_A_R2.fastq\nmouse_B_R1.fastq\nmouse_B_R2.fastq\nRun:\nnextflow run 04-paired-reads.nf\nfind results/04-paired-reads -type f -maxdepth 1 -print -exec cat {} \\;\nThis factory groups mates:\nread_pairs = channel.fromFilePairs(\n    \"${projectDir}/data/reads/*_{R1,R2}.fastq\",\n    checkIfExists: true\n)\nFor each sample it emits a sample ID and a two-path list. The process consumes:\ninput:\ntuple val(sample_id), path(reads)\nWithin the process script, reads[0] and reads[1] are R1 and R2 according to the filename pattern. The task counts FASTQ records by dividing line count by four.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#why-a-samplesheet-is-still-valuable",
+    "href": "chapters/23-channels-tuples-paired-files.html#why-a-samplesheet-is-still-valuable",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.8 Why a samplesheet is still valuable",
+    "text": "23.8 Why a samplesheet is still valuable\nFilename pairing is concise when naming is perfectly regular. A production samplesheet is clearer when you need lanes, groups, library metadata, stranded status or paths that do not share a simple pattern.\nValidate metadata before creating channels:\n\nheader matches the pipeline schema;\nsample identifiers are unique under the intended grouping rules;\nevery R1 and R2 exists and is readable;\nno orphan mate remains;\npaths contain the intended sample, species and run;\nprotected identifiers are handled according to policy.\n\nNextflow can automate execution; it cannot infer that an incorrectly labeled FASTQ belongs to another patient.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#operators-are-shape-transformations",
+    "href": "chapters/23-channels-tuples-paired-files.html#operators-are-shape-transformations",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.9 Operators are shape transformations",
+    "text": "23.9 Operators are shape transformations\nDo not memorize operators as punctuation. Write their input and output shapes.\n\n\n\n\n\n\n\n\nOperator\nQuestion it answers\nExample shape change\n\n\n\n\nmap\nHow should each item change?\npath → [id,path]\n\n\nfilter\nWhich items continue?\nmany items → selected items\n\n\ncollect\nWhen do I need all items together?\nstream → one list\n\n\ncombine/join\nHow do keyed datasets meet?\ntwo keyed streams → joined tuples\n\n\nview\nWhat is flowing here?\nunchanged, plus diagnostic output\n\n\n\ncollect creates a synchronization point and can accumulate substantial metadata in controller memory. Use it when a tool genuinely needs all items, such as a cohort summary—not merely to make code look sequential.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#common-failures",
+    "href": "chapters/23-channels-tuples-paired-files.html#common-failures",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.10 Common failures",
+    "text": "23.10 Common failures\n\n23.10.1 Orphan mate\nRename one fixture temporarily so its R2 no longer matches and run the paired example. With checkIfExists, a pattern that matches nothing fails, but fromFilePairs may not diagnose every naming mistake the way a dedicated samplesheet validator does. Inspect emitted tuples and validate pairs before production.\n\n\n23.10.2 Tuple mismatch\nIf the channel emits [id, [R1,R2]] but the process expects three separate elements, staging fails. Print one item with view, describe the shape, and make the producer and consumer contracts agree.\n\n\n23.10.3 Consuming one queue channel twice incorrectly\nModern DSL2 supports safe channel reuse for process invocation patterns, but arbitrary operator combinations can still change timing and shape. Branch deliberately and name emitted outputs rather than assuming line order.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#verification-checkpoint",
+    "href": "chapters/23-channels-tuples-paired-files.html#verification-checkpoint",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.11 Verification checkpoint",
+    "text": "23.11 Verification checkpoint\ntest \"$(grep '^R1_reads=' results/04-paired-reads/mouse_A.pair_summary.txt)\" = 'R1_reads=2'\ntest \"$(grep '^R2_reads=' results/04-paired-reads/mouse_A.pair_summary.txt)\" = 'R2_reads=2'\ntest \"$(grep '^R1_reads=' results/04-paired-reads/mouse_B.pair_summary.txt)\" = 'R1_reads=1'\nAll three commands must exit zero. Matching counts do not prove correct pairing by themselves, but mismatching counts are a clear stop condition.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#what-changed-on-disk",
+    "href": "chapters/23-channels-tuples-paired-files.html#what-changed-on-disk",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.12 What changed on disk",
+    "text": "23.12 What changed on disk\nThe examples add separate task directories for each input item and published files named with their sample IDs. This is why task count grows with samples.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#try-it-yourself",
+    "href": "chapters/23-channels-tuples-paired-files.html#try-it-yourself",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.13 Try it yourself",
+    "text": "23.13 Try it yourself\nAdd mouse_C_R1.fastq without R2. Predict the behavior, run the example and explain whether the failure occurred at channel construction, task execution or scientific validation. Then restore the fixture.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#what-to-remember",
+    "href": "chapters/23-channels-tuples-paired-files.html#what-to-remember",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.14 What to remember",
+    "text": "23.14 What to remember\n\nState channel shapes explicitly.\nKeep sample identity and files together in tuples.\nPairing conventions are assumptions that must be validated.\nOperators transform shapes; they are not decorative syntax.\nOne channel item usually creates one task invocation.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#interview-grill",
+    "href": "chapters/23-channels-tuples-paired-files.html#interview-grill",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.15 Interview grill",
+    "text": "23.15 Interview grill\n\nWhat shape does fromFilePairs emit here?\nWhy is a sample ID a val?\nWhy are reads declared with path?\nWhat does map change in the many-samples example?\nWhat is the difference between a channel and a samplesheet?\nWhen is collect appropriate?\nHow would you diagnose a tuple-shape mismatch?\nWhy is equal R1/R2 count necessary but insufficient evidence?\nHow do output filenames avoid cohort collisions?\nWhat metadata checks belong before workflow execution?",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/23-channels-tuples-paired-files.html#primary-references",
+    "href": "chapters/23-channels-tuples-paired-files.html#primary-references",
+    "title": "23  Channels, tuples and paired files",
+    "section": "23.16 Primary references",
+    "text": "23.16 Primary references\n\nNextflow channel factories\nNextflow operators\nNextflow process inputs",
     "crumbs": [
       "Part VI — Nextflow DSL2 from first process to complete pipeline",
       "<span class='chapter-number'>23</span>  <span class='chapter-title'>Channels, tuples and paired files</span>"
@@ -1769,7 +2264,150 @@
     "href": "chapters/13-complete-dsl2-workflow.html",
     "title": "24  Complete the DSL2 workflow",
     "section": "",
-    "text": "This chapter adds paired trimming, post-trim QC, alignment and BAM validation. Each input/output declaration is related back to the corresponding manual files so readers can see how a shell pipeline becomes a dataflow graph.",
+    "text": "24.1 Why a biologist should care\nA workflow is trustworthy only when each automated step has the same scientific meaning as a command you already validated manually. “It ran in Nextflow” does not establish that trimming, alignment or QC is correct.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#engineering-objective",
+    "href": "chapters/13-complete-dsl2-workflow.html#engineering-objective",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.2 Engineering objective",
+    "text": "24.2 Engineering objective\nConnect two tiny processes, then apply the same contracts to the teaching NGS pipeline: raw QC, paired trimming, post-trim QC, alignment/sorting and BAM QC.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#before-you-type",
+    "href": "chapters/13-complete-dsl2-workflow.html#before-you-type",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.3 Before you type",
+    "text": "24.3 Before you type\nFinish the first four examples. Confirm that paired-read summaries exist, then run:\ncd examples/nextflow-basics\nnextflow run 05-two-step-workflow.nf",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#the-smallest-multi-step-workflow",
+    "href": "chapters/13-complete-dsl2-workflow.html#the-smallest-multi-step-workflow",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.4 The smallest multi-step workflow",
+    "text": "24.4 The smallest multi-step workflow\nThe graph is:\n[sample_id, R1, R2]\n          │\n          ▼\nSUMMARIZE_READS ──► [sample_id, counts.tsv]\n                              │\n                              ▼\n                         FORMAT_REPORT\nThe connection is only two lines:\nSUMMARIZE_READS(read_pairs)\nFORMAT_REPORT(SUMMARIZE_READS.out.counts)\nemit: counts names the output channel. The second process cannot start for a sample until the first process produces that sample’s tuple. No sleep, polling loop or scheduler dependency is needed.\nVerify:\ncat results/05-two-step/mouse_A.report.txt\ncat results/05-two-step/mouse_B.report.txt",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#move-from-toy-commands-to-bioinformatics",
+    "href": "chapters/13-complete-dsl2-workflow.html#move-from-toy-commands-to-bioinformatics",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.5 Move from toy commands to bioinformatics",
+    "text": "24.5 Move from toy commands to bioinformatics\nThe complete teaching pipeline has five process contracts:\n                       ┌────────────► FASTQC_RAW\npaired FASTQ tuples ───┤\n                       └────────────► TRIM_GALORE\n                                          │\n                            ┌─────────────┴─────────────┐\n                            ▼                           ▼\n                     FASTQC_TRIMMED                 ALIGN_SORT\n                                                        │\n                                                        ▼\n                                                      BAM_QC\nTranslate the trusted manual baseline one process at a time. Do not write all five processes and debug them simultaneously.\n\n24.5.1 Process 1: raw QC\nContract:\ninput:  sample ID plus R1/R2 paths\naction: FastQC on both mates\noutput: two HTML reports and two ZIP archives, still labeled by sample\nThe process should not search the filesystem itself. The workflow gives it the two declared files.\n\n\n24.5.2 Process 2: paired trimming\nContract:\ninput:  sample ID plus paired raw FASTQs\naction: Trim Galore in paired mode\noutput: sample ID plus paired trimmed FASTQs and trimming reports\nThe paired relationship must survive. Do not emit R1 and R2 into unrelated channels and later hope that arrival order reconstructs the pairs.\n\n\n24.5.3 Branch after trimming\nPost-trim FastQC and alignment both consume trimmed reads. They are independent after those files exist, so Nextflow may run them concurrently.\n\n\n24.5.4 Process 3: post-trim QC\nUse the same FastQC operation with a different process name and output location. Raw and trimmed QC answer different questions and must not overwrite one another.\n\n\n24.5.5 Process 4: align and sort\nThe trusted manual command may pipe aligner output into samtools sort. Keeping that pipe inside one process avoids writing a large SAM intermediate. The shell must use pipefail; otherwise an aligner failure can be hidden if sorting exits zero on incomplete input.\nContract:\ninput:  sample ID, trimmed pair and matching reference/index\naction: align paired reads and coordinate-sort the alignment\noutput: sample ID plus sorted BAM and alignment log\n\n\n24.5.6 Process 5: BAM QC\nIndex and validate the BAM, then create flagstat and idxstats summaries. Declare the BAM and BAI together when downstream tools require both.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#keep-process-code-and-site-policy-apart",
+    "href": "chapters/13-complete-dsl2-workflow.html#keep-process-code-and-site-policy-apart",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.6 Keep process code and site policy apart",
+    "text": "24.6 Keep process code and site policy apart\nPortable process logic should say that alignment needs CPUs and memory. A site configuration decides the executor, partition, account, queue and local cache paths. Hard-coding an institutional hostname or storage mount in main.nf makes the scientific graph less portable and risks publishing private details.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#output-contracts-are-scientific-checkpoints",
+    "href": "chapters/13-complete-dsl2-workflow.html#output-contracts-are-scientific-checkpoints",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.7 Output contracts are scientific checkpoints",
+    "text": "24.7 Output contracts are scientific checkpoints\nFile existence alone is a weak acceptance criterion. Combine Nextflow contracts with format-aware checks:\n\npaired trimmed FASTQs are nonempty and synchronized;\nsamtools quickcheck accepts the BAM;\nBAM is coordinate-sorted and indexable;\nFastQC reports exist for raw and trimmed data;\nmapping summaries contain expected sample/reference context;\nMultiQC or equivalent aggregation includes every intended sample.\n\nA process can exit zero while producing scientifically unusable output. The manual baseline defines what “usable” means for the fixture.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#publishing-strategy",
+    "href": "chapters/13-complete-dsl2-workflow.html#publishing-strategy",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.8 Publishing strategy",
+    "text": "24.8 Publishing strategy\nPublish reports and final deliverables. Leave rebuildable large intermediates in work/ unless operational requirements say otherwise. Avoid publishing two tasks to the same fixed filename.\nmode: 'copy' creates independent result files but consumes storage. Symlink publishing is lightweight but breaks if work/ is removed. Choose deliberately.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#common-failure-building-a-shell-script-with-nextflow-around-it",
+    "href": "chapters/13-complete-dsl2-workflow.html#common-failure-building-a-shell-script-with-nextflow-around-it",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.9 Common failure: building a shell script with Nextflow around it",
+    "text": "24.9 Common failure: building a shell script with Nextflow around it\nOne giant process containing the entire pipeline may run, but it loses task-level parallelism, caching, resource selection and failure isolation. A good process boundary usually corresponds to a tool invocation with a clear input/output contract and meaningful retry/resource behavior.\nDo not split merely to maximize process count. Passing terabytes between tiny processes can create unnecessary I/O. Boundaries are engineering decisions.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#verification-checkpoint",
+    "href": "chapters/13-complete-dsl2-workflow.html#verification-checkpoint",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.10 Verification checkpoint",
+    "text": "24.10 Verification checkpoint\nFor the two-step executable example:\ntest -s results/05-two-step/mouse_A.report.txt\ntest -s results/05-two-step/mouse_B.report.txt\ngrep -q $'mouse_A\\t2\\t2' results/05-two-step/mouse_A.report.txt\nFor the complete teaching workflow, the pass condition is the expected two raw FastQC reports, two trimmed FastQC reports, paired trimmed reads, a valid sorted BAM/BAI and nonempty flagstat/idxstats outputs for every fixture sample.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#what-changed-on-disk",
+    "href": "chapters/13-complete-dsl2-workflow.html#what-changed-on-disk",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.11 What changed on disk",
+    "text": "24.11 What changed on disk\nThe first process’s count file remains in work/ because only final reports are published. This demonstrates that downstream consumption does not require every intermediate to be copied into results/.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#try-it-yourself",
+    "href": "chapters/13-complete-dsl2-workflow.html#try-it-yourself",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.12 Try it yourself",
+    "text": "24.12 Try it yourself\nAdd a third process that combines all *.report.txt files into one cohort summary. Identify where collect is required and explain why that process must wait for all samples.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#what-to-remember",
+    "href": "chapters/13-complete-dsl2-workflow.html#what-to-remember",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.13 What to remember",
+    "text": "24.13 What to remember\n\nPort one validated manual step at a time.\nConnect processes using declared outputs, not filenames searched at runtime.\nPreserve metadata and pairs through every boundary.\nUse process boundaries to gain useful isolation, caching and resources.\nEngineering success and scientific acceptance are separate checks.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/13-complete-dsl2-workflow.html#interview-grill",
+    "href": "chapters/13-complete-dsl2-workflow.html#interview-grill",
+    "title": "24  Complete the DSL2 workflow",
+    "section": "24.14 Interview grill",
+    "text": "24.14 Interview grill\n\nWhy validate a command manually before automating it?\nWhat makes the second toy process wait?\nWhich real processes can run concurrently?\nWhy keep paired reads in one tuple?\nWhy use pipefail for aligner-to-sort pipes?\nWhat makes a useful process boundary?\nWhy not publish every intermediate?\nWhat is the risk of fixed output names across samples?\nWhat BAM checks go beyond nonempty-file testing?\nWhy is a complete scheduler run not enough for biological acceptance?",
     "crumbs": [
       "Part VI — Nextflow DSL2 from first process to complete pipeline",
       "<span class='chapter-number'>24</span>  <span class='chapter-title'>Complete the DSL2 workflow</span>"
@@ -1780,7 +2418,183 @@
     "href": "chapters/14-profiles-and-runtimes.html",
     "title": "25  Profiles and software runtimes",
     "section": "",
-    "text": "This chapter defines Conda-local, Singularity-local and SLURM-Singularity profiles. It explains the separation between workflow logic, software runtime and execution platform.",
+    "text": "25.1 Why a biologist should care\nEditing scientific code every time you move from a laptop to HPC makes review and reproduction difficult. Profiles let the same workflow select local, containerized or scheduled execution without embedding private site policy in the pipeline graph.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#engineering-objective",
+    "href": "chapters/14-profiles-and-runtimes.html#engineering-objective",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.2 Engineering objective",
+    "text": "25.2 Engineering objective\nUnderstand parameter, process, software-runtime and executor configuration; inspect resolved values before spending compute.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#four-questions-four-configuration-concerns",
+    "href": "chapters/14-profiles-and-runtimes.html#four-questions-four-configuration-concerns",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.3 Four questions, four configuration concerns",
+    "text": "25.3 Four questions, four configuration concerns\n\n\n\n\n\n\n\nQuestion\nTypical setting\n\n\n\n\nWhat data/analysis choice?\nparams.input, params.outdir, reference\n\n\nWhat does a task need?\ncpus, memory, time, labels\n\n\nWhich software environment?\ncontainer, Conda, Docker/Singularity enablement\n\n\nWhere does it run?\nlocal/Slurm executor, queue, account, cache paths\n\n\n\nParameters are not a good hiding place for every infrastructure option. A pipeline schema may reject or ignore invented keys. Inspect the pipeline’s declared parameters rather than assuming max_memory has meaning everywhere.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#before-you-type",
+    "href": "chapters/14-profiles-and-runtimes.html#before-you-type",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.4 Before you type",
+    "text": "25.4 Before you type\ncd examples/nextflow-basics\ncat nextflow.config\nThe local teaching examples need only standard shell tools, so no container is required. The configuration still demonstrates executor profiles.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#the-local-profile",
+    "href": "chapters/14-profiles-and-runtimes.html#the-local-profile",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.5 The local profile",
+    "text": "25.5 The local profile\nprofiles {\n    local {\n        process.executor = 'local'\n    }\n}\nRun:\nnextflow run 05-two-step-workflow.nf -profile local\nThe controller and tasks run on the same computer. This is suitable for tiny development fixtures, not automatically for full WGS/WGBS datasets.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#labels-and-selectors",
+    "href": "chapters/14-profiles-and-runtimes.html#labels-and-selectors",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.6 Labels and selectors",
+    "text": "25.6 Labels and selectors\nGive processes semantic resource classes:\nprocess FASTQC_RAW {\n    label 'small'\n    // contract omitted\n}\nConfigure the class:\nprocess {\n    withLabel: small {\n        cpus = 1\n        memory = 1.GB\n        time = 10.m\n    }\n}\nLabels keep resource intent out of repeated process code. withName targets a specific process and is useful when one expensive task needs an exception:\nprocess {\n    withName: BISMARK_ALIGN {\n        cpus = 12\n        memory = 72.GB\n        time = 8.d\n        maxForks = 10\n    }\n}\ntime is a termination ceiling, not a prediction. maxForks = 10 limits how many matching tasks run concurrently; it does not split a sample into ten.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#containers-separate-software-from-the-host",
+    "href": "chapters/14-profiles-and-runtimes.html#containers-separate-software-from-the-host",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.7 Containers separate software from the host",
+    "text": "25.7 Containers separate software from the host\nA process can declare an OCI image:\nprocess FASTQC_RAW {\n    container 'quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0'\n}\nThen a profile enables a compatible runtime:\nprofiles {\n    docker_local {\n        process.executor = 'local'\n        docker.enabled = true\n    }\n\n    singularity_local {\n        process.executor = 'local'\n        singularity.enabled = true\n        singularity.autoMounts = true\n    }\n}\nThe container supplies FastQC. Java still runs Nextflow on the host. Slurm still schedules tasks. Containers do not replace either layer.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#slurm-plus-singularity",
+    "href": "chapters/14-profiles-and-runtimes.html#slurm-plus-singularity",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.8 Slurm plus Singularity",
+    "text": "25.8 Slurm plus Singularity\nA sanitized profile has this shape:\nprofiles {\n    slurm_singularity {\n        process.executor = 'slurm'\n        singularity.enabled = true\n        singularity.autoMounts = true\n        singularity.cacheDir = '/project/xxx/container-cache'\n    }\n}\nQueue, account and cluster-specific options belong in a private site config:\nprocess {\n    queue = 'xxx'\n    clusterOptions = '--account=xxx'\n}\nDo not publish private paths, accounts or internal topology. Provide a tracked example with placeholders and ignore the real local file.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#keep-caches-off-small-home-quotas",
+    "href": "chapters/14-profiles-and-runtimes.html#keep-caches-off-small-home-quotas",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.9 Keep caches off small home quotas",
+    "text": "25.9 Keep caches off small home quotas\nNextflow framework files, pipeline assets and container images can exceed a small home quota. On HPC, configure stable project/scratch locations:\nexport NXF_HOME=/project/xxx/nextflow_home\nexport NXF_SINGULARITY_CACHEDIR=/project/xxx/singularity_cache\nexport SINGULARITY_CACHEDIR=\"$NXF_SINGULARITY_CACHEDIR\"\nSet these before Nextflow starts. Confirm that compute nodes can read the location and multiple jobs will not corrupt a site-incompatible cache.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#inspect-resolved-configuration",
+    "href": "chapters/14-profiles-and-runtimes.html#inspect-resolved-configuration",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.10 Inspect resolved configuration",
+    "text": "25.10 Inspect resolved configuration\nDo not infer active policy by reading one file. Nextflow merges configuration from several sources. Ask it:\nnextflow config -profile local -o flat . | less\nFor a cached remote pipeline, provide its project directory and relevant -c files. nextflow config options belong to the config command; pipeline revision flags accepted by run are not automatically valid there.\nUseful checks:\nnextflow config -profile local -o flat . \\\n  | grep -E 'process.executor|docker.enabled|singularity.enabled'\nExpected local executor:\nprocess.executor = 'local'",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#configuration-precedence",
+    "href": "chapters/14-profiles-and-runtimes.html#configuration-precedence",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.11 Configuration precedence",
+    "text": "25.11 Configuration precedence\nNextflow can read user, project, launch-directory and explicit configuration. Command-line -c files add another layer. Profiles are merged according to the active Nextflow syntax/version rules. Always inspect the resolved configuration when correctness or cost depends on precedence.\nPin the Nextflow and pipeline versions used for validation. “Latest” is useful for exploration but weak provenance for production.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#common-failures",
+    "href": "chapters/14-profiles-and-runtimes.html#common-failures",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.12 Common failures",
+    "text": "25.12 Common failures\n\n25.12.1 Container works interactively but not in Nextflow\nInspect .command.run for the actual runtime command and bind mounts. Confirm the cache and every input/reference path are visible on the compute node and inside the container.\n\n\n25.12.2 Java crashes on a login node\nThis is a host/runtime problem before the biological workflow starts. Load the validated module in a compute allocation; do not repeatedly test heavy Java on a constrained login node.\n\n\n25.12.3 Requested resources exceed policy\nUse nextflow config and generated scheduler directives to find the source of the request. Apply site-approved resourceLimits only when needed; a low cap can make tools slow or cause out-of-memory failure.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#verification-checkpoint",
+    "href": "chapters/14-profiles-and-runtimes.html#verification-checkpoint",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.13 Verification checkpoint",
+    "text": "25.13 Verification checkpoint\nnextflow config -profile local -o flat . \\\n  | grep \"process.executor = 'local'\"\nBefore HPC execution, similarly prove Slurm, Singularity, cache path and resource selectors resolve to reviewed values.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#try-it-yourself",
+    "href": "chapters/14-profiles-and-runtimes.html#try-it-yourself",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.14 Try it yourself",
+    "text": "25.14 Try it yourself\nCreate a debug profile that limits every task to 2 CPUs and 4 GB. Explain why that profile is useful for small fixtures but should not be used to estimate a production aligner’s performance.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#what-to-remember",
+    "href": "chapters/14-profiles-and-runtimes.html#what-to-remember",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.15 What to remember",
+    "text": "25.15 What to remember\n\nPipeline logic, tools, runtime and executor are separate layers.\nProfiles switch reviewed configurations without editing workflow code.\nInspect resolved configuration before expensive execution.\nPut caches on suitable storage and keep real site policy private.\nResource requests are hypotheses refined by measured traces.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#interview-grill",
+    "href": "chapters/14-profiles-and-runtimes.html#interview-grill",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.16 Interview grill",
+    "text": "25.16 Interview grill\n\nWhat is the difference between a container and an executor?\nWhat remains on the host when Singularity runs task software?\nWhy use process labels?\nWhat does maxForks control?\nWhy is time = 8.d not a runtime estimate?\nWhere should scheduler accounts be configured?\nWhy can home quota break Nextflow startup?\nHow do you prove which config won?\nWhat is the risk of unsupported YAML parameters?\nWhy pin workflow and Nextflow versions?",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/14-profiles-and-runtimes.html#primary-references",
+    "href": "chapters/14-profiles-and-runtimes.html#primary-references",
+    "title": "25  Profiles and software runtimes",
+    "section": "25.17 Primary references",
+    "text": "25.17 Primary references\n\nNextflow configuration\nNextflow process directives\nNextflow containers",
     "crumbs": [
       "Part VI — Nextflow DSL2 from first process to complete pipeline",
       "<span class='chapter-number'>25</span>  <span class='chapter-title'>Profiles and software runtimes</span>"
@@ -1791,7 +2605,172 @@
     "href": "chapters/16-testing-and-resume.html",
     "title": "26  Failure tests and resume caching",
     "section": "",
-    "text": "This chapter deliberately supplies a missing input pattern, checks the nonzero exit code and interprets the error. It then uses -resume and a trace file to prove that all five completed tasks were restored from cache.",
+    "text": "26.1 Why a biologist should care\nLarge analyses fail. Storage disconnects, files are mislabeled, memory is underestimated and controller wall-times expire. A reproducible workflow must fail visibly, preserve evidence and avoid repeating correct expensive work.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#engineering-objective",
+    "href": "chapters/16-testing-and-resume.html#engineering-objective",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.2 Engineering objective",
+    "text": "26.2 Engineering objective\nRun a negative test, diagnose a task from evidence, demonstrate cache reuse and collect trace/report/timeline/DAG artifacts.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#before-you-type",
+    "href": "chapters/16-testing-and-resume.html#before-you-type",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.3 Before you type",
+    "text": "26.3 Before you type\ncd examples/nextflow-basics\nnextflow run 05-two-step-workflow.nf -profile local\nConfirm the successful baseline before testing failure. A negative test is only informative when the positive control works.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#fail-before-analysis-with-input-validation",
+    "href": "chapters/16-testing-and-resume.html#fail-before-analysis-with-input-validation",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.4 Fail before analysis with input validation",
+    "text": "26.4 Fail before analysis with input validation\nSupply a pattern that matches nothing:\nnextflow run 04-paired-reads.nf \\\n  --reads 'data/reads/DOES_NOT_EXIST_{R1,R2}.fastq'\nExpected outcome: nonzero exit and an error indicating that no files matched. That is a good failure because checkIfExists: true stops before task execution.\nImmediately record the shell status when scripting a test:\nnextflow run 04-paired-reads.nf \\\n  --reads 'data/reads/DOES_NOT_EXIST_{R1,R2}.fastq'\nstatus=$?\ntest \"$status\" -ne 0\nDo not use set -e around a deliberately failing command unless the test harness temporarily handles the expected nonzero status.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#diagnose-in-evidence-order",
+    "href": "chapters/16-testing-and-resume.html#diagnose-in-evidence-order",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.5 Diagnose in evidence order",
+    "text": "26.5 Diagnose in evidence order\nWhen a real task fails, inspect:\n\nthe concise terminal error;\n.nextflow.log for controller context;\nthe indicated task directory;\n.command.sh for the generated scientific command;\n.command.err and .command.log for tool/runtime messages;\n.command.run for container, staging and scheduler details;\n.exitcode when created;\nscheduler state/accounting for termination, memory and time evidence.\n\nSeparate the failure layer:\n\n\n\nEvidence\nLikely layer\n\n\n\n\nJava crash before launch\nhost/Nextflow runtime\n\n\nimage pull or bind error\ncontainer runtime/storage\n\n\npending with scheduler reason\nexecutor/site policy\n\n\nexit 137 or OOM event\ntask memory/resource policy\n\n\ntool rejects FASTQ\ninput/tool/scientific layer\n\n\nmissing declared output\nprocess contract or tool behavior\n\n\n\nDo not increase memory merely because a job failed. Find evidence of memory exhaustion first.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#resume-a-matching-run",
+    "href": "chapters/16-testing-and-resume.html#resume-a-matching-run",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.6 Resume a matching run",
+    "text": "26.6 Resume a matching run\nRun the successful workflow again:\nnextflow run 05-two-step-workflow.nf -profile local -resume\nThe status should report cached tasks. Nextflow reuses a successful task when its cache key still matches and its work data are available.\nChanges that commonly invalidate a task include:\n\ninput content or metadata;\nprocess script or relevant directives;\nreferenced executable/container configuration;\nsome environment or global variables used by the task;\ncache mode and other relevant configuration.\n\nChanging a README should not rerun an unrelated task. Changing the sample ID or command should.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#resume-is-not-a-backup",
+    "href": "chapters/16-testing-and-resume.html#resume-is-not-a-backup",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.7 Resume is not a backup",
+    "text": "26.7 Resume is not a backup\nThe cache depends on .nextflow/ metadata and work/ outputs. If either is deleted, -resume cannot recover the task merely because a copy exists in results/. Preserve work until the run is accepted and no restart is needed.\nUse nextflow clean only after reviewing its target and retention policy. Do not run broad deletion commands copied from another project.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#generate-execution-evidence",
+    "href": "chapters/16-testing-and-resume.html#generate-execution-evidence",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.8 Generate execution evidence",
+    "text": "26.8 Generate execution evidence\nUse job-specific names so reruns do not collide:\nRUN_ID=$(date +%Y%m%d-%H%M%S)\n\nnextflow run 05-two-step-workflow.nf \\\n  -profile local \\\n  -resume \\\n  -with-trace \"logs/${RUN_ID}.trace.tsv\" \\\n  -with-report \"logs/${RUN_ID}.report.html\" \\\n  -with-timeline \"logs/${RUN_ID}.timeline.html\" \\\n  -with-dag \"logs/${RUN_ID}.dag.html\"\nCreate logs/ first. The trace supports task-level runtime, CPU, memory, I/O, status, hashes and native scheduler IDs. Columns can change by Nextflow version, so inspect the header:\nhead -n 1 logs/*.trace.tsv\nThe HTML report and timeline help explain performance. The DAG shows intended dependencies, not proof that biological outputs are correct.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#retries-and-resource-escalation",
+    "href": "chapters/16-testing-and-resume.html#retries-and-resource-escalation",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.9 Retries and resource escalation",
+    "text": "26.9 Retries and resource escalation\nRetries are appropriate for selected transient failures, not invalid FASTQs or wrong references. A common policy pattern is:\nprocess {\n    errorStrategy = { task.exitStatus in 137..140 ? 'retry' : 'terminate' }\n    maxRetries = 2\n    memory = { 8.GB * task.attempt }\n}\nTreat this as a design example, not a universal copy-paste policy. Confirm site exit-code meaning, node capacity and maximum resource limits. Record retries in the final evidence.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#production-monitoring-checkpoints",
+    "href": "chapters/16-testing-and-resume.html#production-monitoring-checkpoints",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.10 Production monitoring checkpoints",
+    "text": "26.10 Production monitoring checkpoints\nFor a controller job on Slurm:\nsqueue -j CONTROLLER_JOB_ID\nsqueue -u \"$USER\" -o \"%.18i %.55j %.2t %.10M %.30R\"\ntail -n 60 logs/workflow.CONTROLLER_JOB_ID.out\ntail -n 40 logs/workflow.CONTROLLER_JOB_ID.err\nMultiple nf-... jobs can be different processes for one sample. An empty squeue response means a job is no longer queued/running; inspect the final log for Pipeline completed successfully and verify outputs.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#verification-checkpoint",
+    "href": "chapters/16-testing-and-resume.html#verification-checkpoint",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.11 Verification checkpoint",
+    "text": "26.11 Verification checkpoint\nPass when:\n\nthe missing-input test exits nonzero before any task starts;\nthe unchanged rerun reports every eligible task as cached;\ntrace, report, timeline and DAG are nonempty;\nrequired outputs remain valid; and\nthe run manifest records the command, versions, inputs and checksums.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning",
+    "href": "chapters/16-testing-and-resume.html#common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.12 Common failure: treating a warning as an error—or an error as a warning",
+    "text": "26.12 Common failure: treating a warning as an error—or an error as a warning\nAn “updated Nextflow version available” message is informational when a project intentionally pins a validated version. A plugin version requirement, corrupt JAR, missing index or nonzero task exit is actionable. Classify messages by their effect and evidence, not by whether they appear on stderr.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#try-it-yourself",
+    "href": "chapters/16-testing-and-resume.html#try-it-yourself",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.13 Try it yourself",
+    "text": "26.13 Try it yourself\nChange only the report heading in FORMAT_REPORT, run with -resume and predict which process is cached. Use the trace to prove the answer.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#what-to-remember",
+    "href": "chapters/16-testing-and-resume.html#what-to-remember",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.14 What to remember",
+    "text": "26.14 What to remember\n\nTest expected failure as well as success.\nDiagnose the failing layer before changing resources.\nResume reuses matching work; it is not a substitute for backup.\nPreserve job-specific trace and HTML execution evidence.\nScheduler disappearance is not a success criterion.",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#interview-grill",
+    "href": "chapters/16-testing-and-resume.html#interview-grill",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.15 Interview grill",
+    "text": "26.15 Interview grill\n\nWhat makes a negative test useful?\nWhere do you find the exact command that failed?\nWhat does exit 137 suggest, and what must you verify?\nWhich changes invalidate cache?\nWhy does results/ not guarantee resume?\nWhat does the native ID in a trace represent?\nWhen is retry appropriate?\nWhy use job-specific report filenames?\nHow do you distinguish one sample from multiple task jobs?\nWhat evidence proves final success?",
+    "crumbs": [
+      "Part VI — Nextflow DSL2 from first process to complete pipeline",
+      "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/16-testing-and-resume.html#primary-references",
+    "href": "chapters/16-testing-and-resume.html#primary-references",
+    "title": "26  Failure tests and resume caching",
+    "section": "26.16 Primary references",
+    "text": "26.16 Primary references\n\nNextflow cache and resume\nNextflow reports\nNextflow error strategies",
     "crumbs": [
       "Part VI — Nextflow DSL2 from first process to complete pipeline",
       "<span class='chapter-number'>26</span>  <span class='chapter-title'>Failure tests and resume caching</span>"
@@ -1802,7 +2781,172 @@
     "href": "chapters/15-slurm-execution.html",
     "title": "27  Submit tasks through SLURM",
     "section": "",
-    "text": "This chapter examines the SLURM executor, resource requests and generated #SBATCH directives. It verifies that each of the five processes ran as a scheduled job inside the intended container.",
+    "text": "27.1 Why a biologist should care\nRunning nextflow inside one large allocation and letting it execute every tool locally wastes scheduler capabilities and makes resource use opaque. With the Slurm executor, Nextflow submits each process task with resources appropriate to that task.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#engineering-objective",
+    "href": "chapters/15-slurm-execution.html#engineering-objective",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.2 Engineering objective",
+    "text": "27.2 Engineering objective\nLaunch a small controller, let it submit task jobs, connect console hashes to work directories and native Slurm IDs, and verify generated #SBATCH and container evidence.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#mental-model",
+    "href": "chapters/15-slurm-execution.html#mental-model",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.3 Mental model",
+    "text": "27.3 Mental model\nsbatch controller.sbatch\n          │\n          ▼\nsmall Nextflow controller job\n          │ creates task wrapper and calls sbatch\n          ├────────► FastQC task job\n          ├────────► trimming task job\n          └────────► alignment task job (when inputs are ready)\nThe controller needs Java, Nextflow, scheduler commands and enough time to coordinate the workflow. Task software normally runs in containers. The controller’s memory request is not inherited as every task’s memory request.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#before-you-type",
+    "href": "chapters/15-slurm-execution.html#before-you-type",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.4 Before you type",
+    "text": "27.4 Before you type\nConfirm local site policy:\n\npermitted partition/account and maximum wall-time;\ncompute-visible project/scratch storage;\nJava and Singularity/Apptainer module names;\nwhether Nextflow itself may run on a login node;\ncontainer pull policy and cache location; and\nscheduler submission-rate limits.\n\nUse placeholders in tracked examples and keep real values in an ignored site configuration.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#site-configuration",
+    "href": "chapters/15-slurm-execution.html#site-configuration",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.5 Site configuration",
+    "text": "27.5 Site configuration\nA private configuration might contain:\nprocess {\n    executor = 'slurm'\n    queue = 'xxx'\n    clusterOptions = '--account=xxx'\n\n    withLabel: small {\n        cpus = 2\n        memory = 4.GB\n        time = 2.h\n    }\n\n    withName: ALIGN_SORT {\n        cpus = 8\n        memory = 32.GB\n        time = 24.h\n    }\n}\n\nexecutor {\n    queueSize = 30\n    submitRateLimit = '2 sec'\n}\n\nsingularity {\n    enabled = true\n    autoMounts = true\n    cacheDir = '/project/xxx/singularity_cache'\n}\nqueueSize limits tasks handled by the executor queue. submitRateLimit protects the scheduler from bursts. Process maxForks limits concurrent tasks matching a process/selector. These controls solve different problems.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#controller-script",
+    "href": "chapters/15-slurm-execution.html#controller-script",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.6 Controller script",
+    "text": "27.6 Controller script\nA sanitized controller has this shape:\n#!/usr/bin/env bash\n#SBATCH --job-name=nextflow-controller\n#SBATCH --nodes=1\n#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=2\n#SBATCH --mem=4G\n#SBATCH --time=24:00:00\n#SBATCH --output=logs/%x.%j.out\n#SBATCH --error=logs/%x.%j.err\n\nset -euo pipefail\n\nsource /etc/profile.d/lmod.sh\nmodule purge\nmodule load java/xxx\nmodule load singularity/xxx\n\nexport NXF_HOME=/project/xxx/nextflow_home\nexport NXF_SINGULARITY_CACHEDIR=/project/xxx/singularity_cache\n\nnextflow run . \\\n  -profile slurm_singularity \\\n  -c conf/site.local.config \\\n  -resume \\\n  -with-trace \"logs/${SLURM_JOB_ID}.trace.tsv\"\nSubmit from a predictable directory:\nmkdir -p logs\nsbatch bin/run_pipeline.sbatch\nThe printed ID belongs to the controller. Nextflow task jobs receive their own Slurm IDs.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#monitor-without-confusing-tasks-and-samples",
+    "href": "chapters/15-slurm-execution.html#monitor-without-confusing-tasks-and-samples",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.7 Monitor without confusing tasks and samples",
+    "text": "27.7 Monitor without confusing tasks and samples\nsqueue -j CONTROLLER_JOB_ID\nsqueue -u \"$USER\" -o \"%.18i %.55j %.2t %.10M %.30R\"\nFor one paired sample you may see FastQC and Trim Galore jobs simultaneously. Later only alignment may remain. This reflects workflow concurrency.\nRead the controller output:\ntail -n 60 logs/nextflow-controller.CONTROLLER_JOB_ID.out\ntail -n 40 logs/nextflow-controller.CONTROLLER_JOB_ID.err\nRepeated process tables are terminal refreshes captured in a log, not repeated executions. 0 of 1 means submitted/running; 1 of 1 ✔ means completed.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#inspect-generated-slurm-directives",
+    "href": "chapters/15-slurm-execution.html#inspect-generated-slurm-directives",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.8 Inspect generated Slurm directives",
+    "text": "27.8 Inspect generated Slurm directives\nUse the console hash or trace work directory, then:\ngrep '^#SBATCH' /project/xxx/work/ab/cdef*/.command.run\nExpected shape:\n#SBATCH -J nf-...ALIGN_SORT_(sample)\n#SBATCH -c 8\n#SBATCH --mem 32768M\n#SBATCH -t 24:00:00\nThis is stronger evidence than assuming configuration was applied. Inspect the same wrapper for singularity exec or apptainer exec and the resolved image.\ngrep -E 'singularity exec|apptainer exec|container:' \\\n  /project/xxx/work/ab/cdef*/.command.run",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#requested-versus-used-resources",
+    "href": "chapters/15-slurm-execution.html#requested-versus-used-resources",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.9 Requested versus used resources",
+    "text": "27.9 Requested versus used resources\nSlurm requests prevent task placement beyond declared limits; they do not prove software used those resources. Combine Nextflow trace and site accounting:\nsstat -j TASK_JOB_ID.batch \\\n  --format=JobID,AveCPU,AveRSS,MaxRSS,MaxVMSize\n\nsacct -j TASK_JOB_ID \\\n  --format=JobID,JobName,State,Elapsed,AllocCPUS,ReqMem,MaxRSS,ExitCode\nAccounting availability and units vary by site. For a completed pilot, compare:\n\nallocated CPUs with %cpu/CPU efficiency;\nrequested memory with peak RSS;\nrequested time with actual duration;\nread/write I/O with storage planning;\nretries and queue delays.\n\nKeep headroom. Do not request a full node merely because it exists, and do not lower memory to the measured peak with no safety margin.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#real-world-wgbs-case-study",
+    "href": "chapters/15-slurm-execution.html#real-world-wgbs-case-study",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.10 Real-world WGBS case study",
+    "text": "27.10 Real-world WGBS case study\nA sanitized production qualification followed three gates:\n\ntiny nf-core smoke test for installation and container/scheduler plumbing;\n10-million-read-pair real WGBS pilot for reference compatibility and performance measurement;\none complete paired sample for whole-sample QC, runtime, storage and MultiQC acceptance before a 30-sample cohort.\n\nThe pilot showed that alignment dominated runtime and efficiently used 12 CPUs, with peak memory well below its 72 GB request. A shared-resource policy limited future concurrent Bismark alignments to ten. That limit controls cohort impact; it does not split or independently deduplicate a biological sample.\nThe complete-sample qualification was launched in a separate project root with its own work/, caches, logs and results. The result must not be presented as validated until the final success marker, BAM/BAI, methylation coverage, MultiQC, trace, checksums and private provenance have been reviewed.\nThis case teaches a general rule: benchmark small, qualify one complete unit, then scale under a measured concurrency policy.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#common-failures",
+    "href": "chapters/15-slurm-execution.html#common-failures",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.11 Common failures",
+    "text": "27.11 Common failures\n\n27.11.1 Controller disappears from squeue\nIt finished, failed or was cancelled. Inspect the final controller log and accounting. Empty squeue is not proof of success.\n\n\n27.11.2 Task remains pending\nRead NODELIST(REASON) or scontrol show job. A request for excessive memory, invalid account or dependency differs from ordinary queue wait.\n\n\n27.11.3 Controller wall-time expires before cohort completion\nRelaunch the same workflow with identical parameters, work directory and -resume after diagnosing the stop. Completed matching tasks should be cached. For future cohorts, choose a longer permitted controller limit or sequential waves with adequate margin.\n\n\n27.11.4 Home quota breaks Nextflow or image pulls\nMove NXF_HOME, work and container caches to approved project/scratch storage. Remove corrupt partial downloads only after resolving exact targets.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#verification-checkpoint",
+    "href": "chapters/15-slurm-execution.html#verification-checkpoint",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.12 Verification checkpoint",
+    "text": "27.12 Verification checkpoint\nPass only if:\n\nevery intended process appears as a distinct Slurm task;\ngenerated directives match reviewed CPU, memory and time policy;\ntask wrappers show the intended container runtime/image;\ncontroller log ends with pipeline success;\ntrace native IDs map to scheduler evidence; and\nrequired scientific outputs pass format and QC checks.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#try-it-yourself",
+    "href": "chapters/15-slurm-execution.html#try-it-yourself",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.13 Try it yourself",
+    "text": "27.13 Try it yourself\nGiven 30 samples and an alignment process with maxForks = 10, predict how many alignments can run concurrently and whether FastQC tasks are also limited by that selector. Explain how queueSize changes the answer.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#what-to-remember",
+    "href": "chapters/15-slurm-execution.html#what-to-remember",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.14 What to remember",
+    "text": "27.14 What to remember\n\nNextflow is a scheduler client; the controller and task jobs are different.\nOne sample can create many task jobs.\nVerify generated wrappers rather than trusting intended configuration.\nTune from measured use while preserving headroom and shared-resource policy.\nScale only after a representative complete unit passes acceptance.",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#interview-grill",
+    "href": "chapters/15-slurm-execution.html#interview-grill",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.15 Interview grill",
+    "text": "27.15 Interview grill\n\nWhy not run every task locally inside one large Slurm allocation?\nWhat resources does the controller need?\nHow do you map a task to a Slurm job ID?\nWhat is the difference between maxForks and queueSize?\nHow do you prove Singularity executed the task?\nWhy might a job request 72 GB but use 39 GB?\nHow do you diagnose pending state?\nWhat survives a controller timeout?\nWhy run a complete sample before a cohort?\nWhat evidence separates scheduler success from analytical success?",
+    "crumbs": [
+      "Part VII — Schedulers, CI/CD and reproducible delivery",
+      "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/15-slurm-execution.html#primary-references",
+    "href": "chapters/15-slurm-execution.html#primary-references",
+    "title": "27  Submit tasks through SLURM",
+    "section": "27.16 Primary references",
+    "text": "27.16 Primary references\n\nNextflow Slurm executor\nNextflow process directives\nSlurm documentation",
     "crumbs": [
       "Part VII — Schedulers, CI/CD and reproducible delivery",
       "<span class='chapter-number'>27</span>  <span class='chapter-title'>Submit tasks through SLURM</span>"

@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-77f877a8bbdaf906de76408b5606b2fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -455,8 +490,31 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">21.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">21.2</span> Engineering objective</a></li>
+  <li><a href="#start-from-a-manual-command" id="toc-start-from-a-manual-command" class="nav-link" data-scroll-target="#start-from-a-manual-command"><span class="header-section-number">21.3</span> Start from a manual command</a></li>
+  <li><a href="#process-versus-task" id="toc-process-versus-task" class="nav-link" data-scroll-target="#process-versus-task"><span class="header-section-number">21.4</span> Process versus task</a></li>
+  <li><a href="#processes-are-contracts" id="toc-processes-are-contracts" class="nav-link" data-scroll-target="#processes-are-contracts"><span class="header-section-number">21.5</span> Processes are contracts</a></li>
+  <li><a href="#values-paths-and-tuples" id="toc-values-paths-and-tuples" class="nav-link" data-scroll-target="#values-paths-and-tuples"><span class="header-section-number">21.6</span> Values, paths and tuples</a></li>
+  <li><a href="#channels-carry-data" id="toc-channels-carry-data" class="nav-link" data-scroll-target="#channels-carry-data"><span class="header-section-number">21.7</span> Channels carry data</a></li>
+  <li><a href="#workflow-block" id="toc-workflow-block" class="nav-link" data-scroll-target="#workflow-block"><span class="header-section-number">21.8</span> Workflow block</a></li>
+  <li><a href="#task-work-directories" id="toc-task-work-directories" class="nav-link" data-scroll-target="#task-work-directories"><span class="header-section-number">21.9</span> Task work directories</a></li>
+  <li><a href="#work-is-not-results" id="toc-work-is-not-results" class="nav-link" data-scroll-target="#work-is-not-results"><span class="header-section-number">21.10</span> Work is not results</a></li>
+  <li><a href="#executor-mental-model" id="toc-executor-mental-model" class="nav-link" data-scroll-target="#executor-mental-model"><span class="header-section-number">21.11</span> Executor mental model</a></li>
+  <li><a href="#cache-and--resume" id="toc-cache-and--resume" class="nav-link" data-scroll-target="#cache-and--resume"><span class="header-section-number">21.12</span> Cache and <code>-resume</code></a></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">21.13</span> Verification checkpoint</a></li>
+  <li><a href="#common-failure-reading-the-console-as-a-sample-count" id="toc-common-failure-reading-the-console-as-a-sample-count" class="nav-link" data-scroll-target="#common-failure-reading-the-console-as-a-sample-count"><span class="header-section-number">21.14</span> Common failure: reading the console as a sample count</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">21.15</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">21.16</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">21.17</span> Interview grill</a></li>
+  <li><a href="#primary-references" id="toc-primary-references" class="nav-link" data-scroll-target="#primary-references"><span class="header-section-number">21.18</span> Primary references</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/11-nextflow-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -480,9 +538,239 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter introduces processes, channels, values, paths, task working directories, dataflow and <code>publishDir</code> without yet constructing the complete workflow.</p>
+<div class="chapter-goals">
+<p><strong>By the end of this chapter, you will be able to:</strong></p>
+<ul>
+<li>explain what Nextflow does without calling it an aligner or scheduler;</li>
+<li>distinguish a process definition from the tasks it creates;</li>
+<li>describe channels as streams of data with explicit shapes;</li>
+<li>explain why each task receives its own work directory;</li>
+<li>predict which steps can run concurrently; and</li>
+<li>separate workflow logic, software, execution platform and results.</li>
+</ul>
+</div>
+<section id="why-a-biologist-should-care" class="level2" data-number="21.1">
+<h2 data-number="21.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">21.1</span> Why a biologist should care</h2>
+<p>A manual analysis often becomes a notebook of commands: run QC, trim reads, align, sort, deduplicate and calculate summaries. The commands may be correct, but the notebook does not automatically remember which outputs belong to which inputs, which steps may run together, or which completed work can be reused.</p>
+<p>Nextflow describes those relationships. It launches ordinary programs when their declared inputs become available, records task evidence and connects outputs to downstream steps.</p>
+<p>Nextflow does <strong>not</strong> perform alignment, trimming or methylation calling. Those jobs belong to tools such as Bismark, Bowtie2, Trim Galore and FastQC.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="21.2">
+<h2 data-number="21.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">21.2</span> Engineering objective</h2>
+<p>Learn this sentence:</p>
+<blockquote class="blockquote">
+<p>Nextflow is a workflow engine that moves values and files through declared process contracts and delegates each resulting task to an executor.</p>
+</blockquote>
+<p>That sentence contains the important layers:</p>
+<pre class="text"><code>pipeline code     process contracts and data connections
+software          FastQC, Bismark, SAMtools, ordinary shell commands
+runtime           Conda, Docker, Singularity/Apptainer
+executor          local computer, Slurm, cloud batch service
+storage           inputs, work directories, published results, caches</code></pre>
+<p>Changing the executor should not change the scientific intention of the workflow. It changes where tasks run.</p>
+</section>
+<section id="start-from-a-manual-command" class="level2" data-number="21.3">
+<h2 data-number="21.3" class="anchored" data-anchor-id="start-from-a-manual-command"><span class="header-section-number">21.3</span> Start from a manual command</h2>
+<p>Suppose you can count lines in one file manually:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-l</span> sample.txt <span class="op">&gt;</span> sample.line_count.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A workflow representation must answer:</p>
+<ol type="1">
+<li>What file is the input?</li>
+<li>What command runs?</li>
+<li>What output proves completion?</li>
+<li>What should receive that output next?</li>
+<li>Where should the task run and with which software and resources?</li>
+</ol>
+<p>Nextflow separates these answers instead of hiding them in one long script.</p>
+</section>
+<section id="process-versus-task" class="level2" data-number="21.4">
+<h2 data-number="21.4" class="anchored" data-anchor-id="process-versus-task"><span class="header-section-number">21.4</span> Process versus task</h2>
+<p>A <strong>process</strong> is a reusable recipe. A <strong>task</strong> is one execution of that recipe for one set of inputs.</p>
+<pre class="text"><code>process COUNT_LINES
+        │
+        ├── task for alpha.txt
+        ├── task for beta.txt
+        └── task for gamma.txt</code></pre>
+<p>This distinction explains Slurm output that surprises beginners. One biological sample can generate multiple scheduler jobs because FastQC, trimming, alignment and reporting are different tasks. Conversely, one process can generate 30 tasks when 30 samples arrive.</p>
+</section>
+<section id="processes-are-contracts" class="level2" data-number="21.5">
+<h2 data-number="21.5" class="anchored" data-anchor-id="processes-are-contracts"><span class="header-section-number">21.5</span> Processes are contracts</h2>
+<p>A process normally has four important sections:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>process COUNT_LINES <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    input<span class="op">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    path sample_file</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    output<span class="op">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    path <span class="st">'count.txt'</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    script<span class="op">:</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">    wc -l &lt; </span><span class="ss">${</span>sample_file<span class="ss">}</span><span class="st"> &gt; count.txt</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>input</code> declares what the task needs.</li>
+<li><code>output</code> declares what successful execution must create.</li>
+<li><code>script</code> contains the command executed by the task.</li>
+<li>directives placed above <code>input</code>, such as <code>cpus</code>, <code>memory</code>, <code>container</code>, <code>tag</code> and <code>publishDir</code>, describe execution behavior.</li>
+</ul>
+<p>If the command exits zero but does not create <code>count.txt</code>, the process fails because its output contract was not satisfied.</p>
+</section>
+<section id="values-paths-and-tuples" class="level2" data-number="21.6">
+<h2 data-number="21.6" class="anchored" data-anchor-id="values-paths-and-tuples"><span class="header-section-number">21.6</span> Values, paths and tuples</h2>
+<p>A channel item has a <strong>shape</strong>. Say the shape aloud before writing compact syntax.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Shape</th>
+<th>Example</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>value</td>
+<td><code>"mouse_A"</code></td>
+<td>sample ID, threshold, mode</td>
+</tr>
+<tr class="even">
+<td>path</td>
+<td><code>/data/mouse_A_R1.fastq.gz</code></td>
+<td>a staged file</td>
+</tr>
+<tr class="odd">
+<td>tuple</td>
+<td><code>["mouse_A", R1, R2]</code></td>
+<td>metadata kept with paired files</td>
+</tr>
+<tr class="even">
+<td>stream of tuples</td>
+<td>one tuple per sample</td>
+<td>a cohort</td>
+</tr>
+</tbody>
+</table>
+<p><code>val</code> inputs are ordinary values. <code>path</code> inputs tell Nextflow that a filesystem object must be staged into the task directory. A tuple keeps related values together while they travel through the workflow.</p>
+</section>
+<section id="channels-carry-data" class="level2" data-number="21.7">
+<h2 data-number="21.7" class="anchored" data-anchor-id="channels-carry-data"><span class="header-section-number">21.7</span> Channels carry data</h2>
+<p>A channel is not a directory and not a CSV file. It is the runtime connection through which values move.</p>
+<pre class="text"><code>paired FASTQ channel
+        │
+        ├──► raw QC
+        │
+        └──► trimming ──► alignment ──► BAM QC</code></pre>
+<p>When two independent processes receive the same input channel, Nextflow may run them concurrently. When alignment needs trimmed reads, it waits for trimming. You describe dependencies through data, not by manually waiting for job IDs.</p>
+</section>
+<section id="workflow-block" class="level2" data-number="21.8">
+<h2 data-number="21.8" class="anchored" data-anchor-id="workflow-block"><span class="header-section-number">21.8</span> Workflow block</h2>
+<p>DSL2 connects channels and processes inside <code>workflow</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>workflow <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> channel<span class="op">.</span><span class="fu">fromPath</span><span class="op">(</span><span class="st">'data/*.txt'</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">COUNT_LINES</span><span class="op">(</span>samples<span class="op">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This reads as: create a stream of paths, then invoke <code>COUNT_LINES</code> for each item. The process definition says <em>how</em>; the workflow block says <em>how things connect</em>.</p>
+</section>
+<section id="task-work-directories" class="level2" data-number="21.9">
+<h2 data-number="21.9" class="anchored" data-anchor-id="task-work-directories"><span class="header-section-number">21.9</span> Task work directories</h2>
+<p>Every task runs in an isolated hashed directory below <code>work/</code>:</p>
+<pre class="text"><code>work/a3/7be2fa...
+├── .command.sh
+├── .command.run
+├── .command.log
+├── .command.out
+├── .command.err
+├── .exitcode
+├── staged inputs
+└── declared outputs</code></pre>
+<p>Isolation prevents 30 samples from overwriting one another’s <code>output.txt</code>. The hash also contributes to caching. The short string printed beside a process, such as <code>[a3/7be2fa]</code>, points to this directory; it is not a scheduler job ID.</p>
+</section>
+<section id="work-is-not-results" class="level2" data-number="21.10">
+<h2 data-number="21.10" class="anchored" data-anchor-id="work-is-not-results"><span class="header-section-number">21.10</span> Work is not results</h2>
+<p><code>work/</code> is Nextflow’s execution record and cache. A results directory contains selected outputs exposed for people and downstream use. Publishing does not mean that work files are disposable immediately: <code>-resume</code> needs the cache.</p>
+<p>Keep these ideas separate:</p>
+<ul>
+<li>input data are authoritative sources;</li>
+<li>work data are task-level intermediates and cache;</li>
+<li>published results are selected deliverables;</li>
+<li>execution reports and logs are provenance evidence.</li>
+</ul>
+</section>
+<section id="executor-mental-model" class="level2" data-number="21.11">
+<h2 data-number="21.11" class="anchored" data-anchor-id="executor-mental-model"><span class="header-section-number">21.11</span> Executor mental model</h2>
+<p>With the local executor, Nextflow starts task processes on the current machine. With the Slurm executor, Nextflow submits task wrappers to Slurm. The small Nextflow controller must remain alive to observe completed tasks and submit downstream work.</p>
+<pre class="text"><code>Nextflow controller
+    ├── submits FASTQC task ─────► Slurm
+    ├── submits TRIM task ───────► Slurm
+    ├── observes their outputs
+    └── submits ALIGN task ──────► Slurm</code></pre>
+<p>The controller is not the alignment job. Requesting 4 GB for the controller does not force Bismark to use 4 GB; process directives control task resources.</p>
+</section>
+<section id="cache-and--resume" class="level2" data-number="21.12">
+<h2 data-number="21.12" class="anchored" data-anchor-id="cache-and--resume"><span class="header-section-number">21.12</span> Cache and <code>-resume</code></h2>
+<p>For each task, Nextflow computes a cache key from relevant inputs, process code, configuration and environment information. A matching successful task can be reused with <code>-resume</code> while its work directory and cache metadata remain.</p>
+<p>Resume is selective recomputation, not magic checkpointing inside a running aligner. A failed alignment normally restarts that task; already completed upstream tasks may be cached.</p>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="21.13">
+<h2 data-number="21.13" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">21.13</span> Verification checkpoint</h2>
+<p>For this graph:</p>
+<pre class="text"><code>reads ──► FASTQC_RAW
+  └─────► TRIM ──► FASTQC_TRIMMED
+                └► ALIGN ──► BAM_QC</code></pre>
+<p>Predict before reading the answer:</p>
+<ol type="1">
+<li><code>FASTQC_RAW</code> and <code>TRIM</code> may begin together.</li>
+<li><code>FASTQC_TRIMMED</code> waits for <code>TRIM</code>.</li>
+<li><code>ALIGN</code> waits for <code>TRIM</code>.</li>
+<li><code>FASTQC_TRIMMED</code> and <code>ALIGN</code> may run together after trimmed reads exist.</li>
+<li><code>BAM_QC</code> waits for <code>ALIGN</code>.</li>
+</ol>
+<p>If you can explain those statements using data availability rather than line order, the core mental model is working.</p>
+</section>
+<section id="common-failure-reading-the-console-as-a-sample-count" class="level2" data-number="21.14">
+<h2 data-number="21.14" class="anchored" data-anchor-id="common-failure-reading-the-console-as-a-sample-count"><span class="header-section-number">21.14</span> Common failure: reading the console as a sample count</h2>
+<p>Seeing two <code>nf-...</code> jobs for one sample does not mean the samplesheet was read twice. Inspect the full process names. They may be FastQC and trimming tasks for the same sample. Count biological samples from validated input metadata; count tasks from the workflow graph.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="21.15">
+<h2 data-number="21.15" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">21.15</span> Try it yourself</h2>
+<p>Draw a graph for: raw QC, trimming, post-trim QC and alignment. Circle the steps that can run concurrently. Then add a final MultiQC step that needs all reports. Where must it wait?</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="21.16">
+<h2 data-number="21.16" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">21.16</span> What to remember</h2>
+<ul>
+<li>Processes are recipes; tasks are executions.</li>
+<li>Channels carry shaped data and create dependencies.</li>
+<li>Each task has an isolated work directory.</li>
+<li>Executors decide where tasks run; containers decide which software runs.</li>
+<li>Published results and cached work serve different purposes.</li>
+</ul>
+</section>
+<section id="interview-grill" class="level2" data-number="21.17">
+<h2 data-number="21.17" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">21.17</span> Interview grill</h2>
+<ol type="1">
+<li>What is the difference between Nextflow and an aligner?</li>
+<li>What is the difference between a process and a task?</li>
+<li>Why can one sample create many Slurm jobs?</li>
+<li>What does a <code>path</code> input promise that a <code>val</code> input does not?</li>
+<li>Why attach a sample ID to files in a tuple?</li>
+<li>How does data availability express dependencies?</li>
+<li>What evidence lives in a task work directory?</li>
+<li>Why can deleting <code>work/</code> prevent efficient resume?</li>
+<li>What changes when switching from local to Slurm execution?</li>
+<li>Why is scheduler completion insufficient evidence of scientific success?</li>
+</ol>
+</section>
+<section id="primary-references" class="level2" data-number="21.18">
+<h2 data-number="21.18" class="anchored" data-anchor-id="primary-references"><span class="header-section-number">21.18</span> Primary references</h2>
+<ul>
+<li><a href="https://www.nextflow.io/docs/latest/process.html">Nextflow processes</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/channel.html">Nextflow channels</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/executor.html">Nextflow executors</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/cache-and-resume.html">Nextflow cache and resume</a></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -910,7 +1198,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/11-nextflow-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/11-nextflow-mental-model.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

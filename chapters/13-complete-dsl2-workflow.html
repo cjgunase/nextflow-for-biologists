@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-77f877a8bbdaf906de76408b5606b2fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -455,8 +490,35 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">24.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">24.2</span> Engineering objective</a></li>
+  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">24.3</span> Before you type</a></li>
+  <li><a href="#the-smallest-multi-step-workflow" id="toc-the-smallest-multi-step-workflow" class="nav-link" data-scroll-target="#the-smallest-multi-step-workflow"><span class="header-section-number">24.4</span> The smallest multi-step workflow</a></li>
+  <li><a href="#move-from-toy-commands-to-bioinformatics" id="toc-move-from-toy-commands-to-bioinformatics" class="nav-link" data-scroll-target="#move-from-toy-commands-to-bioinformatics"><span class="header-section-number">24.5</span> Move from toy commands to bioinformatics</a>
+  <ul class="collapse">
+  <li><a href="#process-1-raw-qc" id="toc-process-1-raw-qc" class="nav-link" data-scroll-target="#process-1-raw-qc"><span class="header-section-number">24.5.1</span> Process 1: raw QC</a></li>
+  <li><a href="#process-2-paired-trimming" id="toc-process-2-paired-trimming" class="nav-link" data-scroll-target="#process-2-paired-trimming"><span class="header-section-number">24.5.2</span> Process 2: paired trimming</a></li>
+  <li><a href="#branch-after-trimming" id="toc-branch-after-trimming" class="nav-link" data-scroll-target="#branch-after-trimming"><span class="header-section-number">24.5.3</span> Branch after trimming</a></li>
+  <li><a href="#process-3-post-trim-qc" id="toc-process-3-post-trim-qc" class="nav-link" data-scroll-target="#process-3-post-trim-qc"><span class="header-section-number">24.5.4</span> Process 3: post-trim QC</a></li>
+  <li><a href="#process-4-align-and-sort" id="toc-process-4-align-and-sort" class="nav-link" data-scroll-target="#process-4-align-and-sort"><span class="header-section-number">24.5.5</span> Process 4: align and sort</a></li>
+  <li><a href="#process-5-bam-qc" id="toc-process-5-bam-qc" class="nav-link" data-scroll-target="#process-5-bam-qc"><span class="header-section-number">24.5.6</span> Process 5: BAM QC</a></li>
+  </ul></li>
+  <li><a href="#keep-process-code-and-site-policy-apart" id="toc-keep-process-code-and-site-policy-apart" class="nav-link" data-scroll-target="#keep-process-code-and-site-policy-apart"><span class="header-section-number">24.6</span> Keep process code and site policy apart</a></li>
+  <li><a href="#output-contracts-are-scientific-checkpoints" id="toc-output-contracts-are-scientific-checkpoints" class="nav-link" data-scroll-target="#output-contracts-are-scientific-checkpoints"><span class="header-section-number">24.7</span> Output contracts are scientific checkpoints</a></li>
+  <li><a href="#publishing-strategy" id="toc-publishing-strategy" class="nav-link" data-scroll-target="#publishing-strategy"><span class="header-section-number">24.8</span> Publishing strategy</a></li>
+  <li><a href="#common-failure-building-a-shell-script-with-nextflow-around-it" id="toc-common-failure-building-a-shell-script-with-nextflow-around-it" class="nav-link" data-scroll-target="#common-failure-building-a-shell-script-with-nextflow-around-it"><span class="header-section-number">24.9</span> Common failure: building a shell script with Nextflow around it</a></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">24.10</span> Verification checkpoint</a></li>
+  <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">24.11</span> What changed on disk</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">24.12</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">24.13</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">24.14</span> Interview grill</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/13-complete-dsl2-workflow.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -480,9 +542,159 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter adds paired trimming, post-trim QC, alignment and BAM validation. Each input/output declaration is related back to the corresponding manual files so readers can see how a shell pipeline becomes a dataflow graph.</p>
+<section id="why-a-biologist-should-care" class="level2" data-number="24.1">
+<h2 data-number="24.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">24.1</span> Why a biologist should care</h2>
+<p>A workflow is trustworthy only when each automated step has the same scientific meaning as a command you already validated manually. “It ran in Nextflow” does not establish that trimming, alignment or QC is correct.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="24.2">
+<h2 data-number="24.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">24.2</span> Engineering objective</h2>
+<p>Connect two tiny processes, then apply the same contracts to the teaching NGS pipeline: raw QC, paired trimming, post-trim QC, alignment/sorting and BAM QC.</p>
+</section>
+<section id="before-you-type" class="level2" data-number="24.3">
+<h2 data-number="24.3" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">24.3</span> Before you type</h2>
+<p>Finish the first four examples. Confirm that paired-read summaries exist, then run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> examples/nextflow-basics</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 05-two-step-workflow.nf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="the-smallest-multi-step-workflow" class="level2" data-number="24.4">
+<h2 data-number="24.4" class="anchored" data-anchor-id="the-smallest-multi-step-workflow"><span class="header-section-number">24.4</span> The smallest multi-step workflow</h2>
+<p>The graph is:</p>
+<pre class="text"><code>[sample_id, R1, R2]
+          │
+          ▼
+SUMMARIZE_READS ──► [sample_id, counts.tsv]
+                              │
+                              ▼
+                         FORMAT_REPORT</code></pre>
+<p>The connection is only two lines:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SUMMARIZE_READS</span><span class="op">(</span>read_pairs<span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">FORMAT_REPORT</span><span class="op">(</span>SUMMARIZE_READS<span class="op">.</span>out<span class="op">.</span>counts<span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>emit: counts</code> names the output channel. The second process cannot start for a sample until the first process produces that sample’s tuple. No <code>sleep</code>, polling loop or scheduler dependency is needed.</p>
+<p>Verify:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/05-two-step/mouse_A.report.txt</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/05-two-step/mouse_B.report.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="move-from-toy-commands-to-bioinformatics" class="level2" data-number="24.5">
+<h2 data-number="24.5" class="anchored" data-anchor-id="move-from-toy-commands-to-bioinformatics"><span class="header-section-number">24.5</span> Move from toy commands to bioinformatics</h2>
+<p>The complete teaching pipeline has five process contracts:</p>
+<pre class="text"><code>                       ┌────────────► FASTQC_RAW
+paired FASTQ tuples ───┤
+                       └────────────► TRIM_GALORE
+                                          │
+                            ┌─────────────┴─────────────┐
+                            ▼                           ▼
+                     FASTQC_TRIMMED                 ALIGN_SORT
+                                                        │
+                                                        ▼
+                                                      BAM_QC</code></pre>
+<p>Translate the trusted manual baseline one process at a time. Do not write all five processes and debug them simultaneously.</p>
+<section id="process-1-raw-qc" class="level3" data-number="24.5.1">
+<h3 data-number="24.5.1" class="anchored" data-anchor-id="process-1-raw-qc"><span class="header-section-number">24.5.1</span> Process 1: raw QC</h3>
+<p>Contract:</p>
+<pre class="text"><code>input:  sample ID plus R1/R2 paths
+action: FastQC on both mates
+output: two HTML reports and two ZIP archives, still labeled by sample</code></pre>
+<p>The process should not search the filesystem itself. The workflow gives it the two declared files.</p>
+</section>
+<section id="process-2-paired-trimming" class="level3" data-number="24.5.2">
+<h3 data-number="24.5.2" class="anchored" data-anchor-id="process-2-paired-trimming"><span class="header-section-number">24.5.2</span> Process 2: paired trimming</h3>
+<p>Contract:</p>
+<pre class="text"><code>input:  sample ID plus paired raw FASTQs
+action: Trim Galore in paired mode
+output: sample ID plus paired trimmed FASTQs and trimming reports</code></pre>
+<p>The paired relationship must survive. Do not emit R1 and R2 into unrelated channels and later hope that arrival order reconstructs the pairs.</p>
+</section>
+<section id="branch-after-trimming" class="level3" data-number="24.5.3">
+<h3 data-number="24.5.3" class="anchored" data-anchor-id="branch-after-trimming"><span class="header-section-number">24.5.3</span> Branch after trimming</h3>
+<p>Post-trim FastQC and alignment both consume trimmed reads. They are independent after those files exist, so Nextflow may run them concurrently.</p>
+</section>
+<section id="process-3-post-trim-qc" class="level3" data-number="24.5.4">
+<h3 data-number="24.5.4" class="anchored" data-anchor-id="process-3-post-trim-qc"><span class="header-section-number">24.5.4</span> Process 3: post-trim QC</h3>
+<p>Use the same FastQC operation with a different process name and output location. Raw and trimmed QC answer different questions and must not overwrite one another.</p>
+</section>
+<section id="process-4-align-and-sort" class="level3" data-number="24.5.5">
+<h3 data-number="24.5.5" class="anchored" data-anchor-id="process-4-align-and-sort"><span class="header-section-number">24.5.5</span> Process 4: align and sort</h3>
+<p>The trusted manual command may pipe aligner output into <code>samtools sort</code>. Keeping that pipe inside one process avoids writing a large SAM intermediate. The shell must use <code>pipefail</code>; otherwise an aligner failure can be hidden if sorting exits zero on incomplete input.</p>
+<p>Contract:</p>
+<pre class="text"><code>input:  sample ID, trimmed pair and matching reference/index
+action: align paired reads and coordinate-sort the alignment
+output: sample ID plus sorted BAM and alignment log</code></pre>
+</section>
+<section id="process-5-bam-qc" class="level3" data-number="24.5.6">
+<h3 data-number="24.5.6" class="anchored" data-anchor-id="process-5-bam-qc"><span class="header-section-number">24.5.6</span> Process 5: BAM QC</h3>
+<p>Index and validate the BAM, then create <code>flagstat</code> and <code>idxstats</code> summaries. Declare the BAM and BAI together when downstream tools require both.</p>
+</section>
+</section>
+<section id="keep-process-code-and-site-policy-apart" class="level2" data-number="24.6">
+<h2 data-number="24.6" class="anchored" data-anchor-id="keep-process-code-and-site-policy-apart"><span class="header-section-number">24.6</span> Keep process code and site policy apart</h2>
+<p>Portable process logic should say that alignment needs CPUs and memory. A site configuration decides the executor, partition, account, queue and local cache paths. Hard-coding an institutional hostname or storage mount in <code>main.nf</code> makes the scientific graph less portable and risks publishing private details.</p>
+</section>
+<section id="output-contracts-are-scientific-checkpoints" class="level2" data-number="24.7">
+<h2 data-number="24.7" class="anchored" data-anchor-id="output-contracts-are-scientific-checkpoints"><span class="header-section-number">24.7</span> Output contracts are scientific checkpoints</h2>
+<p>File existence alone is a weak acceptance criterion. Combine Nextflow contracts with format-aware checks:</p>
+<ul>
+<li>paired trimmed FASTQs are nonempty and synchronized;</li>
+<li><code>samtools quickcheck</code> accepts the BAM;</li>
+<li>BAM is coordinate-sorted and indexable;</li>
+<li>FastQC reports exist for raw and trimmed data;</li>
+<li>mapping summaries contain expected sample/reference context;</li>
+<li>MultiQC or equivalent aggregation includes every intended sample.</li>
+</ul>
+<p>A process can exit zero while producing scientifically unusable output. The manual baseline defines what “usable” means for the fixture.</p>
+</section>
+<section id="publishing-strategy" class="level2" data-number="24.8">
+<h2 data-number="24.8" class="anchored" data-anchor-id="publishing-strategy"><span class="header-section-number">24.8</span> Publishing strategy</h2>
+<p>Publish reports and final deliverables. Leave rebuildable large intermediates in <code>work/</code> unless operational requirements say otherwise. Avoid publishing two tasks to the same fixed filename.</p>
+<p><code>mode: 'copy'</code> creates independent result files but consumes storage. Symlink publishing is lightweight but breaks if <code>work/</code> is removed. Choose deliberately.</p>
+</section>
+<section id="common-failure-building-a-shell-script-with-nextflow-around-it" class="level2" data-number="24.9">
+<h2 data-number="24.9" class="anchored" data-anchor-id="common-failure-building-a-shell-script-with-nextflow-around-it"><span class="header-section-number">24.9</span> Common failure: building a shell script with Nextflow around it</h2>
+<p>One giant process containing the entire pipeline may run, but it loses task-level parallelism, caching, resource selection and failure isolation. A good process boundary usually corresponds to a tool invocation with a clear input/output contract and meaningful retry/resource behavior.</p>
+<p>Do not split merely to maximize process count. Passing terabytes between tiny processes can create unnecessary I/O. Boundaries are engineering decisions.</p>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="24.10">
+<h2 data-number="24.10" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">24.10</span> Verification checkpoint</h2>
+<p>For the two-step executable example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="at">-s</span> results/05-two-step/mouse_A.report.txt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="at">-s</span> results/05-two-step/mouse_B.report.txt</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-q</span> <span class="st">$'mouse_A</span><span class="dt">\t</span><span class="st">2</span><span class="dt">\t</span><span class="st">2'</span> results/05-two-step/mouse_A.report.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For the complete teaching workflow, the pass condition is the expected two raw FastQC reports, two trimmed FastQC reports, paired trimmed reads, a valid sorted BAM/BAI and nonempty flagstat/idxstats outputs for every fixture sample.</p>
+</section>
+<section id="what-changed-on-disk" class="level2" data-number="24.11">
+<h2 data-number="24.11" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">24.11</span> What changed on disk</h2>
+<p>The first process’s count file remains in <code>work/</code> because only final reports are published. This demonstrates that downstream consumption does not require every intermediate to be copied into <code>results/</code>.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="24.12">
+<h2 data-number="24.12" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">24.12</span> Try it yourself</h2>
+<p>Add a third process that combines all <code>*.report.txt</code> files into one cohort summary. Identify where <code>collect</code> is required and explain why that process must wait for all samples.</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="24.13">
+<h2 data-number="24.13" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">24.13</span> What to remember</h2>
+<ul>
+<li>Port one validated manual step at a time.</li>
+<li>Connect processes using declared outputs, not filenames searched at runtime.</li>
+<li>Preserve metadata and pairs through every boundary.</li>
+<li>Use process boundaries to gain useful isolation, caching and resources.</li>
+<li>Engineering success and scientific acceptance are separate checks.</li>
+</ul>
+</section>
+<section id="interview-grill" class="level2" data-number="24.14">
+<h2 data-number="24.14" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">24.14</span> Interview grill</h2>
+<ol type="1">
+<li>Why validate a command manually before automating it?</li>
+<li>What makes the second toy process wait?</li>
+<li>Which real processes can run concurrently?</li>
+<li>Why keep paired reads in one tuple?</li>
+<li>Why use <code>pipefail</code> for aligner-to-sort pipes?</li>
+<li>What makes a useful process boundary?</li>
+<li>Why not publish every intermediate?</li>
+<li>What is the risk of fixed output names across samples?</li>
+<li>What BAM checks go beyond nonempty-file testing?</li>
+<li>Why is a complete scheduler run not enough for biological acceptance?</li>
+</ol>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -910,7 +1122,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/13-complete-dsl2-workflow.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/13-complete-dsl2-workflow.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

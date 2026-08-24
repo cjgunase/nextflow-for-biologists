@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-77f877a8bbdaf906de76408b5606b2fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -455,8 +490,35 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">27.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">27.2</span> Engineering objective</a></li>
+  <li><a href="#mental-model" id="toc-mental-model" class="nav-link" data-scroll-target="#mental-model"><span class="header-section-number">27.3</span> Mental model</a></li>
+  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">27.4</span> Before you type</a></li>
+  <li><a href="#site-configuration" id="toc-site-configuration" class="nav-link" data-scroll-target="#site-configuration"><span class="header-section-number">27.5</span> Site configuration</a></li>
+  <li><a href="#controller-script" id="toc-controller-script" class="nav-link" data-scroll-target="#controller-script"><span class="header-section-number">27.6</span> Controller script</a></li>
+  <li><a href="#monitor-without-confusing-tasks-and-samples" id="toc-monitor-without-confusing-tasks-and-samples" class="nav-link" data-scroll-target="#monitor-without-confusing-tasks-and-samples"><span class="header-section-number">27.7</span> Monitor without confusing tasks and samples</a></li>
+  <li><a href="#inspect-generated-slurm-directives" id="toc-inspect-generated-slurm-directives" class="nav-link" data-scroll-target="#inspect-generated-slurm-directives"><span class="header-section-number">27.8</span> Inspect generated Slurm directives</a></li>
+  <li><a href="#requested-versus-used-resources" id="toc-requested-versus-used-resources" class="nav-link" data-scroll-target="#requested-versus-used-resources"><span class="header-section-number">27.9</span> Requested versus used resources</a></li>
+  <li><a href="#real-world-wgbs-case-study" id="toc-real-world-wgbs-case-study" class="nav-link" data-scroll-target="#real-world-wgbs-case-study"><span class="header-section-number">27.10</span> Real-world WGBS case study</a></li>
+  <li><a href="#common-failures" id="toc-common-failures" class="nav-link" data-scroll-target="#common-failures"><span class="header-section-number">27.11</span> Common failures</a>
+  <ul class="collapse">
+  <li><a href="#controller-disappears-from-squeue" id="toc-controller-disappears-from-squeue" class="nav-link" data-scroll-target="#controller-disappears-from-squeue"><span class="header-section-number">27.11.1</span> Controller disappears from <code>squeue</code></a></li>
+  <li><a href="#task-remains-pending" id="toc-task-remains-pending" class="nav-link" data-scroll-target="#task-remains-pending"><span class="header-section-number">27.11.2</span> Task remains pending</a></li>
+  <li><a href="#controller-wall-time-expires-before-cohort-completion" id="toc-controller-wall-time-expires-before-cohort-completion" class="nav-link" data-scroll-target="#controller-wall-time-expires-before-cohort-completion"><span class="header-section-number">27.11.3</span> Controller wall-time expires before cohort completion</a></li>
+  <li><a href="#home-quota-breaks-nextflow-or-image-pulls" id="toc-home-quota-breaks-nextflow-or-image-pulls" class="nav-link" data-scroll-target="#home-quota-breaks-nextflow-or-image-pulls"><span class="header-section-number">27.11.4</span> Home quota breaks Nextflow or image pulls</a></li>
+  </ul></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">27.12</span> Verification checkpoint</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">27.13</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">27.14</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">27.15</span> Interview grill</a></li>
+  <li><a href="#primary-references" id="toc-primary-references" class="nav-link" data-scroll-target="#primary-references"><span class="header-section-number">27.16</span> Primary references</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/15-slurm-execution.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -480,9 +542,228 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter examines the SLURM executor, resource requests and generated <code>#SBATCH</code> directives. It verifies that each of the five processes ran as a scheduled job inside the intended container.</p>
+<section id="why-a-biologist-should-care" class="level2" data-number="27.1">
+<h2 data-number="27.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">27.1</span> Why a biologist should care</h2>
+<p>Running <code>nextflow</code> inside one large allocation and letting it execute every tool locally wastes scheduler capabilities and makes resource use opaque. With the Slurm executor, Nextflow submits each process task with resources appropriate to that task.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="27.2">
+<h2 data-number="27.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">27.2</span> Engineering objective</h2>
+<p>Launch a small controller, let it submit task jobs, connect console hashes to work directories and native Slurm IDs, and verify generated <code>#SBATCH</code> and container evidence.</p>
+</section>
+<section id="mental-model" class="level2" data-number="27.3">
+<h2 data-number="27.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">27.3</span> Mental model</h2>
+<pre class="text"><code>sbatch controller.sbatch
+          │
+          ▼
+small Nextflow controller job
+          │ creates task wrapper and calls sbatch
+          ├────────► FastQC task job
+          ├────────► trimming task job
+          └────────► alignment task job (when inputs are ready)</code></pre>
+<p>The controller needs Java, Nextflow, scheduler commands and enough time to coordinate the workflow. Task software normally runs in containers. The controller’s memory request is not inherited as every task’s memory request.</p>
+</section>
+<section id="before-you-type" class="level2" data-number="27.4">
+<h2 data-number="27.4" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">27.4</span> Before you type</h2>
+<p>Confirm local site policy:</p>
+<ul>
+<li>permitted partition/account and maximum wall-time;</li>
+<li>compute-visible project/scratch storage;</li>
+<li>Java and Singularity/Apptainer module names;</li>
+<li>whether Nextflow itself may run on a login node;</li>
+<li>container pull policy and cache location; and</li>
+<li>scheduler submission-rate limits.</li>
+</ul>
+<p>Use placeholders in tracked examples and keep real values in an ignored site configuration.</p>
+</section>
+<section id="site-configuration" class="level2" data-number="27.5">
+<h2 data-number="27.5" class="anchored" data-anchor-id="site-configuration"><span class="header-section-number">27.5</span> Site configuration</h2>
+<p>A private configuration might contain:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>process <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    executor <span class="op">=</span> <span class="st">'slurm'</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    queue <span class="op">=</span> <span class="st">'xxx'</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    clusterOptions <span class="op">=</span> <span class="st">'--account=xxx'</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    withLabel<span class="op">:</span> small <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        cpus <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        memory <span class="op">=</span> <span class="fl">4.</span>GB</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        time <span class="op">=</span> <span class="fl">2.</span>h</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    withName<span class="op">:</span> ALIGN_SORT <span class="op">{</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        cpus <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        memory <span class="op">=</span> <span class="fl">32.</span>GB</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        time <span class="op">=</span> <span class="fl">24.</span>h</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>executor <span class="op">{</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    queueSize <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    submitRateLimit <span class="op">=</span> <span class="st">'2 sec'</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>singularity <span class="op">{</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    enabled <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    autoMounts <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    cacheDir <span class="op">=</span> <span class="st">'/project/xxx/singularity_cache'</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>queueSize</code> limits tasks handled by the executor queue. <code>submitRateLimit</code> protects the scheduler from bursts. Process <code>maxForks</code> limits concurrent tasks matching a process/selector. These controls solve different problems.</p>
+</section>
+<section id="controller-script" class="level2" data-number="27.6">
+<h2 data-number="27.6" class="anchored" data-anchor-id="controller-script"><span class="header-section-number">27.6</span> Controller script</h2>
+<p>A sanitized controller has this shape:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env bash</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=nextflow-controller</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --nodes=1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --ntasks=1</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=2</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=4G</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=24:00:00</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --output=logs/%x.%j.out</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --error=logs/%x.%j.err</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-euo</span> pipefail</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /etc/profile.d/lmod.sh</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> purge</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load java/xxx</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load singularity/xxx</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">NXF_HOME</span><span class="op">=</span>/project/xxx/nextflow_home</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">NXF_SINGULARITY_CACHEDIR</span><span class="op">=</span>/project/xxx/singularity_cache</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run . <span class="dt">\</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">-profile</span> slurm_singularity <span class="dt">\</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">-c</span> conf/site.local.config <span class="dt">\</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">-resume</span> <span class="dt">\</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">-with-trace</span> <span class="st">"logs/</span><span class="va">${SLURM_JOB_ID}</span><span class="st">.trace.tsv"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Submit from a predictable directory:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> logs</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> bin/run_pipeline.sbatch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The printed ID belongs to the controller. Nextflow task jobs receive their own Slurm IDs.</p>
+</section>
+<section id="monitor-without-confusing-tasks-and-samples" class="level2" data-number="27.7">
+<h2 data-number="27.7" class="anchored" data-anchor-id="monitor-without-confusing-tasks-and-samples"><span class="header-section-number">27.7</span> Monitor without confusing tasks and samples</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">-j</span> CONTROLLER_JOB_ID</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">-u</span> <span class="st">"</span><span class="va">$USER</span><span class="st">"</span> <span class="at">-o</span> <span class="st">"%.18i %.55j %.2t %.10M %.30R"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For one paired sample you may see FastQC and Trim Galore jobs simultaneously. Later only alignment may remain. This reflects workflow concurrency.</p>
+<p>Read the controller output:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> 60 logs/nextflow-controller.CONTROLLER_JOB_ID.out</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> 40 logs/nextflow-controller.CONTROLLER_JOB_ID.err</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Repeated process tables are terminal refreshes captured in a log, not repeated executions. <code>0 of 1</code> means submitted/running; <code>1 of 1 ✔</code> means completed.</p>
+</section>
+<section id="inspect-generated-slurm-directives" class="level2" data-number="27.8">
+<h2 data-number="27.8" class="anchored" data-anchor-id="inspect-generated-slurm-directives"><span class="header-section-number">27.8</span> Inspect generated Slurm directives</h2>
+<p>Use the console hash or trace work directory, then:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">'^#SBATCH'</span> /project/xxx/work/ab/cdef<span class="pp">*</span>/.command.run</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expected shape:</p>
+<pre class="text"><code>#SBATCH -J nf-...ALIGN_SORT_(sample)
+#SBATCH -c 8
+#SBATCH --mem 32768M
+#SBATCH -t 24:00:00</code></pre>
+<p>This is stronger evidence than assuming configuration was applied. Inspect the same wrapper for <code>singularity exec</code> or <code>apptainer exec</code> and the resolved image.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">'singularity exec|apptainer exec|container:'</span> <span class="dt">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  /project/xxx/work/ab/cdef<span class="pp">*</span>/.command.run</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="requested-versus-used-resources" class="level2" data-number="27.9">
+<h2 data-number="27.9" class="anchored" data-anchor-id="requested-versus-used-resources"><span class="header-section-number">27.9</span> Requested versus used resources</h2>
+<p>Slurm requests prevent task placement beyond declared limits; they do not prove software used those resources. Combine Nextflow trace and site accounting:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sstat</span> <span class="at">-j</span> TASK_JOB_ID.batch <span class="dt">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--format</span><span class="op">=</span>JobID,AveCPU,AveRSS,MaxRSS,MaxVMSize</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">sacct</span> <span class="at">-j</span> TASK_JOB_ID <span class="dt">\</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--format</span><span class="op">=</span>JobID,JobName,State,Elapsed,AllocCPUS,ReqMem,MaxRSS,ExitCode</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Accounting availability and units vary by site. For a completed pilot, compare:</p>
+<ul>
+<li>allocated CPUs with <code>%cpu</code>/CPU efficiency;</li>
+<li>requested memory with peak RSS;</li>
+<li>requested time with actual duration;</li>
+<li>read/write I/O with storage planning;</li>
+<li>retries and queue delays.</li>
+</ul>
+<p>Keep headroom. Do not request a full node merely because it exists, and do not lower memory to the measured peak with no safety margin.</p>
+</section>
+<section id="real-world-wgbs-case-study" class="level2" data-number="27.10">
+<h2 data-number="27.10" class="anchored" data-anchor-id="real-world-wgbs-case-study"><span class="header-section-number">27.10</span> Real-world WGBS case study</h2>
+<p>A sanitized production qualification followed three gates:</p>
+<ol type="1">
+<li>tiny nf-core smoke test for installation and container/scheduler plumbing;</li>
+<li>10-million-read-pair real WGBS pilot for reference compatibility and performance measurement;</li>
+<li>one complete paired sample for whole-sample QC, runtime, storage and MultiQC acceptance before a 30-sample cohort.</li>
+</ol>
+<p>The pilot showed that alignment dominated runtime and efficiently used 12 CPUs, with peak memory well below its 72 GB request. A shared-resource policy limited future concurrent Bismark alignments to ten. That limit controls cohort impact; it does not split or independently deduplicate a biological sample.</p>
+<p>The complete-sample qualification was launched in a separate project root with its own <code>work/</code>, caches, logs and results. The result must not be presented as validated until the final success marker, BAM/BAI, methylation coverage, MultiQC, trace, checksums and private provenance have been reviewed.</p>
+<p>This case teaches a general rule: benchmark small, qualify one complete unit, then scale under a measured concurrency policy.</p>
+</section>
+<section id="common-failures" class="level2" data-number="27.11">
+<h2 data-number="27.11" class="anchored" data-anchor-id="common-failures"><span class="header-section-number">27.11</span> Common failures</h2>
+<section id="controller-disappears-from-squeue" class="level3" data-number="27.11.1">
+<h3 data-number="27.11.1" class="anchored" data-anchor-id="controller-disappears-from-squeue"><span class="header-section-number">27.11.1</span> Controller disappears from <code>squeue</code></h3>
+<p>It finished, failed or was cancelled. Inspect the final controller log and accounting. Empty <code>squeue</code> is not proof of success.</p>
+</section>
+<section id="task-remains-pending" class="level3" data-number="27.11.2">
+<h3 data-number="27.11.2" class="anchored" data-anchor-id="task-remains-pending"><span class="header-section-number">27.11.2</span> Task remains pending</h3>
+<p>Read <code>NODELIST(REASON)</code> or <code>scontrol show job</code>. A request for excessive memory, invalid account or dependency differs from ordinary queue wait.</p>
+</section>
+<section id="controller-wall-time-expires-before-cohort-completion" class="level3" data-number="27.11.3">
+<h3 data-number="27.11.3" class="anchored" data-anchor-id="controller-wall-time-expires-before-cohort-completion"><span class="header-section-number">27.11.3</span> Controller wall-time expires before cohort completion</h3>
+<p>Relaunch the same workflow with identical parameters, work directory and <code>-resume</code> after diagnosing the stop. Completed matching tasks should be cached. For future cohorts, choose a longer permitted controller limit or sequential waves with adequate margin.</p>
+</section>
+<section id="home-quota-breaks-nextflow-or-image-pulls" class="level3" data-number="27.11.4">
+<h3 data-number="27.11.4" class="anchored" data-anchor-id="home-quota-breaks-nextflow-or-image-pulls"><span class="header-section-number">27.11.4</span> Home quota breaks Nextflow or image pulls</h3>
+<p>Move <code>NXF_HOME</code>, work and container caches to approved project/scratch storage. Remove corrupt partial downloads only after resolving exact targets.</p>
+</section>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="27.12">
+<h2 data-number="27.12" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">27.12</span> Verification checkpoint</h2>
+<p>Pass only if:</p>
+<ol type="1">
+<li>every intended process appears as a distinct Slurm task;</li>
+<li>generated directives match reviewed CPU, memory and time policy;</li>
+<li>task wrappers show the intended container runtime/image;</li>
+<li>controller log ends with pipeline success;</li>
+<li>trace native IDs map to scheduler evidence; and</li>
+<li>required scientific outputs pass format and QC checks.</li>
+</ol>
+</section>
+<section id="try-it-yourself" class="level2" data-number="27.13">
+<h2 data-number="27.13" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">27.13</span> Try it yourself</h2>
+<p>Given 30 samples and an alignment process with <code>maxForks = 10</code>, predict how many alignments can run concurrently and whether FastQC tasks are also limited by that selector. Explain how <code>queueSize</code> changes the answer.</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="27.14">
+<h2 data-number="27.14" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">27.14</span> What to remember</h2>
+<ul>
+<li>Nextflow is a scheduler client; the controller and task jobs are different.</li>
+<li>One sample can create many task jobs.</li>
+<li>Verify generated wrappers rather than trusting intended configuration.</li>
+<li>Tune from measured use while preserving headroom and shared-resource policy.</li>
+<li>Scale only after a representative complete unit passes acceptance.</li>
+</ul>
+</section>
+<section id="interview-grill" class="level2" data-number="27.15">
+<h2 data-number="27.15" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">27.15</span> Interview grill</h2>
+<ol type="1">
+<li>Why not run every task locally inside one large Slurm allocation?</li>
+<li>What resources does the controller need?</li>
+<li>How do you map a task to a Slurm job ID?</li>
+<li>What is the difference between <code>maxForks</code> and <code>queueSize</code>?</li>
+<li>How do you prove Singularity executed the task?</li>
+<li>Why might a job request 72 GB but use 39 GB?</li>
+<li>How do you diagnose pending state?</li>
+<li>What survives a controller timeout?</li>
+<li>Why run a complete sample before a cohort?</li>
+<li>What evidence separates scheduler success from analytical success?</li>
+</ol>
+</section>
+<section id="primary-references" class="level2" data-number="27.16">
+<h2 data-number="27.16" class="anchored" data-anchor-id="primary-references"><span class="header-section-number">27.16</span> Primary references</h2>
+<ul>
+<li><a href="https://www.nextflow.io/docs/latest/executor.html#slurm">Nextflow Slurm executor</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/reference/process.html">Nextflow process directives</a></li>
+<li><a href="https://slurm.schedmd.com/documentation.html">Slurm documentation</a></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -910,7 +1191,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/15-slurm-execution.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/15-slurm-execution.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

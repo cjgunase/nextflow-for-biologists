@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-77f877a8bbdaf906de76408b5606b2fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -455,8 +490,35 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">22.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">22.2</span> Engineering objective</a></li>
+  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">22.3</span> Before you type</a></li>
+  <li><a href="#build-it-read-the-complete-file" id="toc-build-it-read-the-complete-file" class="nav-link" data-scroll-target="#build-it-read-the-complete-file"><span class="header-section-number">22.4</span> Build it: read the complete file</a>
+  <ul class="collapse">
+  <li><a href="#read-the-syntax" id="toc-read-the-syntax" class="nav-link" data-scroll-target="#read-the-syntax"><span class="header-section-number">22.4.1</span> Read the syntax</a></li>
+  </ul></li>
+  <li><a href="#run-it" id="toc-run-it" class="nav-link" data-scroll-target="#run-it"><span class="header-section-number">22.5</span> Run it</a></li>
+  <li><a href="#inspect-task-anatomy" id="toc-inspect-task-anatomy" class="nav-link" data-scroll-target="#inspect-task-anatomy"><span class="header-section-number">22.6</span> Inspect task anatomy</a></li>
+  <li><a href="#prove-caching" id="toc-prove-caching" class="nav-link" data-scroll-target="#prove-caching"><span class="header-section-number">22.7</span> Prove caching</a></li>
+  <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">22.8</span> What changed on disk</a></li>
+  <li><a href="#common-failures" id="toc-common-failures" class="nav-link" data-scroll-target="#common-failures"><span class="header-section-number">22.9</span> Common failures</a>
+  <ul class="collapse">
+  <li><a href="#nextflow-command-not-found" id="toc-nextflow-command-not-found" class="nav-link" data-scroll-target="#nextflow-command-not-found"><span class="header-section-number">22.9.1</span> <code>nextflow: command not found</code></a></li>
+  <li><a href="#java-fails-before-the-pipeline-starts" id="toc-java-fails-before-the-pipeline-starts" class="nav-link" data-scroll-target="#java-fails-before-the-pipeline-starts"><span class="header-section-number">22.9.2</span> Java fails before the pipeline starts</a></li>
+  <li><a href="#output-already-exists" id="toc-output-already-exists" class="nav-link" data-scroll-target="#output-already-exists"><span class="header-section-number">22.9.3</span> Output already exists</a></li>
+  </ul></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">22.10</span> Verification checkpoint</a></li>
+  <li><a href="#commit-checkpoint" id="toc-commit-checkpoint" class="nav-link" data-scroll-target="#commit-checkpoint"><span class="header-section-number">22.11</span> Commit checkpoint</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">22.12</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">22.13</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">22.14</span> Interview grill</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/12-first-nextflow-process.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -480,9 +542,175 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter builds a minimal DSL2 workflow, examines <code>.command.sh</code>, <code>.command.run</code>, <code>.command.log</code> and <code>.exitcode</code>, then ports raw FastQC as the first real process.</p>
+<section id="why-a-biologist-should-care" class="level2" data-number="22.1">
+<h2 data-number="22.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">22.1</span> Why a biologist should care</h2>
+<p>The safest way to learn a workflow language is to remove the biology briefly. If a one-line command fails, you can focus on Nextflow rather than wondering whether the reference genome, sample chemistry or tool parameters are wrong.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="22.2">
+<h2 data-number="22.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">22.2</span> Engineering objective</h2>
+<p>Run one process, locate its task directory, inspect the exact command, verify the output and rerun it from cache.</p>
+</section>
+<section id="before-you-type" class="level2" data-number="22.3">
+<h2 data-number="22.3" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">22.3</span> Before you type</h2>
+<p>Verify Java and Nextflow:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then enter the examples directory from the book repository:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> examples/nextflow-basics</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> 01-hello.nf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not run computational tutorials on an HPC login node if local policy forbids Java or analysis processes there. Request a small compute allocation.</p>
+</section>
+<section id="build-it-read-the-complete-file" class="level2" data-number="22.4">
+<h2 data-number="22.4" class="anchored" data-anchor-id="build-it-read-the-complete-file"><span class="header-section-number">22.4</span> Build it: read the complete file</h2>
+<p>Open <code>01-hello.nf</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>nextflow<span class="op">.</span>enable<span class="op">.</span>dsl<span class="op">=</span><span class="dv">2</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>params<span class="op">.</span>name <span class="op">=</span> <span class="st">'biologist'</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>process MAKE_GREETING <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    tag <span class="st">"</span><span class="ss">${</span>name<span class="ss">}</span><span class="st">"</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    publishDir <span class="st">'results/01-hello'</span><span class="op">,</span> mode<span class="op">:</span> <span class="st">'copy'</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    input<span class="op">:</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    val name</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    output<span class="op">:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    path <span class="st">'greeting.txt'</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    script<span class="op">:</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">    echo "Hello, </span><span class="ss">${</span>name<span class="ss">}</span><span class="st">!" &gt; greeting.txt</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>workflow <span class="op">{</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">MAKE_GREETING</span><span class="op">(</span>params<span class="op">.</span>name<span class="op">)</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="read-the-syntax" class="level3" data-number="22.4.1">
+<h3 data-number="22.4.1" class="anchored" data-anchor-id="read-the-syntax"><span class="header-section-number">22.4.1</span> Read the syntax</h3>
+<ul>
+<li><code>nextflow.enable.dsl=2</code> makes the DSL generation explicit for learners.</li>
+<li><code>params.name</code> declares a command-line parameter with a default.</li>
+<li><code>MAKE_GREETING</code> is the process definition.</li>
+<li><code>tag</code> places a meaningful value in logs instead of only a task hash.</li>
+<li><code>val name</code> accepts an ordinary value.</li>
+<li><code>path 'greeting.txt'</code> declares the file that success must produce.</li>
+<li>the triple-quoted block is the shell script.</li>
+<li><code>MAKE_GREETING(params.name)</code> invokes the process in the workflow.</li>
+<li><code>publishDir ... mode: 'copy'</code> copies the selected result out of <code>work/</code>.</li>
+</ul>
+<p>This book uses process-level <code>publishDir</code> because it remains common in production and nf-core pipelines and is supported by the validated tutorial version. Newer Nextflow training also teaches workflow-level output publishing; learn to recognize both and follow the version policy of the project you join.</p>
+</section>
+</section>
+<section id="run-it" class="level2" data-number="22.5">
+<h2 data-number="22.5" class="anchored" data-anchor-id="run-it"><span class="header-section-number">22.5</span> Run it</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 01-hello.nf <span class="at">--name</span> Ada</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Why two dashes before <code>name</code>: pipeline parameters use <code>--</code>. Core Nextflow options such as <code>-resume</code>, <code>-profile</code> and <code>-with-trace</code> use one dash.</p>
+<p>Expected status shape:</p>
+<pre class="text"><code>[ab/cdef12] MAKE_GREETING (Ada) | 1 of 1 ✔</code></pre>
+<p>The hash will differ. Verify the published result:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/01-hello/greeting.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expected:</p>
+<pre class="text"><code>Hello, Ada!</code></pre>
+</section>
+<section id="inspect-task-anatomy" class="level2" data-number="22.6">
+<h2 data-number="22.6" class="anchored" data-anchor-id="inspect-task-anatomy"><span class="header-section-number">22.6</span> Inspect task anatomy</h2>
+<p>Ask Nextflow for the most recent task directory:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> log last <span class="at">-f</span> hash,name,status,workdir</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Copy the printed work-directory path into a variable:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="va">TASK_DIR</span><span class="op">=</span>/absolute/path/printed/by/nextflow</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Inspect evidence one file at a time:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">/.command.sh"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">/.command.log"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">/.exitcode"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>.command.sh</code> is the scientific command generated for the process.</li>
+<li><code>.command.run</code> is Nextflow’s execution wrapper, including staging/runtime.</li>
+<li><code>.command.out</code> and <code>.command.err</code> capture standard streams.</li>
+<li><code>.command.log</code> combines task output useful for diagnosis.</li>
+<li><code>.exitcode</code> should contain <code>0</code> for success.</li>
+</ul>
+<p>Do not edit files in a task directory to “fix” a run. Fix tracked pipeline code or configuration, then rerun.</p>
+</section>
+<section id="prove-caching" class="level2" data-number="22.7">
+<h2 data-number="22.7" class="anchored" data-anchor-id="prove-caching"><span class="header-section-number">22.7</span> Prove caching</h2>
+<p>Run the same command with <code>-resume</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 01-hello.nf <span class="at">--name</span> Ada <span class="at">-resume</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expected status includes <code>cached: 1</code>.</p>
+<p>Now change the input value:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 01-hello.nf <span class="at">--name</span> Grace <span class="at">-resume</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This creates a new task because an input changed. Cache reuse is based on task identity, not merely the process name.</p>
+</section>
+<section id="what-changed-on-disk" class="level2" data-number="22.8">
+<h2 data-number="22.8" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">22.8</span> What changed on disk</h2>
+<p>After the first run you should have:</p>
+<pre class="text"><code>.nextflow.log
+.nextflow/
+work/
+results/01-hello/greeting.txt</code></pre>
+<p>The hidden metadata and <code>work/</code> support history, diagnosis and resume. They are normally ignored by Git.</p>
+</section>
+<section id="common-failures" class="level2" data-number="22.9">
+<h2 data-number="22.9" class="anchored" data-anchor-id="common-failures"><span class="header-section-number">22.9</span> Common failures</h2>
+<section id="nextflow-command-not-found" class="level3" data-number="22.9.1">
+<h3 data-number="22.9.1" class="anchored" data-anchor-id="nextflow-command-not-found"><span class="header-section-number">22.9.1</span> <code>nextflow: command not found</code></h3>
+<p>The launcher is absent or not in <code>PATH</code>. Return to the setup chapter and verify <code>command -v nextflow</code>.</p>
+</section>
+<section id="java-fails-before-the-pipeline-starts" class="level3" data-number="22.9.2">
+<h3 data-number="22.9.2" class="anchored" data-anchor-id="java-fails-before-the-pipeline-starts"><span class="header-section-number">22.9.2</span> Java fails before the pipeline starts</h3>
+<p>Nextflow itself requires Java. On HPC, load a validated Java module inside a compute allocation and place <code>NXF_HOME</code> on a filesystem with adequate quota.</p>
+</section>
+<section id="output-already-exists" class="level3" data-number="22.9.3">
+<h3 data-number="22.9.3" class="anchored" data-anchor-id="output-already-exists"><span class="header-section-number">22.9.3</span> Output already exists</h3>
+<p>Repeated publishing may overwrite or conflict depending on publish settings and Nextflow version. Use a new result directory for independent production runs; use <code>-resume</code> for continuation of the same run.</p>
+</section>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="22.10">
+<h2 data-number="22.10" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">22.10</span> Verification checkpoint</h2>
+<p>Pass only if:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="st">"</span><span class="va">$(</span><span class="fu">cat</span> results/01-hello/greeting.txt<span class="va">)</span><span class="st">"</span> = <span class="st">'Hello, Grace!'</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> log last <span class="at">-f</span> name,status</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The shell test must exit zero and the latest task must be <code>COMPLETED</code> or <code>CACHED</code> as appropriate.</p>
+</section>
+<section id="commit-checkpoint" class="level2" data-number="22.11">
+<h2 data-number="22.11" class="anchored" data-anchor-id="commit-checkpoint"><span class="header-section-number">22.11</span> Commit checkpoint</h2>
+<p>In your practice repository, a useful message would be:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add 01-hello.nf</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: add first Nextflow greeting process"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Never commit <code>work/</code>, <code>.nextflow/</code> or large generated results.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="22.12">
+<h2 data-number="22.12" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">22.12</span> Try it yourself</h2>
+<p>Add a <code>--species</code> parameter and produce <code>Hello, Ada! Species: mouse.</code> Predict whether changing only <code>--species</code> with <code>-resume</code> should create a new task.</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="22.13">
+<h2 data-number="22.13" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">22.13</span> What to remember</h2>
+<ul>
+<li>Pipeline parameters use <code>--</code>; Nextflow options use <code>-</code>.</li>
+<li>A declared output is part of the process contract.</li>
+<li>The work hash points to task evidence.</li>
+<li><code>-resume</code> reuses only matching successful work.</li>
+</ul>
+</section>
+<section id="interview-grill" class="level2" data-number="22.14">
+<h2 data-number="22.14" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">22.14</span> Interview grill</h2>
+<ol type="1">
+<li>What launches the process in this file?</li>
+<li>Why is <code>name</code> a <code>val</code> rather than a <code>path</code>?</li>
+<li>What proves the shell command ran successfully?</li>
+<li>What happens if <code>greeting.txt</code> is not created?</li>
+<li>Why is <code>tag</code> useful in a cohort?</li>
+<li>Which directory supports resume?</li>
+<li>Why should task files not be edited manually?</li>
+<li>What invalidates the cached greeting task?</li>
+<li>How do pipeline parameters differ from core options?</li>
+<li>What does publishing add beyond a work-directory output?</li>
+</ol>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -910,7 +1138,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/12-first-nextflow-process.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/12-first-nextflow-process.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

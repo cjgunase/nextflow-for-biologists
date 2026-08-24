@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-77f877a8bbdaf906de76408b5606b2fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -455,8 +490,29 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">26.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">26.2</span> Engineering objective</a></li>
+  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">26.3</span> Before you type</a></li>
+  <li><a href="#fail-before-analysis-with-input-validation" id="toc-fail-before-analysis-with-input-validation" class="nav-link" data-scroll-target="#fail-before-analysis-with-input-validation"><span class="header-section-number">26.4</span> Fail before analysis with input validation</a></li>
+  <li><a href="#diagnose-in-evidence-order" id="toc-diagnose-in-evidence-order" class="nav-link" data-scroll-target="#diagnose-in-evidence-order"><span class="header-section-number">26.5</span> Diagnose in evidence order</a></li>
+  <li><a href="#resume-a-matching-run" id="toc-resume-a-matching-run" class="nav-link" data-scroll-target="#resume-a-matching-run"><span class="header-section-number">26.6</span> Resume a matching run</a></li>
+  <li><a href="#resume-is-not-a-backup" id="toc-resume-is-not-a-backup" class="nav-link" data-scroll-target="#resume-is-not-a-backup"><span class="header-section-number">26.7</span> Resume is not a backup</a></li>
+  <li><a href="#generate-execution-evidence" id="toc-generate-execution-evidence" class="nav-link" data-scroll-target="#generate-execution-evidence"><span class="header-section-number">26.8</span> Generate execution evidence</a></li>
+  <li><a href="#retries-and-resource-escalation" id="toc-retries-and-resource-escalation" class="nav-link" data-scroll-target="#retries-and-resource-escalation"><span class="header-section-number">26.9</span> Retries and resource escalation</a></li>
+  <li><a href="#production-monitoring-checkpoints" id="toc-production-monitoring-checkpoints" class="nav-link" data-scroll-target="#production-monitoring-checkpoints"><span class="header-section-number">26.10</span> Production monitoring checkpoints</a></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">26.11</span> Verification checkpoint</a></li>
+  <li><a href="#common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning" id="toc-common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning" class="nav-link" data-scroll-target="#common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning"><span class="header-section-number">26.12</span> Common failure: treating a warning as an error—or an error as a warning</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">26.13</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">26.14</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">26.15</span> Interview grill</a></li>
+  <li><a href="#primary-references" id="toc-primary-references" class="nav-link" data-scroll-target="#primary-references"><span class="header-section-number">26.16</span> Primary references</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/16-testing-and-resume.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -480,9 +536,192 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This chapter deliberately supplies a missing input pattern, checks the nonzero exit code and interprets the error. It then uses <code>-resume</code> and a trace file to prove that all five completed tasks were restored from cache.</p>
+<section id="why-a-biologist-should-care" class="level2" data-number="26.1">
+<h2 data-number="26.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">26.1</span> Why a biologist should care</h2>
+<p>Large analyses fail. Storage disconnects, files are mislabeled, memory is underestimated and controller wall-times expire. A reproducible workflow must fail visibly, preserve evidence and avoid repeating correct expensive work.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="26.2">
+<h2 data-number="26.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">26.2</span> Engineering objective</h2>
+<p>Run a negative test, diagnose a task from evidence, demonstrate cache reuse and collect trace/report/timeline/DAG artifacts.</p>
+</section>
+<section id="before-you-type" class="level2" data-number="26.3">
+<h2 data-number="26.3" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">26.3</span> Before you type</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> examples/nextflow-basics</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 05-two-step-workflow.nf <span class="at">-profile</span> local</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Confirm the successful baseline before testing failure. A negative test is only informative when the positive control works.</p>
+</section>
+<section id="fail-before-analysis-with-input-validation" class="level2" data-number="26.4">
+<h2 data-number="26.4" class="anchored" data-anchor-id="fail-before-analysis-with-input-validation"><span class="header-section-number">26.4</span> Fail before analysis with input validation</h2>
+<p>Supply a pattern that matches nothing:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 04-paired-reads.nf <span class="dt">\</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--reads</span> <span class="st">'data/reads/DOES_NOT_EXIST_{R1,R2}.fastq'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expected outcome: nonzero exit and an error indicating that no files matched. That is a good failure because <code>checkIfExists: true</code> stops before task execution.</p>
+<p>Immediately record the shell status when scripting a test:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 04-paired-reads.nf <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--reads</span> <span class="st">'data/reads/DOES_NOT_EXIST_{R1,R2}.fastq'</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">status</span><span class="op">=</span><span class="va">$?</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="st">"</span><span class="va">$status</span><span class="st">"</span> <span class="at">-ne</span> 0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not use <code>set -e</code> around a deliberately failing command unless the test harness temporarily handles the expected nonzero status.</p>
+</section>
+<section id="diagnose-in-evidence-order" class="level2" data-number="26.5">
+<h2 data-number="26.5" class="anchored" data-anchor-id="diagnose-in-evidence-order"><span class="header-section-number">26.5</span> Diagnose in evidence order</h2>
+<p>When a real task fails, inspect:</p>
+<ol type="1">
+<li>the concise terminal error;</li>
+<li><code>.nextflow.log</code> for controller context;</li>
+<li>the indicated task directory;</li>
+<li><code>.command.sh</code> for the generated scientific command;</li>
+<li><code>.command.err</code> and <code>.command.log</code> for tool/runtime messages;</li>
+<li><code>.command.run</code> for container, staging and scheduler details;</li>
+<li><code>.exitcode</code> when created;</li>
+<li>scheduler state/accounting for termination, memory and time evidence.</li>
+</ol>
+<p>Separate the failure layer:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Evidence</th>
+<th>Likely layer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Java crash before launch</td>
+<td>host/Nextflow runtime</td>
+</tr>
+<tr class="even">
+<td>image pull or bind error</td>
+<td>container runtime/storage</td>
+</tr>
+<tr class="odd">
+<td>pending with scheduler reason</td>
+<td>executor/site policy</td>
+</tr>
+<tr class="even">
+<td>exit 137 or OOM event</td>
+<td>task memory/resource policy</td>
+</tr>
+<tr class="odd">
+<td>tool rejects FASTQ</td>
+<td>input/tool/scientific layer</td>
+</tr>
+<tr class="even">
+<td>missing declared output</td>
+<td>process contract or tool behavior</td>
+</tr>
+</tbody>
+</table>
+<p>Do not increase memory merely because a job failed. Find evidence of memory exhaustion first.</p>
+</section>
+<section id="resume-a-matching-run" class="level2" data-number="26.6">
+<h2 data-number="26.6" class="anchored" data-anchor-id="resume-a-matching-run"><span class="header-section-number">26.6</span> Resume a matching run</h2>
+<p>Run the successful workflow again:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 05-two-step-workflow.nf <span class="at">-profile</span> local <span class="at">-resume</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The status should report cached tasks. Nextflow reuses a successful task when its cache key still matches and its work data are available.</p>
+<p>Changes that commonly invalidate a task include:</p>
+<ul>
+<li>input content or metadata;</li>
+<li>process script or relevant directives;</li>
+<li>referenced executable/container configuration;</li>
+<li>some environment or global variables used by the task;</li>
+<li>cache mode and other relevant configuration.</li>
+</ul>
+<p>Changing a README should not rerun an unrelated task. Changing the sample ID or command should.</p>
+</section>
+<section id="resume-is-not-a-backup" class="level2" data-number="26.7">
+<h2 data-number="26.7" class="anchored" data-anchor-id="resume-is-not-a-backup"><span class="header-section-number">26.7</span> Resume is not a backup</h2>
+<p>The cache depends on <code>.nextflow/</code> metadata and <code>work/</code> outputs. If either is deleted, <code>-resume</code> cannot recover the task merely because a copy exists in <code>results/</code>. Preserve work until the run is accepted and no restart is needed.</p>
+<p>Use <code>nextflow clean</code> only after reviewing its target and retention policy. Do not run broad deletion commands copied from another project.</p>
+</section>
+<section id="generate-execution-evidence" class="level2" data-number="26.8">
+<h2 data-number="26.8" class="anchored" data-anchor-id="generate-execution-evidence"><span class="header-section-number">26.8</span> Generate execution evidence</h2>
+<p>Use job-specific names so reruns do not collide:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">RUN_ID</span><span class="op">=</span><span class="va">$(</span><span class="fu">date</span> +%Y%m%d-%H%M%S<span class="va">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 05-two-step-workflow.nf <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-profile</span> local <span class="dt">\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-resume</span> <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-with-trace</span> <span class="st">"logs/</span><span class="va">${RUN_ID}</span><span class="st">.trace.tsv"</span> <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-with-report</span> <span class="st">"logs/</span><span class="va">${RUN_ID}</span><span class="st">.report.html"</span> <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">-with-timeline</span> <span class="st">"logs/</span><span class="va">${RUN_ID}</span><span class="st">.timeline.html"</span> <span class="dt">\</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">-with-dag</span> <span class="st">"logs/</span><span class="va">${RUN_ID}</span><span class="st">.dag.html"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create <code>logs/</code> first. The trace supports task-level runtime, CPU, memory, I/O, status, hashes and native scheduler IDs. Columns can change by Nextflow version, so inspect the header:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-n</span> 1 logs/<span class="pp">*</span>.trace.tsv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The HTML report and timeline help explain performance. The DAG shows intended dependencies, not proof that biological outputs are correct.</p>
+</section>
+<section id="retries-and-resource-escalation" class="level2" data-number="26.9">
+<h2 data-number="26.9" class="anchored" data-anchor-id="retries-and-resource-escalation"><span class="header-section-number">26.9</span> Retries and resource escalation</h2>
+<p>Retries are appropriate for selected transient failures, not invalid FASTQs or wrong references. A common policy pattern is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>process <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    errorStrategy <span class="op">=</span> <span class="op">{</span> task<span class="op">.</span>exitStatus <span class="kw">in</span> <span class="fl">137..140</span> <span class="op">?</span> <span class="st">'retry'</span> <span class="op">:</span> <span class="st">'terminate'</span> <span class="op">}</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    maxRetries <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    memory <span class="op">=</span> <span class="op">{</span> <span class="fl">8.</span>GB <span class="op">*</span> task<span class="op">.</span>attempt <span class="op">}</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Treat this as a design example, not a universal copy-paste policy. Confirm site exit-code meaning, node capacity and maximum resource limits. Record retries in the final evidence.</p>
+</section>
+<section id="production-monitoring-checkpoints" class="level2" data-number="26.10">
+<h2 data-number="26.10" class="anchored" data-anchor-id="production-monitoring-checkpoints"><span class="header-section-number">26.10</span> Production monitoring checkpoints</h2>
+<p>For a controller job on Slurm:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">-j</span> CONTROLLER_JOB_ID</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">-u</span> <span class="st">"</span><span class="va">$USER</span><span class="st">"</span> <span class="at">-o</span> <span class="st">"%.18i %.55j %.2t %.10M %.30R"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> 60 logs/workflow.CONTROLLER_JOB_ID.out</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> 40 logs/workflow.CONTROLLER_JOB_ID.err</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Multiple <code>nf-...</code> jobs can be different processes for one sample. An empty <code>squeue</code> response means a job is no longer queued/running; inspect the final log for <code>Pipeline completed successfully</code> and verify outputs.</p>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="26.11">
+<h2 data-number="26.11" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">26.11</span> Verification checkpoint</h2>
+<p>Pass when:</p>
+<ol type="1">
+<li>the missing-input test exits nonzero before any task starts;</li>
+<li>the unchanged rerun reports every eligible task as cached;</li>
+<li>trace, report, timeline and DAG are nonempty;</li>
+<li>required outputs remain valid; and</li>
+<li>the run manifest records the command, versions, inputs and checksums.</li>
+</ol>
+</section>
+<section id="common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning" class="level2" data-number="26.12">
+<h2 data-number="26.12" class="anchored" data-anchor-id="common-failure-treating-a-warning-as-an-erroror-an-error-as-a-warning"><span class="header-section-number">26.12</span> Common failure: treating a warning as an error—or an error as a warning</h2>
+<p>An “updated Nextflow version available” message is informational when a project intentionally pins a validated version. A plugin version requirement, corrupt JAR, missing index or nonzero task exit is actionable. Classify messages by their effect and evidence, not by whether they appear on stderr.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="26.13">
+<h2 data-number="26.13" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">26.13</span> Try it yourself</h2>
+<p>Change only the report heading in <code>FORMAT_REPORT</code>, run with <code>-resume</code> and predict which process is cached. Use the trace to prove the answer.</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="26.14">
+<h2 data-number="26.14" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">26.14</span> What to remember</h2>
+<ul>
+<li>Test expected failure as well as success.</li>
+<li>Diagnose the failing layer before changing resources.</li>
+<li>Resume reuses matching work; it is not a substitute for backup.</li>
+<li>Preserve job-specific trace and HTML execution evidence.</li>
+<li>Scheduler disappearance is not a success criterion.</li>
+</ul>
+</section>
+<section id="interview-grill" class="level2" data-number="26.15">
+<h2 data-number="26.15" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">26.15</span> Interview grill</h2>
+<ol type="1">
+<li>What makes a negative test useful?</li>
+<li>Where do you find the exact command that failed?</li>
+<li>What does exit 137 suggest, and what must you verify?</li>
+<li>Which changes invalidate cache?</li>
+<li>Why does <code>results/</code> not guarantee resume?</li>
+<li>What does the native ID in a trace represent?</li>
+<li>When is retry appropriate?</li>
+<li>Why use job-specific report filenames?</li>
+<li>How do you distinguish one sample from multiple task jobs?</li>
+<li>What evidence proves final success?</li>
+</ol>
+</section>
+<section id="primary-references" class="level2" data-number="26.16">
+<h2 data-number="26.16" class="anchored" data-anchor-id="primary-references"><span class="header-section-number">26.16</span> Primary references</h2>
+<ul>
+<li><a href="https://www.nextflow.io/docs/latest/cache-and-resume.html">Nextflow cache and resume</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/reports.html">Nextflow reports</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/process.html#errorstrategy">Nextflow error strategies</a></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -910,7 +1149,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/16-testing-and-resume.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/16-testing-and-resume.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>

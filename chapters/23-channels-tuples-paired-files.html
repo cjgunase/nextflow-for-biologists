@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -47,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-683d4e0d048b158eada5e8077d4cc262.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-77f877a8bbdaf906de76408b5606b2fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -455,8 +490,34 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">23.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">23.2</span> Engineering objective</a></li>
+  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">23.3</span> Before you type</a></li>
+  <li><a href="#one-path-input" id="toc-one-path-input" class="nav-link" data-scroll-target="#one-path-input"><span class="header-section-number">23.4</span> One path input</a></li>
+  <li><a href="#many-files-create-many-tasks" id="toc-many-files-create-many-tasks" class="nav-link" data-scroll-target="#many-files-create-many-tasks"><span class="header-section-number">23.5</span> Many files create many tasks</a></li>
+  <li><a href="#observe-without-changing-data" id="toc-observe-without-changing-data" class="nav-link" data-scroll-target="#observe-without-changing-data"><span class="header-section-number">23.6</span> Observe without changing data</a></li>
+  <li><a href="#paired-fastq-shape" id="toc-paired-fastq-shape" class="nav-link" data-scroll-target="#paired-fastq-shape"><span class="header-section-number">23.7</span> Paired FASTQ shape</a></li>
+  <li><a href="#why-a-samplesheet-is-still-valuable" id="toc-why-a-samplesheet-is-still-valuable" class="nav-link" data-scroll-target="#why-a-samplesheet-is-still-valuable"><span class="header-section-number">23.8</span> Why a samplesheet is still valuable</a></li>
+  <li><a href="#operators-are-shape-transformations" id="toc-operators-are-shape-transformations" class="nav-link" data-scroll-target="#operators-are-shape-transformations"><span class="header-section-number">23.9</span> Operators are shape transformations</a></li>
+  <li><a href="#common-failures" id="toc-common-failures" class="nav-link" data-scroll-target="#common-failures"><span class="header-section-number">23.10</span> Common failures</a>
+  <ul class="collapse">
+  <li><a href="#orphan-mate" id="toc-orphan-mate" class="nav-link" data-scroll-target="#orphan-mate"><span class="header-section-number">23.10.1</span> Orphan mate</a></li>
+  <li><a href="#tuple-mismatch" id="toc-tuple-mismatch" class="nav-link" data-scroll-target="#tuple-mismatch"><span class="header-section-number">23.10.2</span> Tuple mismatch</a></li>
+  <li><a href="#consuming-one-queue-channel-twice-incorrectly" id="toc-consuming-one-queue-channel-twice-incorrectly" class="nav-link" data-scroll-target="#consuming-one-queue-channel-twice-incorrectly"><span class="header-section-number">23.10.3</span> Consuming one queue channel twice incorrectly</a></li>
+  </ul></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">23.11</span> Verification checkpoint</a></li>
+  <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">23.12</span> What changed on disk</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">23.13</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">23.14</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">23.15</span> Interview grill</a></li>
+  <li><a href="#primary-references" id="toc-primary-references" class="nav-link" data-scroll-target="#primary-references"><span class="header-section-number">23.16</span> Primary references</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/23-channels-tuples-paired-files.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -480,9 +541,211 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This planned chapter will teach explicit channel shapes, metadata tuples, paired inputs and the operators that connect Nextflow processes safely.</p>
+<section id="why-a-biologist-should-care" class="level2" data-number="23.1">
+<h2 data-number="23.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">23.1</span> Why a biologist should care</h2>
+<p>Most dangerous workflow bugs are not exotic syntax errors. They are metadata errors: R1 paired with the wrong R2, a sample label separated from its file, or results silently overwritten because every task chose the same name. Channel design protects biological identity while data move.</p>
+</section>
+<section id="engineering-objective" class="level2" data-number="23.2">
+<h2 data-number="23.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">23.2</span> Engineering objective</h2>
+<p>Progress from one file to a cohort, then represent each paired-end sample as:</p>
+<pre class="text"><code>[sample_id, [R1_path, R2_path]]</code></pre>
+<p>You will inspect that shape before any biological program runs.</p>
+</section>
+<section id="before-you-type" class="level2" data-number="23.3">
+<h2 data-number="23.3" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">23.3</span> Before you type</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> examples/nextflow-basics</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> data <span class="at">-maxdepth</span> 3 <span class="at">-type</span> f <span class="kw">|</span> <span class="fu">sort</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The fixtures are tiny text and FASTQ files. They are deterministic teaching data, not real sequencing results.</p>
+</section>
+<section id="one-path-input" class="level2" data-number="23.4">
+<h2 data-number="23.4" class="anchored" data-anchor-id="one-path-input"><span class="header-section-number">23.4</span> One path input</h2>
+<p>Run the second example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 02-one-file.nf</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/02-one-file/sequence.character_count.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The important lines are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>params<span class="op">.</span>input <span class="op">=</span> <span class="st">"</span><span class="ss">${</span>projectDir<span class="ss">}</span><span class="st">/data/sequence.txt"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>workflow <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    input_file <span class="op">=</span> <span class="fu">file</span><span class="op">(</span>params<span class="op">.</span>input<span class="op">,</span> checkIfExists<span class="op">:</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">COUNT_CHARACTERS</span><span class="op">(</span>input_file<span class="op">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>projectDir</code> is the pipeline-code directory, making the default independent of the terminal’s launch directory. <code>file(..., checkIfExists: true)</code> converts the parameter into a path value and fails early if it is absent.</p>
+<p>The process declares <code>path sequence</code>. Nextflow stages that file into an isolated task directory. The script should refer to <code>${sequence}</code>, not reach back to an undeclared absolute path.</p>
+</section>
+<section id="many-files-create-many-tasks" class="level2" data-number="23.5">
+<h2 data-number="23.5" class="anchored" data-anchor-id="many-files-create-many-tasks"><span class="header-section-number">23.5</span> Many files create many tasks</h2>
+<p>Run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 03-many-samples.nf</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> results/03-many-samples <span class="at">-type</span> f <span class="at">-maxdepth</span> 1 <span class="at">-print</span> <span class="at">-exec</span> cat {} <span class="dt">\;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The channel is built in two steps:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> channel</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">fromPath</span><span class="op">(</span>params<span class="op">.</span>input<span class="op">,</span> checkIfExists<span class="op">:</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">map</span> <span class="op">{</span> sample_file <span class="op">-&gt;</span> <span class="fu">tuple</span><span class="op">(</span>sample_file<span class="op">.</span>baseName<span class="op">,</span> sample_file<span class="op">)</span> <span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Read the shape transition:</p>
+<pre class="text"><code>before map: path
+after map:  [sample_id, path]</code></pre>
+<p>For <code>alpha.txt</code>, the tuple is conceptually:</p>
+<pre class="text"><code>["alpha", /.../data/samples/alpha.txt]</code></pre>
+<p>The process contract must match that shape:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>input<span class="op">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>tuple <span class="fu">val</span><span class="op">(</span>sample_id<span class="op">),</span> <span class="fu">path</span><span class="op">(</span>sample_file<span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Nextflow creates one <code>COUNT_LINES</code> task per tuple. The <code>sample_id</code> travels with the staged file and is used in output naming.</p>
+</section>
+<section id="observe-without-changing-data" class="level2" data-number="23.6">
+<h2 data-number="23.6" class="anchored" data-anchor-id="observe-without-changing-data"><span class="header-section-number">23.6</span> Observe without changing data</h2>
+<p>The example uses:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>COUNT_LINES<span class="op">.</span>out<span class="op">.</span>counts<span class="op">.</span><span class="fu">view</span> <span class="op">{</span> sample_id<span class="op">,</span> count_file <span class="op">-&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"completed sample=</span><span class="ss">${</span>sample_id<span class="ss">}</span><span class="st">; task_output=</span><span class="ss">${</span>count_file<span class="ss">}</span><span class="st">"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>view</code> is a development aid. It displays items flowing through a channel and returns them unchanged. Do not print protected sample metadata into public or widely readable logs.</p>
+</section>
+<section id="paired-fastq-shape" class="level2" data-number="23.7">
+<h2 data-number="23.7" class="anchored" data-anchor-id="paired-fastq-shape"><span class="header-section-number">23.7</span> Paired FASTQ shape</h2>
+<p>List the teaching reads:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> data/reads <span class="at">-type</span> f <span class="at">-maxdepth</span> 1 <span class="at">-print</span> <span class="kw">|</span> <span class="fu">sort</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The naming rule is:</p>
+<pre class="text"><code>mouse_A_R1.fastq
+mouse_A_R2.fastq
+mouse_B_R1.fastq
+mouse_B_R2.fastq</code></pre>
+<p>Run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 04-paired-reads.nf</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> results/04-paired-reads <span class="at">-type</span> f <span class="at">-maxdepth</span> 1 <span class="at">-print</span> <span class="at">-exec</span> cat {} <span class="dt">\;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This factory groups mates:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>read_pairs <span class="op">=</span> channel<span class="op">.</span><span class="fu">fromFilePairs</span><span class="op">(</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"</span><span class="ss">${</span>projectDir<span class="ss">}</span><span class="st">/data/reads/*_{R1,R2}.fastq"</span><span class="op">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    checkIfExists<span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For each sample it emits a sample ID and a two-path list. The process consumes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>input<span class="op">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>tuple <span class="fu">val</span><span class="op">(</span>sample_id<span class="op">),</span> <span class="fu">path</span><span class="op">(</span>reads<span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Within the process script, <code>reads[0]</code> and <code>reads[1]</code> are R1 and R2 according to the filename pattern. The task counts FASTQ records by dividing line count by four.</p>
+</section>
+<section id="why-a-samplesheet-is-still-valuable" class="level2" data-number="23.8">
+<h2 data-number="23.8" class="anchored" data-anchor-id="why-a-samplesheet-is-still-valuable"><span class="header-section-number">23.8</span> Why a samplesheet is still valuable</h2>
+<p>Filename pairing is concise when naming is perfectly regular. A production samplesheet is clearer when you need lanes, groups, library metadata, stranded status or paths that do not share a simple pattern.</p>
+<p>Validate metadata before creating channels:</p>
+<ul>
+<li>header matches the pipeline schema;</li>
+<li>sample identifiers are unique under the intended grouping rules;</li>
+<li>every R1 and R2 exists and is readable;</li>
+<li>no orphan mate remains;</li>
+<li>paths contain the intended sample, species and run;</li>
+<li>protected identifiers are handled according to policy.</li>
+</ul>
+<p>Nextflow can automate execution; it cannot infer that an incorrectly labeled FASTQ belongs to another patient.</p>
+</section>
+<section id="operators-are-shape-transformations" class="level2" data-number="23.9">
+<h2 data-number="23.9" class="anchored" data-anchor-id="operators-are-shape-transformations"><span class="header-section-number">23.9</span> Operators are shape transformations</h2>
+<p>Do not memorize operators as punctuation. Write their input and output shapes.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Operator</th>
+<th>Question it answers</th>
+<th>Example shape change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>map</code></td>
+<td>How should each item change?</td>
+<td><code>path → [id,path]</code></td>
+</tr>
+<tr class="even">
+<td><code>filter</code></td>
+<td>Which items continue?</td>
+<td>many items → selected items</td>
+</tr>
+<tr class="odd">
+<td><code>collect</code></td>
+<td>When do I need all items together?</td>
+<td>stream → one list</td>
+</tr>
+<tr class="even">
+<td><code>combine</code>/<code>join</code></td>
+<td>How do keyed datasets meet?</td>
+<td>two keyed streams → joined tuples</td>
+</tr>
+<tr class="odd">
+<td><code>view</code></td>
+<td>What is flowing here?</td>
+<td>unchanged, plus diagnostic output</td>
+</tr>
+</tbody>
+</table>
+<p><code>collect</code> creates a synchronization point and can accumulate substantial metadata in controller memory. Use it when a tool genuinely needs all items, such as a cohort summary—not merely to make code look sequential.</p>
+</section>
+<section id="common-failures" class="level2" data-number="23.10">
+<h2 data-number="23.10" class="anchored" data-anchor-id="common-failures"><span class="header-section-number">23.10</span> Common failures</h2>
+<section id="orphan-mate" class="level3" data-number="23.10.1">
+<h3 data-number="23.10.1" class="anchored" data-anchor-id="orphan-mate"><span class="header-section-number">23.10.1</span> Orphan mate</h3>
+<p>Rename one fixture temporarily so its R2 no longer matches and run the paired example. With <code>checkIfExists</code>, a pattern that matches nothing fails, but <code>fromFilePairs</code> may not diagnose every naming mistake the way a dedicated samplesheet validator does. Inspect emitted tuples and validate pairs before production.</p>
+</section>
+<section id="tuple-mismatch" class="level3" data-number="23.10.2">
+<h3 data-number="23.10.2" class="anchored" data-anchor-id="tuple-mismatch"><span class="header-section-number">23.10.2</span> Tuple mismatch</h3>
+<p>If the channel emits <code>[id, [R1,R2]]</code> but the process expects three separate elements, staging fails. Print one item with <code>view</code>, describe the shape, and make the producer and consumer contracts agree.</p>
+</section>
+<section id="consuming-one-queue-channel-twice-incorrectly" class="level3" data-number="23.10.3">
+<h3 data-number="23.10.3" class="anchored" data-anchor-id="consuming-one-queue-channel-twice-incorrectly"><span class="header-section-number">23.10.3</span> Consuming one queue channel twice incorrectly</h3>
+<p>Modern DSL2 supports safe channel reuse for process invocation patterns, but arbitrary operator combinations can still change timing and shape. Branch deliberately and name emitted outputs rather than assuming line order.</p>
+</section>
+</section>
+<section id="verification-checkpoint" class="level2" data-number="23.11">
+<h2 data-number="23.11" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">23.11</span> Verification checkpoint</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="st">"</span><span class="va">$(</span><span class="fu">grep</span> <span class="st">'^R1_reads='</span> results/04-paired-reads/mouse_A.pair_summary.txt<span class="va">)</span><span class="st">"</span> = <span class="st">'R1_reads=2'</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="st">"</span><span class="va">$(</span><span class="fu">grep</span> <span class="st">'^R2_reads='</span> results/04-paired-reads/mouse_A.pair_summary.txt<span class="va">)</span><span class="st">"</span> = <span class="st">'R2_reads=2'</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="st">"</span><span class="va">$(</span><span class="fu">grep</span> <span class="st">'^R1_reads='</span> results/04-paired-reads/mouse_B.pair_summary.txt<span class="va">)</span><span class="st">"</span> = <span class="st">'R1_reads=1'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>All three commands must exit zero. Matching counts do not prove correct pairing by themselves, but mismatching counts are a clear stop condition.</p>
+</section>
+<section id="what-changed-on-disk" class="level2" data-number="23.12">
+<h2 data-number="23.12" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">23.12</span> What changed on disk</h2>
+<p>The examples add separate task directories for each input item and published files named with their sample IDs. This is why task count grows with samples.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="23.13">
+<h2 data-number="23.13" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">23.13</span> Try it yourself</h2>
+<p>Add <code>mouse_C_R1.fastq</code> without R2. Predict the behavior, run the example and explain whether the failure occurred at channel construction, task execution or scientific validation. Then restore the fixture.</p>
+</section>
+<section id="what-to-remember" class="level2" data-number="23.14">
+<h2 data-number="23.14" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">23.14</span> What to remember</h2>
+<ul>
+<li>State channel shapes explicitly.</li>
+<li>Keep sample identity and files together in tuples.</li>
+<li>Pairing conventions are assumptions that must be validated.</li>
+<li>Operators transform shapes; they are not decorative syntax.</li>
+<li>One channel item usually creates one task invocation.</li>
+</ul>
+</section>
+<section id="interview-grill" class="level2" data-number="23.15">
+<h2 data-number="23.15" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">23.15</span> Interview grill</h2>
+<ol type="1">
+<li>What shape does <code>fromFilePairs</code> emit here?</li>
+<li>Why is a sample ID a <code>val</code>?</li>
+<li>Why are reads declared with <code>path</code>?</li>
+<li>What does <code>map</code> change in the many-samples example?</li>
+<li>What is the difference between a channel and a samplesheet?</li>
+<li>When is <code>collect</code> appropriate?</li>
+<li>How would you diagnose a tuple-shape mismatch?</li>
+<li>Why is equal R1/R2 count necessary but insufficient evidence?</li>
+<li>How do output filenames avoid cohort collisions?</li>
+<li>What metadata checks belong before workflow execution?</li>
+</ol>
+</section>
+<section id="primary-references" class="level2" data-number="23.16">
+<h2 data-number="23.16" class="anchored" data-anchor-id="primary-references"><span class="header-section-number">23.16</span> Primary references</h2>
+<ul>
+<li><a href="https://www.nextflow.io/docs/latest/channel.html">Nextflow channel factories</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/operator.html">Nextflow operators</a></li>
+<li><a href="https://www.nextflow.io/docs/latest/process.html#inputs">Nextflow process inputs</a></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -910,7 +1173,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/23-channels-tuples-paired-files.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/23-channels-tuples-paired-files.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>
