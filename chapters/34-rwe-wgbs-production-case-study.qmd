@@ -606,6 +606,351 @@ correct, a method is validated or an output is scientifically acceptable. In a
 regulated environment, integrate this engineering evidence into the applicable
 quality system rather than labeling a public tutorial “CLIA validated.”
 
+## Use the companion repository for your own WGBS analysis
+
+The public
+[WGBS methylseq pipeline repository](https://github.com/cjgunase/wgbs-methylseq-pipeline)
+is the reusable implementation behind this case study. A new user can clone or
+fork it, but cannot safely launch a large cohort without supplying and validating
+their own infrastructure, reference, inputs and capacity policy.
+
+### Clone versus fork
+
+Clone when you want to use the documented workflow without maintaining a public
+variant:
+
+```bash
+git clone https://github.com/cjgunase/wgbs-methylseq-pipeline.git
+cd wgbs-methylseq-pipeline
+git rev-parse HEAD
+```
+
+Fork first when your group intends to maintain reviewed changes, site profiles
+or additional features. Keep private paths and regulated metadata out of both
+the original repository and the fork.
+
+Record the commit from `git rev-parse HEAD` in every run manifest. A Git branch
+name such as `main` can move; a commit identifies the code reviewed at launch.
+
+### What the repository supplies
+
+| Repository component | Purpose |
+|---|---|
+| `bin/check_environment.sh` | Check host prerequisites and report actionable failures |
+| `bin/run_nfcore_test.sbatch` | Run the tiny bundled methylseq test through Slurm/Singularity |
+| `bin/build_bismark_index.sbatch` | Build a containerized Bismark index from a supplied FASTA |
+| `bin/make_samplesheet.sh` | Generate paired samplesheet rows from regular R1/R2 filenames |
+| `bin/run_pilot.sbatch` | Run a real-data subset with the production-like pipeline |
+| `bin/preflight.sh` | Check paths, pairing, reference/index, output collision and storage |
+| `bin/run_production.sbatch` | Guarded full-sample/cohort Nextflow controller |
+| `bin/monitor_run.sh` | Read-only Slurm/controller progress summary |
+| `conf/*.example` | Portable templates without private site values |
+| `params/*.example.yaml` | Analysis parameter templates |
+| `assets/run-manifest.template.md` | Private execution/provenance record |
+| `docs/` | Beginner explanations, troubleshooting and acceptance gates |
+
+The repository does **not** supply your sequencing data, reference assembly,
+scheduler account, storage allocation, Java installation or permission to use
+the cluster.
+
+### Host prerequisites
+
+For a Slurm HPC system, obtain or verify:
+
+- Java compatible with the selected Nextflow version;
+- a pinned Nextflow launcher/framework;
+- Git and a download tool such as `curl`;
+- Slurm commands including `sbatch` and `squeue`;
+- Singularity or Apptainer allowed by the site;
+- shared storage readable from compute nodes; and
+- sufficient quota for inputs, `work/`, results, framework and image caches.
+
+Bioinformatics tools such as FastQC, Trim Galore, Bismark and SAMtools are
+provided by nf-core's versioned containers. Users normally do not rebuild one
+large custom container for this workflow. The first run downloads the required
+images; offline sites must pre-stage them according to local policy.
+
+On a laptop or workstation, follow the repository's local installation guide
+and use Docker where supported. Production-scale WGBS generally requires an
+HPC or cloud environment with adequate storage and scheduler capacity.
+
+### Step 1: create the private site environment
+
+From the repository root:
+
+```bash
+cp conf/site.env.example conf/site.env
+```
+
+Edit the ignored `conf/site.env`:
+
+```bash
+PROJECT=/project/xxx/wgbs-pilot
+JAVA_MODULE=java/xxx
+CONTAINER_MODULE=singularity/xxx
+CONTAINER_PROFILE=singularity
+NEXTFLOW_VERSION=25.10.7
+METHYLSEQ_VERSION=4.2.0
+NEXTFLOW_BIN=/absolute/path/to/bin/nextflow
+```
+
+Values shown are placeholders except the versions validated in this case study.
+If your site requires different versions, treat that as a new compatibility
+combination: rerun the environment check and smoke test and record the result.
+
+Place `PROJECT`, `NXF_HOME`, work data and container caches on an appropriate
+large filesystem—not automatically in a quota-limited home directory.
+
+### Step 2: verify the host on a compute node
+
+Request a small interactive allocation using your site's documented syntax,
+then run:
+
+```bash
+bash bin/check_environment.sh
+```
+
+Proceed only when Java, Nextflow, the container runtime and Slurm tools report
+`OK`. A missing bioinformatics executable on the host is not necessarily an
+error because task software runs in containers.
+
+### Step 3: run the tiny infrastructure smoke test
+
+```bash
+mkdir -p logs
+sbatch bin/run_nfcore_test.sbatch
+```
+
+Record the controller job ID, monitor it and require the final success marker.
+Confirm that the test produces BAM/BAI, `.cov.gz`, FastQC, Bismark reports and
+MultiQC. This stage uses nf-core test data and its test reference; it does not
+validate your species assembly or sequencing data.
+
+### Step 4: prepare a species- and assembly-specific reference
+
+Choose a traceable FASTA. Record:
+
+- species and assembly name/release;
+- authoritative source and retrieval date;
+- primary/alternate/decoy content decisions;
+- chromosome naming convention; and
+- SHA-256 checksum.
+
+Build a self-contained index:
+
+```bash
+sbatch bin/build_bismark_index.sbatch \
+  /absolute/path/to/reference.fa \
+  /absolute/path/to/bismark_species_assembly
+```
+
+The destination should contain the FASTA plus `Bisulfite_Genome/CT_conversion`
+and `GA_conversion`, each with six Bowtie2 index files. The index must match the
+exact FASTA supplied to methylseq.
+
+For mouse, plant or another organism, substitute the correct assembly and build
+a new index. The workflow is species-independent; the reference is not.
+
+### Step 5: prepare and validate input metadata
+
+Expected paired filename pattern for the generator:
+
+```text
+SAMPLE_001_R1.fastq.gz
+SAMPLE_001_R2.fastq.gz
+```
+
+Generate a samplesheet:
+
+```bash
+bash bin/make_samplesheet.sh \
+  /absolute/path/to/fastq-directory \
+  /absolute/path/to/study.samplesheet.csv
+```
+
+Inspect it rather than trusting generation:
+
+```bash
+head /absolute/path/to/study.samplesheet.csv
+wc -l /absolute/path/to/study.samplesheet.csv
+```
+
+The methylseq 4.2.0 paired-end shape used here is:
+
+```csv
+sample,fastq_1,fastq_2,genome
+SAMPLE_001,/data/SAMPLE_001_R1.fastq.gz,/data/SAMPLE_001_R2.fastq.gz,
+```
+
+If filenames do not follow the supported pattern, create and validate the CSV
+deliberately. Confirm every sample ID, R1/R2 association, file existence,
+readability and study-metadata mapping. The generator cannot detect a FASTQ
+that was mislabeled before it reached the directory.
+
+### Step 6: run a synchronized real-data pilot
+
+Create the same number of records from R1 and R2 on a compute node. The
+repository guide uses 10,000,000 read pairs:
+
+```bash
+seqkit head --number 10000000 SAMPLE_001_R1.fastq.gz \
+  --out-file SAMPLE_001_10M_R1.fastq.gz
+
+seqkit head --number 10000000 SAMPLE_001_R2.fastq.gz \
+  --out-file SAMPLE_001_10M_R2.fastq.gz
+
+seqkit stats SAMPLE_001_10M_R1.fastq.gz SAMPLE_001_10M_R2.fastq.gz
+gzip -t SAMPLE_001_10M_R1.fastq.gz SAMPLE_001_10M_R2.fastq.gz
+```
+
+Copy and edit the pilot parameter template:
+
+```bash
+cp params/pilot.example.yaml /private/path/pilot.params.yaml
+```
+
+Set `input`, a new `outdir`, `aligner: bismark`, the FASTA and its matching
+`bismark_index`. Submit:
+
+```bash
+sbatch bin/run_pilot.sbatch /private/path/pilot.params.yaml
+```
+
+Review trace, required outputs and MultiQC. Use the pilot for engineering
+throughput and compatibility—not final duplication, coverage or biology.
+
+### Step 7: configure one complete-sample qualification
+
+Do not use the cohort samplesheet yet. Select one representative complete
+paired sample and create a new production project root with separate work,
+results, logs and caches.
+
+Create private production files:
+
+```bash
+cp conf/production.env.example conf/production.env
+cp conf/production.shared.config.example conf/production.local.config
+cp params/production.example.yaml params/one-sample.production.yaml
+```
+
+Edit every placeholder. The parameter file should resemble:
+
+```yaml
+input: /storage/xxx/samplesheets/one-sample.csv
+outdir: /storage/xxx/results/SAMPLE_001
+
+aligner: bismark
+fasta: /storage/xxx/reference/bismark_species_assembly/reference.fa
+bismark_index: /storage/xxx/reference/bismark_species_assembly
+```
+
+Preflight using the production environment explicitly:
+
+```bash
+SITE_ENV=conf/production.env \
+  bash bin/preflight.sh params/one-sample.production.yaml
+```
+
+Resolve every `STOP` and review every warning. Submit from the repository root:
+
+```bash
+mkdir -p logs
+sbatch bin/run_production.sbatch params/one-sample.production.yaml
+```
+
+Do not call the repository qualified for your environment merely because the
+job started. Apply the complete-sample acceptance gate in this chapter.
+
+### Step 8: preserve the exact launch record
+
+At submission, create a private run manifest and snapshot the submitted files:
+
+```bash
+mkdir -p /storage/xxx/run_manifests
+cp assets/run-manifest.template.md \
+  /storage/xxx/run_manifests/JOB_ID.run-manifest.md
+cp /private/path/samplesheet.csv \
+  /storage/xxx/run_manifests/JOB_ID.samplesheet.csv
+cp /private/path/params.yaml \
+  /storage/xxx/run_manifests/JOB_ID.params.yaml
+sha256sum /storage/xxx/run_manifests/JOB_ID.samplesheet.csv
+sha256sum /storage/xxx/run_manifests/JOB_ID.params.yaml
+git rev-parse HEAD
+```
+
+Complete the manifest with the reference checksum, workflow revisions,
+container/software evidence, deviations, task trace and QC disposition.
+
+### Step 9: prepare the cohort only after qualification
+
+When the representative full sample passes:
+
+1. replace pilot projections with measured full-sample runtime, peak RSS, CPU
+   efficiency, I/O and storage;
+2. inspect sample-size variability across the cohort;
+3. review `conf/production.local.config` with the HPC team;
+4. choose concurrency that respects shared resources and controller wall-time;
+5. create a new unused cohort output directory;
+6. rerun preflight with the complete samplesheet; and
+7. submit the same pinned workflow/reference configuration.
+
+The example policy limits Bismark alignment to ten concurrent samples. It is a
+starting point derived from one cluster and pilot—not a universal safe value.
+Sites with different node sizes, fair-share rules or memory must choose their
+own reviewed limit.
+
+### Step 10: monitor, resume and clean deliberately
+
+Monitor the controller and task jobs:
+
+```bash
+bash bin/monitor_run.sh CONTROLLER_JOB_ID
+```
+
+If the controller or a task fails, diagnose before changing configuration.
+Relaunch the same run with the same work directory and `-resume` through the
+guarded launcher. Do not delete `work/` while recovery or review remains
+possible.
+
+Clean work data only after:
+
+- every required result and report is verified;
+- provenance and checksums are complete;
+- outputs have the required backup/retention protection;
+- no resume is expected; and
+- the exact cleanup target has been reviewed.
+
+### What users should customize—and what they should not
+
+| Customize for your project/site | Keep stable unless deliberately revalidated |
+|---|---|
+| storage roots and cache paths | biological process ordering |
+| Java/container module names | whole-sample deduplication semantics |
+| scheduler account/partition policy | pairing and samplesheet contracts |
+| species/assembly FASTA and index | reference/index identity requirement |
+| samplesheet and output directory | provenance and checksum requirements |
+| reviewed CPU/memory/time/concurrency | smoke → pilot → full-sample gates |
+| optional methylseq parameters justified by assay | pinned versions used for an accepted run |
+
+Do not edit cached nf-core pipeline source to make site-specific changes. Use
+parameters and layered configuration so the upstream revision remains
+identifiable and updateable.
+
+### Honest readiness statement
+
+Before the complete-sample qualification finishes, the correct description is:
+
+> The companion repository provides a containerized, Slurm-ready and documented
+> framework. Host bootstrap, the nf-core smoke test, the matching GRCh38 Bismark
+> index and the 10M-pair real-data pilot have been demonstrated. Complete-sample
+> production qualification is in progress.
+
+After a user's own complete representative sample passes all gates, they may
+state that the configuration was qualified in that specific environment for
+that reference, assay, workflow revision and acceptance procedure. They should
+not generalize that claim automatically to another cluster, species, pipeline
+version or regulated intended use.
+
 ## What belongs in the public repository
 
 Publish:
@@ -720,4 +1065,3 @@ List the log, output, integrity, QC and provenance evidence still required.
 The complete portable implementation and continuously updated WGBS operations
 guide are maintained separately in the
 [WGBS methylseq pipeline repository](https://github.com/cjgunase/wgbs-methylseq-pipeline).
-
