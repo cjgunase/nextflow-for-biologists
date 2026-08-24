@@ -10,6 +10,11 @@ It uses deterministic synthetic reads and is not a clinical or WGBS pipeline.
 The complete beginner-to-industry writing plan and chapter acceptance gates are
 defined in [CURRICULUM.md](CURRICULUM.md).
 
+The Nextflow section includes a five-stage executable ladder in
+[`examples/nextflow-basics`](examples/nextflow-basics): one value, one file,
+many samples, paired FASTQs and a connected two-process workflow. GitHub Actions
+runs the examples with a pinned Nextflow version on every change.
+
 ## Read the book
 
 The published site will be available at:

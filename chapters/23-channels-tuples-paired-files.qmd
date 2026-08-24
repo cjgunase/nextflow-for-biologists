@@ -1,4 +1,259 @@
 # Channels, tuples and paired files
 
-This planned chapter will teach explicit channel shapes, metadata tuples,
-paired inputs and the operators that connect Nextflow processes safely.
+## Why a biologist should care
+
+Most dangerous workflow bugs are not exotic syntax errors. They are metadata
+errors: R1 paired with the wrong R2, a sample label separated from its file, or
+results silently overwritten because every task chose the same name. Channel
+design protects biological identity while data move.
+
+## Engineering objective
+
+Progress from one file to a cohort, then represent each paired-end sample as:
+
+```text
+[sample_id, [R1_path, R2_path]]
+```
+
+You will inspect that shape before any biological program runs.
+
+## Before you type
+
+```bash
+cd examples/nextflow-basics
+find data -maxdepth 3 -type f | sort
+```
+
+The fixtures are tiny text and FASTQ files. They are deterministic teaching
+data, not real sequencing results.
+
+## One path input
+
+Run the second example:
+
+```bash
+nextflow run 02-one-file.nf
+cat results/02-one-file/sequence.character_count.txt
+```
+
+The important lines are:
+
+```groovy
+params.input = "${projectDir}/data/sequence.txt"
+
+workflow {
+    input_file = file(params.input, checkIfExists: true)
+    COUNT_CHARACTERS(input_file)
+}
+```
+
+`projectDir` is the pipeline-code directory, making the default independent of
+the terminal's launch directory. `file(..., checkIfExists: true)` converts the
+parameter into a path value and fails early if it is absent.
+
+The process declares `path sequence`. Nextflow stages that file into an
+isolated task directory. The script should refer to `${sequence}`, not reach
+back to an undeclared absolute path.
+
+## Many files create many tasks
+
+Run:
+
+```bash
+nextflow run 03-many-samples.nf
+find results/03-many-samples -type f -maxdepth 1 -print -exec cat {} \;
+```
+
+The channel is built in two steps:
+
+```groovy
+samples = channel
+    .fromPath(params.input, checkIfExists: true)
+    .map { sample_file -> tuple(sample_file.baseName, sample_file) }
+```
+
+Read the shape transition:
+
+```text
+before map: path
+after map:  [sample_id, path]
+```
+
+For `alpha.txt`, the tuple is conceptually:
+
+```text
+["alpha", /.../data/samples/alpha.txt]
+```
+
+The process contract must match that shape:
+
+```groovy
+input:
+tuple val(sample_id), path(sample_file)
+```
+
+Nextflow creates one `COUNT_LINES` task per tuple. The `sample_id` travels with
+the staged file and is used in output naming.
+
+## Observe without changing data
+
+The example uses:
+
+```groovy
+COUNT_LINES.out.counts.view { sample_id, count_file ->
+    "completed sample=${sample_id}; task_output=${count_file}"
+}
+```
+
+`view` is a development aid. It displays items flowing through a channel and
+returns them unchanged. Do not print protected sample metadata into public or
+widely readable logs.
+
+## Paired FASTQ shape
+
+List the teaching reads:
+
+```bash
+find data/reads -type f -maxdepth 1 -print | sort
+```
+
+The naming rule is:
+
+```text
+mouse_A_R1.fastq
+mouse_A_R2.fastq
+mouse_B_R1.fastq
+mouse_B_R2.fastq
+```
+
+Run:
+
+```bash
+nextflow run 04-paired-reads.nf
+find results/04-paired-reads -type f -maxdepth 1 -print -exec cat {} \;
+```
+
+This factory groups mates:
+
+```groovy
+read_pairs = channel.fromFilePairs(
+    "${projectDir}/data/reads/*_{R1,R2}.fastq",
+    checkIfExists: true
+)
+```
+
+For each sample it emits a sample ID and a two-path list. The process consumes:
+
+```groovy
+input:
+tuple val(sample_id), path(reads)
+```
+
+Within the process script, `reads[0]` and `reads[1]` are R1 and R2 according to
+the filename pattern. The task counts FASTQ records by dividing line count by
+four.
+
+## Why a samplesheet is still valuable
+
+Filename pairing is concise when naming is perfectly regular. A production
+samplesheet is clearer when you need lanes, groups, library metadata, stranded
+status or paths that do not share a simple pattern.
+
+Validate metadata before creating channels:
+
+- header matches the pipeline schema;
+- sample identifiers are unique under the intended grouping rules;
+- every R1 and R2 exists and is readable;
+- no orphan mate remains;
+- paths contain the intended sample, species and run;
+- protected identifiers are handled according to policy.
+
+Nextflow can automate execution; it cannot infer that an incorrectly labeled
+FASTQ belongs to another patient.
+
+## Operators are shape transformations
+
+Do not memorize operators as punctuation. Write their input and output shapes.
+
+| Operator | Question it answers | Example shape change |
+|---|---|---|
+| `map` | How should each item change? | `path → [id,path]` |
+| `filter` | Which items continue? | many items → selected items |
+| `collect` | When do I need all items together? | stream → one list |
+| `combine`/`join` | How do keyed datasets meet? | two keyed streams → joined tuples |
+| `view` | What is flowing here? | unchanged, plus diagnostic output |
+
+`collect` creates a synchronization point and can accumulate substantial
+metadata in controller memory. Use it when a tool genuinely needs all items,
+such as a cohort summary—not merely to make code look sequential.
+
+## Common failures
+
+### Orphan mate
+
+Rename one fixture temporarily so its R2 no longer matches and run the paired
+example. With `checkIfExists`, a pattern that matches nothing fails, but
+`fromFilePairs` may not diagnose every naming mistake the way a dedicated
+samplesheet validator does. Inspect emitted tuples and validate pairs before
+production.
+
+### Tuple mismatch
+
+If the channel emits `[id, [R1,R2]]` but the process expects three separate
+elements, staging fails. Print one item with `view`, describe the shape, and
+make the producer and consumer contracts agree.
+
+### Consuming one queue channel twice incorrectly
+
+Modern DSL2 supports safe channel reuse for process invocation patterns, but
+arbitrary operator combinations can still change timing and shape. Branch
+deliberately and name emitted outputs rather than assuming line order.
+
+## Verification checkpoint
+
+```bash
+test "$(grep '^R1_reads=' results/04-paired-reads/mouse_A.pair_summary.txt)" = 'R1_reads=2'
+test "$(grep '^R2_reads=' results/04-paired-reads/mouse_A.pair_summary.txt)" = 'R2_reads=2'
+test "$(grep '^R1_reads=' results/04-paired-reads/mouse_B.pair_summary.txt)" = 'R1_reads=1'
+```
+
+All three commands must exit zero. Matching counts do not prove correct pairing
+by themselves, but mismatching counts are a clear stop condition.
+
+## What changed on disk
+
+The examples add separate task directories for each input item and published
+files named with their sample IDs. This is why task count grows with samples.
+
+## Try it yourself
+
+Add `mouse_C_R1.fastq` without R2. Predict the behavior, run the example and
+explain whether the failure occurred at channel construction, task execution or
+scientific validation. Then restore the fixture.
+
+## What to remember
+
+- State channel shapes explicitly.
+- Keep sample identity and files together in tuples.
+- Pairing conventions are assumptions that must be validated.
+- Operators transform shapes; they are not decorative syntax.
+- One channel item usually creates one task invocation.
+
+## Interview grill
+
+1. What shape does `fromFilePairs` emit here?
+2. Why is a sample ID a `val`?
+3. Why are reads declared with `path`?
+4. What does `map` change in the many-samples example?
+5. What is the difference between a channel and a samplesheet?
+6. When is `collect` appropriate?
+7. How would you diagnose a tuple-shape mismatch?
+8. Why is equal R1/R2 count necessary but insufficient evidence?
+9. How do output filenames avoid cohort collisions?
+10. What metadata checks belong before workflow execution?
+
+## Primary references
+
+- [Nextflow channel factories](https://www.nextflow.io/docs/latest/channel.html)
+- [Nextflow operators](https://www.nextflow.io/docs/latest/operator.html)
+- [Nextflow process inputs](https://www.nextflow.io/docs/latest/process.html#inputs)

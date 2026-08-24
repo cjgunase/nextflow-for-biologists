@@ -1,6 +1,237 @@
 # Your first Nextflow process
 
-This chapter builds a minimal DSL2 workflow, examines `.command.sh`,
-`.command.run`, `.command.log` and `.exitcode`, then ports raw FastQC as the
-first real process.
+## Why a biologist should care
 
+The safest way to learn a workflow language is to remove the biology briefly.
+If a one-line command fails, you can focus on Nextflow rather than wondering
+whether the reference genome, sample chemistry or tool parameters are wrong.
+
+## Engineering objective
+
+Run one process, locate its task directory, inspect the exact command, verify
+the output and rerun it from cache.
+
+## Before you type
+
+Verify Java and Nextflow:
+
+```bash
+java -version
+nextflow -version
+```
+
+Then enter the examples directory from the book repository:
+
+```bash
+cd examples/nextflow-basics
+pwd
+ls 01-hello.nf
+```
+
+Do not run computational tutorials on an HPC login node if local policy
+forbids Java or analysis processes there. Request a small compute allocation.
+
+## Build it: read the complete file
+
+Open `01-hello.nf`:
+
+```groovy
+nextflow.enable.dsl=2
+
+params.name = 'biologist'
+
+process MAKE_GREETING {
+    tag "${name}"
+    publishDir 'results/01-hello', mode: 'copy'
+
+    input:
+    val name
+
+    output:
+    path 'greeting.txt'
+
+    script:
+    """
+    echo "Hello, ${name}!" > greeting.txt
+    """
+}
+
+workflow {
+    MAKE_GREETING(params.name)
+}
+```
+
+### Read the syntax
+
+- `nextflow.enable.dsl=2` makes the DSL generation explicit for learners.
+- `params.name` declares a command-line parameter with a default.
+- `MAKE_GREETING` is the process definition.
+- `tag` places a meaningful value in logs instead of only a task hash.
+- `val name` accepts an ordinary value.
+- `path 'greeting.txt'` declares the file that success must produce.
+- the triple-quoted block is the shell script.
+- `MAKE_GREETING(params.name)` invokes the process in the workflow.
+- `publishDir ... mode: 'copy'` copies the selected result out of `work/`.
+
+This book uses process-level `publishDir` because it remains common in
+production and nf-core pipelines and is supported by the validated tutorial
+version. Newer Nextflow training also teaches workflow-level output publishing;
+learn to recognize both and follow the version policy of the project you join.
+
+## Run it
+
+```bash
+nextflow run 01-hello.nf --name Ada
+```
+
+Why two dashes before `name`: pipeline parameters use `--`. Core Nextflow
+options such as `-resume`, `-profile` and `-with-trace` use one dash.
+
+Expected status shape:
+
+```text
+[ab/cdef12] MAKE_GREETING (Ada) | 1 of 1 ✔
+```
+
+The hash will differ. Verify the published result:
+
+```bash
+cat results/01-hello/greeting.txt
+```
+
+Expected:
+
+```text
+Hello, Ada!
+```
+
+## Inspect task anatomy
+
+Ask Nextflow for the most recent task directory:
+
+```bash
+nextflow log last -f hash,name,status,workdir
+```
+
+Copy the printed work-directory path into a variable:
+
+```bash
+TASK_DIR=/absolute/path/printed/by/nextflow
+ls -la "$TASK_DIR"
+```
+
+Inspect evidence one file at a time:
+
+```bash
+cat "$TASK_DIR/.command.sh"
+cat "$TASK_DIR/.command.log"
+cat "$TASK_DIR/.exitcode"
+```
+
+- `.command.sh` is the scientific command generated for the process.
+- `.command.run` is Nextflow's execution wrapper, including staging/runtime.
+- `.command.out` and `.command.err` capture standard streams.
+- `.command.log` combines task output useful for diagnosis.
+- `.exitcode` should contain `0` for success.
+
+Do not edit files in a task directory to “fix” a run. Fix tracked pipeline code
+or configuration, then rerun.
+
+## Prove caching
+
+Run the same command with `-resume`:
+
+```bash
+nextflow run 01-hello.nf --name Ada -resume
+```
+
+Expected status includes `cached: 1`.
+
+Now change the input value:
+
+```bash
+nextflow run 01-hello.nf --name Grace -resume
+```
+
+This creates a new task because an input changed. Cache reuse is based on task
+identity, not merely the process name.
+
+## What changed on disk
+
+After the first run you should have:
+
+```text
+.nextflow.log
+.nextflow/
+work/
+results/01-hello/greeting.txt
+```
+
+The hidden metadata and `work/` support history, diagnosis and resume. They are
+normally ignored by Git.
+
+## Common failures
+
+### `nextflow: command not found`
+
+The launcher is absent or not in `PATH`. Return to the setup chapter and verify
+`command -v nextflow`.
+
+### Java fails before the pipeline starts
+
+Nextflow itself requires Java. On HPC, load a validated Java module inside a
+compute allocation and place `NXF_HOME` on a filesystem with adequate quota.
+
+### Output already exists
+
+Repeated publishing may overwrite or conflict depending on publish settings and
+Nextflow version. Use a new result directory for independent production runs;
+use `-resume` for continuation of the same run.
+
+## Verification checkpoint
+
+Pass only if:
+
+```bash
+test "$(cat results/01-hello/greeting.txt)" = 'Hello, Grace!'
+nextflow log last -f name,status
+```
+
+The shell test must exit zero and the latest task must be `COMPLETED` or
+`CACHED` as appropriate.
+
+## Commit checkpoint
+
+In your practice repository, a useful message would be:
+
+```bash
+git add 01-hello.nf
+git commit -m "feat: add first Nextflow greeting process"
+```
+
+Never commit `work/`, `.nextflow/` or large generated results.
+
+## Try it yourself
+
+Add a `--species` parameter and produce `Hello, Ada! Species: mouse.` Predict
+whether changing only `--species` with `-resume` should create a new task.
+
+## What to remember
+
+- Pipeline parameters use `--`; Nextflow options use `-`.
+- A declared output is part of the process contract.
+- The work hash points to task evidence.
+- `-resume` reuses only matching successful work.
+
+## Interview grill
+
+1. What launches the process in this file?
+2. Why is `name` a `val` rather than a `path`?
+3. What proves the shell command ran successfully?
+4. What happens if `greeting.txt` is not created?
+5. Why is `tag` useful in a cohort?
+6. Which directory supports resume?
+7. Why should task files not be edited manually?
+8. What invalidates the cached greeting task?
+9. How do pipeline parameters differ from core options?
+10. What does publishing add beyond a work-directory output?

@@ -58,3 +58,9 @@ Read the chapters in order the first time. Each practical chapter contains:
 6. a verification checkpoint;
 7. common failures and their causes; and
 8. a short exercise.
+
+When you reach the Nextflow section, run the repository's five tiny examples in
+order. They progress from one value to paired FASTQs and a connected workflow
+before introducing real bioinformatics tools, containers and Slurm. Every
+example is executed automatically in continuous integration with the pinned
+tutorial version of Nextflow.

@@ -1,0 +1,51 @@
+name: Test beginner Nextflow examples
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Nextflow
+        working-directory: examples/nextflow-basics
+        env:
+          NXF_VER: 25.10.7
+        run: |
+          curl -fsSL https://get.nextflow.io | bash
+          ./nextflow -version
+
+      - name: Run the example ladder
+        working-directory: examples/nextflow-basics
+        run: |
+          set -euo pipefail
+          ./nextflow run 01-hello.nf -profile local --name Ada
+          ./nextflow run 02-one-file.nf -profile local
+          ./nextflow run 03-many-samples.nf -profile local
+          ./nextflow run 04-paired-reads.nf -profile local
+          ./nextflow run 05-two-step-workflow.nf -profile local
+
+      - name: Verify expected results
+        working-directory: examples/nextflow-basics
+        run: |
+          set -euo pipefail
+          test "$(cat results/01-hello/greeting.txt)" = 'Hello, Ada!'
+          test "$(cat results/02-one-file/sequence.character_count.txt)" = '15'
+          test "$(cat results/03-many-samples/alpha.line_count.txt)" = '3'
+          test "$(cat results/03-many-samples/beta.line_count.txt)" = '2'
+          grep -q '^R1_reads=2$' results/04-paired-reads/mouse_A.pair_summary.txt
+          grep -q '^R2_reads=2$' results/04-paired-reads/mouse_A.pair_summary.txt
+          grep -q $'mouse_A\t2\t2' results/05-two-step/mouse_A.report.txt

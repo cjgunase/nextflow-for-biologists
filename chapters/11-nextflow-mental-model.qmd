@@ -1,6 +1,282 @@
 # Nextflow mental model
 
-This chapter introduces processes, channels, values, paths, task working
-directories, dataflow and `publishDir` without yet constructing the complete
-workflow.
+::: {.chapter-goals}
+**By the end of this chapter, you will be able to:**
 
+- explain what Nextflow does without calling it an aligner or scheduler;
+- distinguish a process definition from the tasks it creates;
+- describe channels as streams of data with explicit shapes;
+- explain why each task receives its own work directory;
+- predict which steps can run concurrently; and
+- separate workflow logic, software, execution platform and results.
+:::
+
+## Why a biologist should care
+
+A manual analysis often becomes a notebook of commands: run QC, trim reads,
+align, sort, deduplicate and calculate summaries. The commands may be correct,
+but the notebook does not automatically remember which outputs belong to which
+inputs, which steps may run together, or which completed work can be reused.
+
+Nextflow describes those relationships. It launches ordinary programs when
+their declared inputs become available, records task evidence and connects
+outputs to downstream steps.
+
+Nextflow does **not** perform alignment, trimming or methylation calling. Those
+jobs belong to tools such as Bismark, Bowtie2, Trim Galore and FastQC.
+
+## Engineering objective
+
+Learn this sentence:
+
+> Nextflow is a workflow engine that moves values and files through declared
+> process contracts and delegates each resulting task to an executor.
+
+That sentence contains the important layers:
+
+```text
+pipeline code     process contracts and data connections
+software          FastQC, Bismark, SAMtools, ordinary shell commands
+runtime           Conda, Docker, Singularity/Apptainer
+executor          local computer, Slurm, cloud batch service
+storage           inputs, work directories, published results, caches
+```
+
+Changing the executor should not change the scientific intention of the
+workflow. It changes where tasks run.
+
+## Start from a manual command
+
+Suppose you can count lines in one file manually:
+
+```bash
+wc -l sample.txt > sample.line_count.txt
+```
+
+A workflow representation must answer:
+
+1. What file is the input?
+2. What command runs?
+3. What output proves completion?
+4. What should receive that output next?
+5. Where should the task run and with which software and resources?
+
+Nextflow separates these answers instead of hiding them in one long script.
+
+## Process versus task
+
+A **process** is a reusable recipe. A **task** is one execution of that recipe
+for one set of inputs.
+
+```text
+process COUNT_LINES
+        │
+        ├── task for alpha.txt
+        ├── task for beta.txt
+        └── task for gamma.txt
+```
+
+This distinction explains Slurm output that surprises beginners. One biological
+sample can generate multiple scheduler jobs because FastQC, trimming, alignment
+and reporting are different tasks. Conversely, one process can generate 30
+tasks when 30 samples arrive.
+
+## Processes are contracts
+
+A process normally has four important sections:
+
+```groovy
+process COUNT_LINES {
+    input:
+    path sample_file
+
+    output:
+    path 'count.txt'
+
+    script:
+    """
+    wc -l < ${sample_file} > count.txt
+    """
+}
+```
+
+- `input` declares what the task needs.
+- `output` declares what successful execution must create.
+- `script` contains the command executed by the task.
+- directives placed above `input`, such as `cpus`, `memory`, `container`,
+  `tag` and `publishDir`, describe execution behavior.
+
+If the command exits zero but does not create `count.txt`, the process fails
+because its output contract was not satisfied.
+
+## Values, paths and tuples
+
+A channel item has a **shape**. Say the shape aloud before writing compact
+syntax.
+
+| Shape | Example | Typical use |
+|---|---|---|
+| value | `"mouse_A"` | sample ID, threshold, mode |
+| path | `/data/mouse_A_R1.fastq.gz` | a staged file |
+| tuple | `["mouse_A", R1, R2]` | metadata kept with paired files |
+| stream of tuples | one tuple per sample | a cohort |
+
+`val` inputs are ordinary values. `path` inputs tell Nextflow that a filesystem
+object must be staged into the task directory. A tuple keeps related values
+together while they travel through the workflow.
+
+## Channels carry data
+
+A channel is not a directory and not a CSV file. It is the runtime connection
+through which values move.
+
+```text
+paired FASTQ channel
+        │
+        ├──► raw QC
+        │
+        └──► trimming ──► alignment ──► BAM QC
+```
+
+When two independent processes receive the same input channel, Nextflow may run
+them concurrently. When alignment needs trimmed reads, it waits for trimming.
+You describe dependencies through data, not by manually waiting for job IDs.
+
+## Workflow block
+
+DSL2 connects channels and processes inside `workflow`:
+
+```groovy
+workflow {
+    samples = channel.fromPath('data/*.txt')
+    COUNT_LINES(samples)
+}
+```
+
+This reads as: create a stream of paths, then invoke `COUNT_LINES` for each
+item. The process definition says *how*; the workflow block says *how things
+connect*.
+
+## Task work directories
+
+Every task runs in an isolated hashed directory below `work/`:
+
+```text
+work/a3/7be2fa...
+├── .command.sh
+├── .command.run
+├── .command.log
+├── .command.out
+├── .command.err
+├── .exitcode
+├── staged inputs
+└── declared outputs
+```
+
+Isolation prevents 30 samples from overwriting one another's `output.txt`.
+The hash also contributes to caching. The short string printed beside a
+process, such as `[a3/7be2fa]`, points to this directory; it is not a scheduler
+job ID.
+
+## Work is not results
+
+`work/` is Nextflow's execution record and cache. A results directory contains
+selected outputs exposed for people and downstream use. Publishing does not
+mean that work files are disposable immediately: `-resume` needs the cache.
+
+Keep these ideas separate:
+
+- input data are authoritative sources;
+- work data are task-level intermediates and cache;
+- published results are selected deliverables;
+- execution reports and logs are provenance evidence.
+
+## Executor mental model
+
+With the local executor, Nextflow starts task processes on the current machine.
+With the Slurm executor, Nextflow submits task wrappers to Slurm. The small
+Nextflow controller must remain alive to observe completed tasks and submit
+downstream work.
+
+```text
+Nextflow controller
+    ├── submits FASTQC task ─────► Slurm
+    ├── submits TRIM task ───────► Slurm
+    ├── observes their outputs
+    └── submits ALIGN task ──────► Slurm
+```
+
+The controller is not the alignment job. Requesting 4 GB for the controller
+does not force Bismark to use 4 GB; process directives control task resources.
+
+## Cache and `-resume`
+
+For each task, Nextflow computes a cache key from relevant inputs, process code,
+configuration and environment information. A matching successful task can be
+reused with `-resume` while its work directory and cache metadata remain.
+
+Resume is selective recomputation, not magic checkpointing inside a running
+aligner. A failed alignment normally restarts that task; already completed
+upstream tasks may be cached.
+
+## Verification checkpoint
+
+For this graph:
+
+```text
+reads ──► FASTQC_RAW
+  └─────► TRIM ──► FASTQC_TRIMMED
+                └► ALIGN ──► BAM_QC
+```
+
+Predict before reading the answer:
+
+1. `FASTQC_RAW` and `TRIM` may begin together.
+2. `FASTQC_TRIMMED` waits for `TRIM`.
+3. `ALIGN` waits for `TRIM`.
+4. `FASTQC_TRIMMED` and `ALIGN` may run together after trimmed reads exist.
+5. `BAM_QC` waits for `ALIGN`.
+
+If you can explain those statements using data availability rather than line
+order, the core mental model is working.
+
+## Common failure: reading the console as a sample count
+
+Seeing two `nf-...` jobs for one sample does not mean the samplesheet was read
+twice. Inspect the full process names. They may be FastQC and trimming tasks for
+the same sample. Count biological samples from validated input metadata; count
+tasks from the workflow graph.
+
+## Try it yourself
+
+Draw a graph for: raw QC, trimming, post-trim QC and alignment. Circle the steps
+that can run concurrently. Then add a final MultiQC step that needs all reports.
+Where must it wait?
+
+## What to remember
+
+- Processes are recipes; tasks are executions.
+- Channels carry shaped data and create dependencies.
+- Each task has an isolated work directory.
+- Executors decide where tasks run; containers decide which software runs.
+- Published results and cached work serve different purposes.
+
+## Interview grill
+
+1. What is the difference between Nextflow and an aligner?
+2. What is the difference between a process and a task?
+3. Why can one sample create many Slurm jobs?
+4. What does a `path` input promise that a `val` input does not?
+5. Why attach a sample ID to files in a tuple?
+6. How does data availability express dependencies?
+7. What evidence lives in a task work directory?
+8. Why can deleting `work/` prevent efficient resume?
+9. What changes when switching from local to Slurm execution?
+10. Why is scheduler completion insufficient evidence of scientific success?
+
+## Primary references
+
+- [Nextflow processes](https://www.nextflow.io/docs/latest/process.html)
+- [Nextflow channels](https://www.nextflow.io/docs/latest/channel.html)
+- [Nextflow executors](https://www.nextflow.io/docs/latest/executor.html)
+- [Nextflow cache and resume](https://www.nextflow.io/docs/latest/cache-and-resume.html)

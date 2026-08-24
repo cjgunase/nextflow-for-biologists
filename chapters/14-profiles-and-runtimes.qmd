@@ -1,6 +1,265 @@
 # Profiles and software runtimes
 
-This chapter defines Conda-local, Singularity-local and SLURM-Singularity
-profiles. It explains the separation between workflow logic, software runtime
-and execution platform.
+## Why a biologist should care
 
+Editing scientific code every time you move from a laptop to HPC makes review
+and reproduction difficult. Profiles let the same workflow select local,
+containerized or scheduled execution without embedding private site policy in
+the pipeline graph.
+
+## Engineering objective
+
+Understand parameter, process, software-runtime and executor configuration;
+inspect resolved values before spending compute.
+
+## Four questions, four configuration concerns
+
+| Question | Typical setting |
+|---|---|
+| What data/analysis choice? | `params.input`, `params.outdir`, reference |
+| What does a task need? | `cpus`, `memory`, `time`, labels |
+| Which software environment? | `container`, Conda, Docker/Singularity enablement |
+| Where does it run? | local/Slurm executor, queue, account, cache paths |
+
+Parameters are not a good hiding place for every infrastructure option. A
+pipeline schema may reject or ignore invented keys. Inspect the pipeline's
+declared parameters rather than assuming `max_memory` has meaning everywhere.
+
+## Before you type
+
+```bash
+cd examples/nextflow-basics
+cat nextflow.config
+```
+
+The local teaching examples need only standard shell tools, so no container is
+required. The configuration still demonstrates executor profiles.
+
+## The local profile
+
+```groovy
+profiles {
+    local {
+        process.executor = 'local'
+    }
+}
+```
+
+Run:
+
+```bash
+nextflow run 05-two-step-workflow.nf -profile local
+```
+
+The controller and tasks run on the same computer. This is suitable for tiny
+development fixtures, not automatically for full WGS/WGBS datasets.
+
+## Labels and selectors
+
+Give processes semantic resource classes:
+
+```groovy
+process FASTQC_RAW {
+    label 'small'
+    // contract omitted
+}
+```
+
+Configure the class:
+
+```groovy
+process {
+    withLabel: small {
+        cpus = 1
+        memory = 1.GB
+        time = 10.m
+    }
+}
+```
+
+Labels keep resource intent out of repeated process code. `withName` targets a
+specific process and is useful when one expensive task needs an exception:
+
+```groovy
+process {
+    withName: BISMARK_ALIGN {
+        cpus = 12
+        memory = 72.GB
+        time = 8.d
+        maxForks = 10
+    }
+}
+```
+
+`time` is a termination ceiling, not a prediction. `maxForks = 10` limits how
+many matching tasks run concurrently; it does not split a sample into ten.
+
+## Containers separate software from the host
+
+A process can declare an OCI image:
+
+```groovy
+process FASTQC_RAW {
+    container 'quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0'
+}
+```
+
+Then a profile enables a compatible runtime:
+
+```groovy
+profiles {
+    docker_local {
+        process.executor = 'local'
+        docker.enabled = true
+    }
+
+    singularity_local {
+        process.executor = 'local'
+        singularity.enabled = true
+        singularity.autoMounts = true
+    }
+}
+```
+
+The container supplies FastQC. Java still runs Nextflow on the host. Slurm still
+schedules tasks. Containers do not replace either layer.
+
+## Slurm plus Singularity
+
+A sanitized profile has this shape:
+
+```groovy
+profiles {
+    slurm_singularity {
+        process.executor = 'slurm'
+        singularity.enabled = true
+        singularity.autoMounts = true
+        singularity.cacheDir = '/project/xxx/container-cache'
+    }
+}
+```
+
+Queue, account and cluster-specific options belong in a private site config:
+
+```groovy
+process {
+    queue = 'xxx'
+    clusterOptions = '--account=xxx'
+}
+```
+
+Do not publish private paths, accounts or internal topology. Provide a tracked
+example with placeholders and ignore the real local file.
+
+## Keep caches off small home quotas
+
+Nextflow framework files, pipeline assets and container images can exceed a
+small home quota. On HPC, configure stable project/scratch locations:
+
+```bash
+export NXF_HOME=/project/xxx/nextflow_home
+export NXF_SINGULARITY_CACHEDIR=/project/xxx/singularity_cache
+export SINGULARITY_CACHEDIR="$NXF_SINGULARITY_CACHEDIR"
+```
+
+Set these before Nextflow starts. Confirm that compute nodes can read the
+location and multiple jobs will not corrupt a site-incompatible cache.
+
+## Inspect resolved configuration
+
+Do not infer active policy by reading one file. Nextflow merges configuration
+from several sources. Ask it:
+
+```bash
+nextflow config -profile local -o flat . | less
+```
+
+For a cached remote pipeline, provide its project directory and relevant `-c`
+files. `nextflow config` options belong to the `config` command; pipeline
+revision flags accepted by `run` are not automatically valid there.
+
+Useful checks:
+
+```bash
+nextflow config -profile local -o flat . \
+  | grep -E 'process.executor|docker.enabled|singularity.enabled'
+```
+
+Expected local executor:
+
+```text
+process.executor = 'local'
+```
+
+## Configuration precedence
+
+Nextflow can read user, project, launch-directory and explicit configuration.
+Command-line `-c` files add another layer. Profiles are merged according to the
+active Nextflow syntax/version rules. Always inspect the resolved configuration
+when correctness or cost depends on precedence.
+
+Pin the Nextflow and pipeline versions used for validation. “Latest” is useful
+for exploration but weak provenance for production.
+
+## Common failures
+
+### Container works interactively but not in Nextflow
+
+Inspect `.command.run` for the actual runtime command and bind mounts. Confirm
+the cache and every input/reference path are visible on the compute node and
+inside the container.
+
+### Java crashes on a login node
+
+This is a host/runtime problem before the biological workflow starts. Load the
+validated module in a compute allocation; do not repeatedly test heavy Java on
+a constrained login node.
+
+### Requested resources exceed policy
+
+Use `nextflow config` and generated scheduler directives to find the source of
+the request. Apply site-approved `resourceLimits` only when needed; a low cap
+can make tools slow or cause out-of-memory failure.
+
+## Verification checkpoint
+
+```bash
+nextflow config -profile local -o flat . \
+  | grep "process.executor = 'local'"
+```
+
+Before HPC execution, similarly prove Slurm, Singularity, cache path and
+resource selectors resolve to reviewed values.
+
+## Try it yourself
+
+Create a `debug` profile that limits every task to 2 CPUs and 4 GB. Explain why
+that profile is useful for small fixtures but should not be used to estimate a
+production aligner's performance.
+
+## What to remember
+
+- Pipeline logic, tools, runtime and executor are separate layers.
+- Profiles switch reviewed configurations without editing workflow code.
+- Inspect resolved configuration before expensive execution.
+- Put caches on suitable storage and keep real site policy private.
+- Resource requests are hypotheses refined by measured traces.
+
+## Interview grill
+
+1. What is the difference between a container and an executor?
+2. What remains on the host when Singularity runs task software?
+3. Why use process labels?
+4. What does `maxForks` control?
+5. Why is `time = 8.d` not a runtime estimate?
+6. Where should scheduler accounts be configured?
+7. Why can home quota break Nextflow startup?
+8. How do you prove which config won?
+9. What is the risk of unsupported YAML parameters?
+10. Why pin workflow and Nextflow versions?
+
+## Primary references
+
+- [Nextflow configuration](https://www.nextflow.io/docs/latest/config.html)
+- [Nextflow process directives](https://www.nextflow.io/docs/latest/reference/process.html)
+- [Nextflow containers](https://www.nextflow.io/docs/latest/container.html)

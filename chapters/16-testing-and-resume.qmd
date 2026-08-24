@@ -1,6 +1,212 @@
 # Failure tests and resume caching
 
-This chapter deliberately supplies a missing input pattern, checks the nonzero
-exit code and interprets the error. It then uses `-resume` and a trace file to
-prove that all five completed tasks were restored from cache.
+## Why a biologist should care
 
+Large analyses fail. Storage disconnects, files are mislabeled, memory is
+underestimated and controller wall-times expire. A reproducible workflow must
+fail visibly, preserve evidence and avoid repeating correct expensive work.
+
+## Engineering objective
+
+Run a negative test, diagnose a task from evidence, demonstrate cache reuse and
+collect trace/report/timeline/DAG artifacts.
+
+## Before you type
+
+```bash
+cd examples/nextflow-basics
+nextflow run 05-two-step-workflow.nf -profile local
+```
+
+Confirm the successful baseline before testing failure. A negative test is only
+informative when the positive control works.
+
+## Fail before analysis with input validation
+
+Supply a pattern that matches nothing:
+
+```bash
+nextflow run 04-paired-reads.nf \
+  --reads 'data/reads/DOES_NOT_EXIST_{R1,R2}.fastq'
+```
+
+Expected outcome: nonzero exit and an error indicating that no files matched.
+That is a good failure because `checkIfExists: true` stops before task execution.
+
+Immediately record the shell status when scripting a test:
+
+```bash
+nextflow run 04-paired-reads.nf \
+  --reads 'data/reads/DOES_NOT_EXIST_{R1,R2}.fastq'
+status=$?
+test "$status" -ne 0
+```
+
+Do not use `set -e` around a deliberately failing command unless the test
+harness temporarily handles the expected nonzero status.
+
+## Diagnose in evidence order
+
+When a real task fails, inspect:
+
+1. the concise terminal error;
+2. `.nextflow.log` for controller context;
+3. the indicated task directory;
+4. `.command.sh` for the generated scientific command;
+5. `.command.err` and `.command.log` for tool/runtime messages;
+6. `.command.run` for container, staging and scheduler details;
+7. `.exitcode` when created;
+8. scheduler state/accounting for termination, memory and time evidence.
+
+Separate the failure layer:
+
+| Evidence | Likely layer |
+|---|---|
+| Java crash before launch | host/Nextflow runtime |
+| image pull or bind error | container runtime/storage |
+| pending with scheduler reason | executor/site policy |
+| exit 137 or OOM event | task memory/resource policy |
+| tool rejects FASTQ | input/tool/scientific layer |
+| missing declared output | process contract or tool behavior |
+
+Do not increase memory merely because a job failed. Find evidence of memory
+exhaustion first.
+
+## Resume a matching run
+
+Run the successful workflow again:
+
+```bash
+nextflow run 05-two-step-workflow.nf -profile local -resume
+```
+
+The status should report cached tasks. Nextflow reuses a successful task when
+its cache key still matches and its work data are available.
+
+Changes that commonly invalidate a task include:
+
+- input content or metadata;
+- process script or relevant directives;
+- referenced executable/container configuration;
+- some environment or global variables used by the task;
+- cache mode and other relevant configuration.
+
+Changing a README should not rerun an unrelated task. Changing the sample ID
+or command should.
+
+## Resume is not a backup
+
+The cache depends on `.nextflow/` metadata and `work/` outputs. If either is
+deleted, `-resume` cannot recover the task merely because a copy exists in
+`results/`. Preserve work until the run is accepted and no restart is needed.
+
+Use `nextflow clean` only after reviewing its target and retention policy. Do
+not run broad deletion commands copied from another project.
+
+## Generate execution evidence
+
+Use job-specific names so reruns do not collide:
+
+```bash
+RUN_ID=$(date +%Y%m%d-%H%M%S)
+
+nextflow run 05-two-step-workflow.nf \
+  -profile local \
+  -resume \
+  -with-trace "logs/${RUN_ID}.trace.tsv" \
+  -with-report "logs/${RUN_ID}.report.html" \
+  -with-timeline "logs/${RUN_ID}.timeline.html" \
+  -with-dag "logs/${RUN_ID}.dag.html"
+```
+
+Create `logs/` first. The trace supports task-level runtime, CPU, memory, I/O,
+status, hashes and native scheduler IDs. Columns can change by Nextflow version,
+so inspect the header:
+
+```bash
+head -n 1 logs/*.trace.tsv
+```
+
+The HTML report and timeline help explain performance. The DAG shows intended
+dependencies, not proof that biological outputs are correct.
+
+## Retries and resource escalation
+
+Retries are appropriate for selected transient failures, not invalid FASTQs or
+wrong references. A common policy pattern is:
+
+```groovy
+process {
+    errorStrategy = { task.exitStatus in 137..140 ? 'retry' : 'terminate' }
+    maxRetries = 2
+    memory = { 8.GB * task.attempt }
+}
+```
+
+Treat this as a design example, not a universal copy-paste policy. Confirm
+site exit-code meaning, node capacity and maximum resource limits. Record
+retries in the final evidence.
+
+## Production monitoring checkpoints
+
+For a controller job on Slurm:
+
+```bash
+squeue -j CONTROLLER_JOB_ID
+squeue -u "$USER" -o "%.18i %.55j %.2t %.10M %.30R"
+tail -n 60 logs/workflow.CONTROLLER_JOB_ID.out
+tail -n 40 logs/workflow.CONTROLLER_JOB_ID.err
+```
+
+Multiple `nf-...` jobs can be different processes for one sample. An empty
+`squeue` response means a job is no longer queued/running; inspect the final log
+for `Pipeline completed successfully` and verify outputs.
+
+## Verification checkpoint
+
+Pass when:
+
+1. the missing-input test exits nonzero before any task starts;
+2. the unchanged rerun reports every eligible task as cached;
+3. trace, report, timeline and DAG are nonempty;
+4. required outputs remain valid; and
+5. the run manifest records the command, versions, inputs and checksums.
+
+## Common failure: treating a warning as an error—or an error as a warning
+
+An “updated Nextflow version available” message is informational when a project
+intentionally pins a validated version. A plugin version requirement, corrupt
+JAR, missing index or nonzero task exit is actionable. Classify messages by
+their effect and evidence, not by whether they appear on stderr.
+
+## Try it yourself
+
+Change only the report heading in `FORMAT_REPORT`, run with `-resume` and predict
+which process is cached. Use the trace to prove the answer.
+
+## What to remember
+
+- Test expected failure as well as success.
+- Diagnose the failing layer before changing resources.
+- Resume reuses matching work; it is not a substitute for backup.
+- Preserve job-specific trace and HTML execution evidence.
+- Scheduler disappearance is not a success criterion.
+
+## Interview grill
+
+1. What makes a negative test useful?
+2. Where do you find the exact command that failed?
+3. What does exit 137 suggest, and what must you verify?
+4. Which changes invalidate cache?
+5. Why does `results/` not guarantee resume?
+6. What does the native ID in a trace represent?
+7. When is retry appropriate?
+8. Why use job-specific report filenames?
+9. How do you distinguish one sample from multiple task jobs?
+10. What evidence proves final success?
+
+## Primary references
+
+- [Nextflow cache and resume](https://www.nextflow.io/docs/latest/cache-and-resume.html)
+- [Nextflow reports](https://www.nextflow.io/docs/latest/reports.html)
+- [Nextflow error strategies](https://www.nextflow.io/docs/latest/process.html#errorstrategy)

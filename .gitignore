@@ -6,3 +6,10 @@
 
 
 **/*.quarto_ipynb
+
+# Nextflow runtime data and generated teaching outputs
+examples/nextflow-basics/.nextflow*
+examples/nextflow-basics/work/
+examples/nextflow-basics/results/
+examples/nextflow-basics/logs/
+examples/nextflow-basics/singularity_cache/

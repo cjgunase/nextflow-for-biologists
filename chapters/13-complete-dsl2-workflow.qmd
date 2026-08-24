@@ -1,6 +1,218 @@
 # Complete the DSL2 workflow
 
-This chapter adds paired trimming, post-trim QC, alignment and BAM validation.
-Each input/output declaration is related back to the corresponding manual
-files so readers can see how a shell pipeline becomes a dataflow graph.
+## Why a biologist should care
 
+A workflow is trustworthy only when each automated step has the same scientific
+meaning as a command you already validated manually. “It ran in Nextflow” does
+not establish that trimming, alignment or QC is correct.
+
+## Engineering objective
+
+Connect two tiny processes, then apply the same contracts to the teaching NGS
+pipeline: raw QC, paired trimming, post-trim QC, alignment/sorting and BAM QC.
+
+## Before you type
+
+Finish the first four examples. Confirm that paired-read summaries exist, then
+run:
+
+```bash
+cd examples/nextflow-basics
+nextflow run 05-two-step-workflow.nf
+```
+
+## The smallest multi-step workflow
+
+The graph is:
+
+```text
+[sample_id, R1, R2]
+          │
+          ▼
+SUMMARIZE_READS ──► [sample_id, counts.tsv]
+                              │
+                              ▼
+                         FORMAT_REPORT
+```
+
+The connection is only two lines:
+
+```groovy
+SUMMARIZE_READS(read_pairs)
+FORMAT_REPORT(SUMMARIZE_READS.out.counts)
+```
+
+`emit: counts` names the output channel. The second process cannot start for a
+sample until the first process produces that sample's tuple. No `sleep`, polling
+loop or scheduler dependency is needed.
+
+Verify:
+
+```bash
+cat results/05-two-step/mouse_A.report.txt
+cat results/05-two-step/mouse_B.report.txt
+```
+
+## Move from toy commands to bioinformatics
+
+The complete teaching pipeline has five process contracts:
+
+```text
+                       ┌────────────► FASTQC_RAW
+paired FASTQ tuples ───┤
+                       └────────────► TRIM_GALORE
+                                          │
+                            ┌─────────────┴─────────────┐
+                            ▼                           ▼
+                     FASTQC_TRIMMED                 ALIGN_SORT
+                                                        │
+                                                        ▼
+                                                      BAM_QC
+```
+
+Translate the trusted manual baseline one process at a time. Do not write all
+five processes and debug them simultaneously.
+
+### Process 1: raw QC
+
+Contract:
+
+```text
+input:  sample ID plus R1/R2 paths
+action: FastQC on both mates
+output: two HTML reports and two ZIP archives, still labeled by sample
+```
+
+The process should not search the filesystem itself. The workflow gives it the
+two declared files.
+
+### Process 2: paired trimming
+
+Contract:
+
+```text
+input:  sample ID plus paired raw FASTQs
+action: Trim Galore in paired mode
+output: sample ID plus paired trimmed FASTQs and trimming reports
+```
+
+The paired relationship must survive. Do not emit R1 and R2 into unrelated
+channels and later hope that arrival order reconstructs the pairs.
+
+### Branch after trimming
+
+Post-trim FastQC and alignment both consume trimmed reads. They are independent
+after those files exist, so Nextflow may run them concurrently.
+
+### Process 3: post-trim QC
+
+Use the same FastQC operation with a different process name and output location.
+Raw and trimmed QC answer different questions and must not overwrite one another.
+
+### Process 4: align and sort
+
+The trusted manual command may pipe aligner output into `samtools sort`. Keeping
+that pipe inside one process avoids writing a large SAM intermediate. The shell
+must use `pipefail`; otherwise an aligner failure can be hidden if sorting exits
+zero on incomplete input.
+
+Contract:
+
+```text
+input:  sample ID, trimmed pair and matching reference/index
+action: align paired reads and coordinate-sort the alignment
+output: sample ID plus sorted BAM and alignment log
+```
+
+### Process 5: BAM QC
+
+Index and validate the BAM, then create `flagstat` and `idxstats` summaries.
+Declare the BAM and BAI together when downstream tools require both.
+
+## Keep process code and site policy apart
+
+Portable process logic should say that alignment needs CPUs and memory. A site
+configuration decides the executor, partition, account, queue and local cache
+paths. Hard-coding an institutional hostname or storage mount in `main.nf`
+makes the scientific graph less portable and risks publishing private details.
+
+## Output contracts are scientific checkpoints
+
+File existence alone is a weak acceptance criterion. Combine Nextflow contracts
+with format-aware checks:
+
+- paired trimmed FASTQs are nonempty and synchronized;
+- `samtools quickcheck` accepts the BAM;
+- BAM is coordinate-sorted and indexable;
+- FastQC reports exist for raw and trimmed data;
+- mapping summaries contain expected sample/reference context;
+- MultiQC or equivalent aggregation includes every intended sample.
+
+A process can exit zero while producing scientifically unusable output. The
+manual baseline defines what “usable” means for the fixture.
+
+## Publishing strategy
+
+Publish reports and final deliverables. Leave rebuildable large intermediates
+in `work/` unless operational requirements say otherwise. Avoid publishing two
+tasks to the same fixed filename.
+
+`mode: 'copy'` creates independent result files but consumes storage. Symlink
+publishing is lightweight but breaks if `work/` is removed. Choose deliberately.
+
+## Common failure: building a shell script with Nextflow around it
+
+One giant process containing the entire pipeline may run, but it loses task-level
+parallelism, caching, resource selection and failure isolation. A good process
+boundary usually corresponds to a tool invocation with a clear input/output
+contract and meaningful retry/resource behavior.
+
+Do not split merely to maximize process count. Passing terabytes between tiny
+processes can create unnecessary I/O. Boundaries are engineering decisions.
+
+## Verification checkpoint
+
+For the two-step executable example:
+
+```bash
+test -s results/05-two-step/mouse_A.report.txt
+test -s results/05-two-step/mouse_B.report.txt
+grep -q $'mouse_A\t2\t2' results/05-two-step/mouse_A.report.txt
+```
+
+For the complete teaching workflow, the pass condition is the expected two raw
+FastQC reports, two trimmed FastQC reports, paired trimmed reads, a valid sorted
+BAM/BAI and nonempty flagstat/idxstats outputs for every fixture sample.
+
+## What changed on disk
+
+The first process's count file remains in `work/` because only final reports are
+published. This demonstrates that downstream consumption does not require every
+intermediate to be copied into `results/`.
+
+## Try it yourself
+
+Add a third process that combines all `*.report.txt` files into one cohort
+summary. Identify where `collect` is required and explain why that process must
+wait for all samples.
+
+## What to remember
+
+- Port one validated manual step at a time.
+- Connect processes using declared outputs, not filenames searched at runtime.
+- Preserve metadata and pairs through every boundary.
+- Use process boundaries to gain useful isolation, caching and resources.
+- Engineering success and scientific acceptance are separate checks.
+
+## Interview grill
+
+1. Why validate a command manually before automating it?
+2. What makes the second toy process wait?
+3. Which real processes can run concurrently?
+4. Why keep paired reads in one tuple?
+5. Why use `pipefail` for aligner-to-sort pipes?
+6. What makes a useful process boundary?
+7. Why not publish every intermediate?
+8. What is the risk of fixed output names across samples?
+9. What BAM checks go beyond nonempty-file testing?
+10. Why is a complete scheduler run not enough for biological acceptance?

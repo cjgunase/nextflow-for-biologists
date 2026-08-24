@@ -1,6 +1,286 @@
 # Submit tasks through SLURM
 
-This chapter examines the SLURM executor, resource requests and generated
-`#SBATCH` directives. It verifies that each of the five processes ran as a
-scheduled job inside the intended container.
+## Why a biologist should care
 
+Running `nextflow` inside one large allocation and letting it execute every tool
+locally wastes scheduler capabilities and makes resource use opaque. With the
+Slurm executor, Nextflow submits each process task with resources appropriate
+to that task.
+
+## Engineering objective
+
+Launch a small controller, let it submit task jobs, connect console hashes to
+work directories and native Slurm IDs, and verify generated `#SBATCH` and
+container evidence.
+
+## Mental model
+
+```text
+sbatch controller.sbatch
+          │
+          ▼
+small Nextflow controller job
+          │ creates task wrapper and calls sbatch
+          ├────────► FastQC task job
+          ├────────► trimming task job
+          └────────► alignment task job (when inputs are ready)
+```
+
+The controller needs Java, Nextflow, scheduler commands and enough time to
+coordinate the workflow. Task software normally runs in containers. The
+controller's memory request is not inherited as every task's memory request.
+
+## Before you type
+
+Confirm local site policy:
+
+- permitted partition/account and maximum wall-time;
+- compute-visible project/scratch storage;
+- Java and Singularity/Apptainer module names;
+- whether Nextflow itself may run on a login node;
+- container pull policy and cache location; and
+- scheduler submission-rate limits.
+
+Use placeholders in tracked examples and keep real values in an ignored site
+configuration.
+
+## Site configuration
+
+A private configuration might contain:
+
+```groovy
+process {
+    executor = 'slurm'
+    queue = 'xxx'
+    clusterOptions = '--account=xxx'
+
+    withLabel: small {
+        cpus = 2
+        memory = 4.GB
+        time = 2.h
+    }
+
+    withName: ALIGN_SORT {
+        cpus = 8
+        memory = 32.GB
+        time = 24.h
+    }
+}
+
+executor {
+    queueSize = 30
+    submitRateLimit = '2 sec'
+}
+
+singularity {
+    enabled = true
+    autoMounts = true
+    cacheDir = '/project/xxx/singularity_cache'
+}
+```
+
+`queueSize` limits tasks handled by the executor queue. `submitRateLimit`
+protects the scheduler from bursts. Process `maxForks` limits concurrent tasks
+matching a process/selector. These controls solve different problems.
+
+## Controller script
+
+A sanitized controller has this shape:
+
+```bash
+#!/usr/bin/env bash
+#SBATCH --job-name=nextflow-controller
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=4G
+#SBATCH --time=24:00:00
+#SBATCH --output=logs/%x.%j.out
+#SBATCH --error=logs/%x.%j.err
+
+set -euo pipefail
+
+source /etc/profile.d/lmod.sh
+module purge
+module load java/xxx
+module load singularity/xxx
+
+export NXF_HOME=/project/xxx/nextflow_home
+export NXF_SINGULARITY_CACHEDIR=/project/xxx/singularity_cache
+
+nextflow run . \
+  -profile slurm_singularity \
+  -c conf/site.local.config \
+  -resume \
+  -with-trace "logs/${SLURM_JOB_ID}.trace.tsv"
+```
+
+Submit from a predictable directory:
+
+```bash
+mkdir -p logs
+sbatch bin/run_pipeline.sbatch
+```
+
+The printed ID belongs to the controller. Nextflow task jobs receive their own
+Slurm IDs.
+
+## Monitor without confusing tasks and samples
+
+```bash
+squeue -j CONTROLLER_JOB_ID
+squeue -u "$USER" -o "%.18i %.55j %.2t %.10M %.30R"
+```
+
+For one paired sample you may see FastQC and Trim Galore jobs simultaneously.
+Later only alignment may remain. This reflects workflow concurrency.
+
+Read the controller output:
+
+```bash
+tail -n 60 logs/nextflow-controller.CONTROLLER_JOB_ID.out
+tail -n 40 logs/nextflow-controller.CONTROLLER_JOB_ID.err
+```
+
+Repeated process tables are terminal refreshes captured in a log, not repeated
+executions. `0 of 1` means submitted/running; `1 of 1 ✔` means completed.
+
+## Inspect generated Slurm directives
+
+Use the console hash or trace work directory, then:
+
+```bash
+grep '^#SBATCH' /project/xxx/work/ab/cdef*/.command.run
+```
+
+Expected shape:
+
+```text
+#SBATCH -J nf-...ALIGN_SORT_(sample)
+#SBATCH -c 8
+#SBATCH --mem 32768M
+#SBATCH -t 24:00:00
+```
+
+This is stronger evidence than assuming configuration was applied. Inspect the
+same wrapper for `singularity exec` or `apptainer exec` and the resolved image.
+
+```bash
+grep -E 'singularity exec|apptainer exec|container:' \
+  /project/xxx/work/ab/cdef*/.command.run
+```
+
+## Requested versus used resources
+
+Slurm requests prevent task placement beyond declared limits; they do not prove
+software used those resources. Combine Nextflow trace and site accounting:
+
+```bash
+sstat -j TASK_JOB_ID.batch \
+  --format=JobID,AveCPU,AveRSS,MaxRSS,MaxVMSize
+
+sacct -j TASK_JOB_ID \
+  --format=JobID,JobName,State,Elapsed,AllocCPUS,ReqMem,MaxRSS,ExitCode
+```
+
+Accounting availability and units vary by site. For a completed pilot, compare:
+
+- allocated CPUs with `%cpu`/CPU efficiency;
+- requested memory with peak RSS;
+- requested time with actual duration;
+- read/write I/O with storage planning;
+- retries and queue delays.
+
+Keep headroom. Do not request a full node merely because it exists, and do not
+lower memory to the measured peak with no safety margin.
+
+## Real-world WGBS case study
+
+A sanitized production qualification followed three gates:
+
+1. tiny nf-core smoke test for installation and container/scheduler plumbing;
+2. 10-million-read-pair real WGBS pilot for reference compatibility and
+   performance measurement;
+3. one complete paired sample for whole-sample QC, runtime, storage and MultiQC
+   acceptance before a 30-sample cohort.
+
+The pilot showed that alignment dominated runtime and efficiently used 12 CPUs,
+with peak memory well below its 72 GB request. A shared-resource policy limited
+future concurrent Bismark alignments to ten. That limit controls cohort impact;
+it does not split or independently deduplicate a biological sample.
+
+The complete-sample qualification was launched in a separate project root with
+its own `work/`, caches, logs and results. The result must not be presented as
+validated until the final success marker, BAM/BAI, methylation coverage,
+MultiQC, trace, checksums and private provenance have been reviewed.
+
+This case teaches a general rule: benchmark small, qualify one complete unit,
+then scale under a measured concurrency policy.
+
+## Common failures
+
+### Controller disappears from `squeue`
+
+It finished, failed or was cancelled. Inspect the final controller log and
+accounting. Empty `squeue` is not proof of success.
+
+### Task remains pending
+
+Read `NODELIST(REASON)` or `scontrol show job`. A request for excessive memory,
+invalid account or dependency differs from ordinary queue wait.
+
+### Controller wall-time expires before cohort completion
+
+Relaunch the same workflow with identical parameters, work directory and
+`-resume` after diagnosing the stop. Completed matching tasks should be cached.
+For future cohorts, choose a longer permitted controller limit or sequential
+waves with adequate margin.
+
+### Home quota breaks Nextflow or image pulls
+
+Move `NXF_HOME`, work and container caches to approved project/scratch storage.
+Remove corrupt partial downloads only after resolving exact targets.
+
+## Verification checkpoint
+
+Pass only if:
+
+1. every intended process appears as a distinct Slurm task;
+2. generated directives match reviewed CPU, memory and time policy;
+3. task wrappers show the intended container runtime/image;
+4. controller log ends with pipeline success;
+5. trace native IDs map to scheduler evidence; and
+6. required scientific outputs pass format and QC checks.
+
+## Try it yourself
+
+Given 30 samples and an alignment process with `maxForks = 10`, predict how many
+alignments can run concurrently and whether FastQC tasks are also limited by
+that selector. Explain how `queueSize` changes the answer.
+
+## What to remember
+
+- Nextflow is a scheduler client; the controller and task jobs are different.
+- One sample can create many task jobs.
+- Verify generated wrappers rather than trusting intended configuration.
+- Tune from measured use while preserving headroom and shared-resource policy.
+- Scale only after a representative complete unit passes acceptance.
+
+## Interview grill
+
+1. Why not run every task locally inside one large Slurm allocation?
+2. What resources does the controller need?
+3. How do you map a task to a Slurm job ID?
+4. What is the difference between `maxForks` and `queueSize`?
+5. How do you prove Singularity executed the task?
+6. Why might a job request 72 GB but use 39 GB?
+7. How do you diagnose pending state?
+8. What survives a controller timeout?
+9. Why run a complete sample before a cohort?
+10. What evidence separates scheduler success from analytical success?
+
+## Primary references
+
+- [Nextflow Slurm executor](https://www.nextflow.io/docs/latest/executor.html#slurm)
+- [Nextflow process directives](https://www.nextflow.io/docs/latest/reference/process.html)
+- [Slurm documentation](https://slurm.schedmd.com/documentation.html)
