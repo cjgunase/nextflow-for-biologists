@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 15 tests for sample-ID validation and text-file input. VCF processing, ancestry inference, a command-line interface, and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 15 tests for sample-ID validation and text-file input. The sample-validation command-line interface has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,11 +12,11 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–8: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit and text-file input.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–9: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input and a command-line interface.
 
 ## Mental model
 
-The eventual architecture is a Python library, a command-line interface and a Nextflow workflow. The library contains reusable logic; the command-line interface exposes it to shell users; Nextflow connects the analysis stages. Only the library foundation is implemented here.
+The eventual architecture is a Python library, a command-line interface and a Nextflow workflow. The library contains reusable logic; the command-line interface exposes it to shell users; Nextflow connects the analysis stages. The library foundation and a sample-validation command are implemented here.
 
 | Item | Purpose |
 |---|---|
@@ -276,7 +276,93 @@ From the project root with the environment active, run:
 python -m pytest -q
 ```
 
-The verified result is **15 passed**. The 12 earlier tests still run, plus three file-reader tests. Two existing files changed: `samples.py` and `test_samples.py`. No additional dependency was needed. The companion example contains this completed checkpoint; a command-line interface remains a future step.
+The verified result is **15 passed**. The 12 earlier tests still run, plus three file-reader tests. Two existing files changed: `samples.py` and `test_samples.py`. No additional dependency was needed. The companion example contains this completed checkpoint; the command-line interface is added in the next checkpoint below.
+
+### 9. Expose the library as a terminal command
+
+Create `src/ancestryflow/cli.py`:
+
+```python
+"""Command-line interface for AncestryFlow."""
+
+import argparse
+from pathlib import Path
+
+from ancestryflow.samples import read_sample_ids
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="ancestryflow",
+        description="Tools for reference-based genetic ancestry analysis.",
+    )
+
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    validate = commands.add_parser(
+        "validate-samples",
+        help="Check a file containing one sample ID per line.",
+    )
+    validate.add_argument(
+        "--samples",
+        type=Path,
+        required=True,
+        help="Sample-list file without a header.",
+    )
+
+    args = parser.parse_args(argv)
+
+    try:
+        sample_ids = read_sample_ids(args.samples)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+
+    print(f"Validated {len(sample_ids)} sample IDs.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+`argparse` reads command-line arguments and generates help text. The `validate-samples` subcommand provides room for future analysis commands. `--samples` is required and converted to a `Path`. The CLI reuses `read_sample_ids()` instead of copying validation rules.
+
+`parser.error()` prints a useful message to standard error and exits with status 2. Successful validation returns 0. These statuses let scripts and workflow engines detect success or failure. The optional `argv` argument also lets tests supply arguments directly without changing the process's global arguments.
+
+Append this separate table to `pyproject.toml`:
+
+```toml
+[project.scripts]
+ancestryflow = "ancestryflow.cli:main"
+```
+
+It registers a terminal command named `ancestryflow` that calls `main()` in the package's `cli` module. Reinstall from the project root to register it in the active environment:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Editable installation reflects ordinary source changes immediately, but changes to installed command registration require reinstalling.
+
+Create an example containing synthetic IDs. The `>` operator creates or replaces this example file:
+
+```bash
+mkdir -p examples
+printf 'donor_01\ndonor_02\n' > examples/samples.txt
+ancestryflow --help
+ancestryflow validate-samples --samples examples/samples.txt
+python -m pytest -q
+```
+
+`mkdir -p` creates missing directories; `printf` writes two newline-separated IDs. The verified help output lists `validate-samples`; validation prints:
+
+```text
+Validated 2 sample IDs.
+```
+
+All **15 existing tests passed** after adding the command. This checkpoint verifies the installed command manually; automated CLI-specific tests have not yet been added. This command validates sample-list contents only, not their presence in a VCF.
+
+New files are `src/ancestryflow/cli.py` and `examples/samples.txt`; `pyproject.toml` gains the command registration. If the shell reports `command not found`, check that the environment is active and repeat installation after saving the `[project.scripts]` table.
 
 ## Read the command
 
@@ -327,7 +413,9 @@ ancestryflow/
 ├── pyproject.toml
 ├── src/ancestryflow/
 │   ├── __init__.py
-│   └── samples.py
+│   ├── samples.py
+│   └── cli.py
+├── examples/samples.txt   # synthetic sample names
 ├── tests/
 │   └── test_samples.py
 └── .venv/                  # ignored, machine-local environment
