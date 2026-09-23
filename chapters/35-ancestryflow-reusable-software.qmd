@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–10: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface and CLI integration tests.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–11: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests and a feature commit.
 
 ## Mental model
 
@@ -453,7 +453,48 @@ python -m pytest -q
 
 The learner verified **20 passed**: the earlier 15 tests plus five CLI tests. These checks exercise the CLI module, while checkpoint 9 manually checked the installed `ancestryflow` command. They do not yet constitute a scientific validation of ancestry inference.
 
-Only `tests/test_cli.py` is new in this checkpoint. The next milestone is to commit the verified file reader, CLI, example and tests together; that milestone is not yet recorded as completed here.
+Only `tests/test_cli.py` is new in this checkpoint. The verified file reader, CLI, example and tests are committed together in checkpoint 11 below.
+
+### 11. Commit the tested sample-validation feature
+
+From the project root, select the six changed or new files:
+
+```bash
+git add pyproject.toml \
+  src/ancestryflow/samples.py \
+  src/ancestryflow/cli.py \
+  tests/test_samples.py \
+  tests/test_cli.py \
+  examples/samples.txt
+```
+
+Each trailing backslash continues the same shell command onto the next line. Explicit filenames keep the selection focused on the verified feature.
+
+Review it before committing:
+
+```bash
+git diff --cached --stat
+git diff --cached --check
+```
+
+`--stat` summarizes the staged changes; expect six files. `--check` reports whitespace problems and prints nothing when it finds none. Fix reported problems and stage the corrected files before proceeding.
+
+Record and verify the checkpoint:
+
+```bash
+git commit -m "Add sample-file reader and CLI with integration tests"
+git status --short
+git log -2 --oneline
+```
+
+The learner verified a clean status and these two commits:
+
+```text
+a4fde05 (HEAD -> main) Add sample-file reader and CLI with integration tests
+b1b3644 Initialize package with sample validation and tests
+```
+
+Commit identifiers differ between repositories. The pass condition is a clean working directory and a commit containing the tested feature. This checkpoint records 20 passing tests; it does not add functionality or publish the project to GitHub. VCF-header reading and matching requested IDs against available samples remain future work.
 
 ## Read the command
 
