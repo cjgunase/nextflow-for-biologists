@@ -3320,7 +3320,7 @@
     "href": "chapters/35-ancestryflow-reusable-software.html#engineering-objective",
     "title": "35  AncestryFlow: building reusable bioinformatics software",
     "section": "35.2 Engineering objective",
-    "text": "35.2 Engineering objective\nCreate an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–6: repository setup, an isolated environment, package configuration, validation, tests and development dependencies.",
+    "text": "35.2 Engineering objective\nCreate an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–7: repository setup, an isolated environment, package configuration, validation, tests, development dependencies and the first Git commit.",
     "crumbs": [
       "Case study — Building AncestryFlow",
       "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
@@ -3408,7 +3408,7 @@
     "href": "chapters/35-ancestryflow-reusable-software.html#common-failure",
     "title": "35  AncestryFlow: building reusable bioinformatics software",
     "section": "35.10 Common failure",
-    "text": "35.10 Common failure\nModuleNotFoundError: No module named 'ancestryflow': check that the environment is active and that editable installation ran from the directory containing pyproject.toml. Do not solve this by copying package files into Python’s installation directory.\nEditor files appear in git status: an IDE may stage its .idea/ files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint will address this separately.",
+    "text": "35.10 Common failure\nModuleNotFoundError: No module named 'ancestryflow': check that the environment is active and that editable installation ran from the directory containing pyproject.toml. Do not solve this by copying package files into Python’s installation directory.\nEditor files appear in git status: an IDE may stage its .idea/ files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint below shows how to remove them from staging while keeping the local files.",
     "crumbs": [
       "Case study — Building AncestryFlow",
       "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
@@ -3419,7 +3419,7 @@
     "href": "chapters/35-ancestryflow-reusable-software.html#commit-checkpoint",
     "title": "35  AncestryFlow: building reusable bioinformatics software",
     "section": "35.11 Commit checkpoint",
-    "text": "35.11 Commit checkpoint\nThe learner has verified checkpoints 1–6 but has not yet completed the first project commit. The next checkpoint is to review the staging area and commit only the package, tests and configuration. See Safe daily Git workflow for the staging model.",
+    "text": "35.11 Commit checkpoint\n\n35.11.1 7. Record the first verified version\nRun these commands from the ancestryflow project root. First inspect what Git has staged:\ngit status --short\nIn the learner’s working copy, the editor had staged .idea/ configuration files. If your status also lists staged .idea/ files, ensure .idea/ appears in .gitignore, then run:\ngit rm -r --cached .idea\n--cached removes the files from Git’s staging area while keeping them on disk. -r includes the directory’s contents. Skip this command if no .idea/ files are staged or tracked. Adding an ignore pattern alone does not unstage files.\nSelect the five project files and inspect the selection:\ngit add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py\ngit diff --cached --stat\ngit add stages the named files for the next commit. git diff --cached --stat summarizes that selection. Expect five files, with no environment, genotype data or editor settings.\nCreate the checkpoint and verify it:\ngit commit -m \"Initialize package with sample validation and tests\"\ngit status --short\ngit log -1 --oneline\ngit commit records the staged content locally; -m supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. git log -1 --oneline shows only the latest commit in compact form.\nThe learner verified a clean working directory and this commit:\nb1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests\nYour commit identifier will differ. The pass condition is a clean status and the expected commit message, not a matching identifier. This completes checkpoint 7. See Safe daily Git workflow for more detail about staging and history.",
     "crumbs": [
       "Case study — Building AncestryFlow",
       "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"

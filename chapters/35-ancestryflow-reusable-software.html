@@ -547,7 +547,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">35.8</span> Verification checkpoint</a></li>
   <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">35.9</span> What changed on disk</a></li>
   <li><a href="#common-failure" id="toc-common-failure" class="nav-link" data-scroll-target="#common-failure"><span class="header-section-number">35.10</span> Common failure</a></li>
-  <li><a href="#commit-checkpoint" id="toc-commit-checkpoint" class="nav-link" data-scroll-target="#commit-checkpoint"><span class="header-section-number">35.11</span> Commit checkpoint</a></li>
+  <li><a href="#commit-checkpoint" id="toc-commit-checkpoint" class="nav-link" data-scroll-target="#commit-checkpoint"><span class="header-section-number">35.11</span> Commit checkpoint</a>
+  <ul class="collapse">
+  <li><a href="#record-the-first-verified-version" id="toc-record-the-first-verified-version" class="nav-link" data-scroll-target="#record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</a></li>
+  </ul></li>
   <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">35.12</span> Try it yourself</a></li>
   <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">35.13</span> What to remember</a></li>
   <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">35.14</span> Interview grill</a></li>
@@ -593,7 +596,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="engineering-objective" class="level2" data-number="35.2">
 <h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
-<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–6: repository setup, an isolated environment, package configuration, validation, tests and development dependencies.</p>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–7: repository setup, an isolated environment, package configuration, validation, tests, development dependencies and the first Git commit.</p>
 </section>
 <section id="mental-model" class="level2" data-number="35.3">
 <h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
@@ -883,11 +886,30 @@ work/
 <section id="common-failure" class="level2" data-number="35.10">
 <h2 data-number="35.10" class="anchored" data-anchor-id="common-failure"><span class="header-section-number">35.10</span> Common failure</h2>
 <p><strong><code>ModuleNotFoundError: No module named 'ancestryflow'</code>:</strong> check that the environment is active and that editable installation ran from the directory containing <code>pyproject.toml</code>. Do not solve this by copying package files into Python’s installation directory.</p>
-<p><strong>Editor files appear in <code>git status</code>:</strong> an IDE may stage its <code>.idea/</code> files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint will address this separately.</p>
+<p><strong>Editor files appear in <code>git status</code>:</strong> an IDE may stage its <code>.idea/</code> files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint below shows how to remove them from staging while keeping the local files.</p>
 </section>
 <section id="commit-checkpoint" class="level2" data-number="35.11">
 <h2 data-number="35.11" class="anchored" data-anchor-id="commit-checkpoint"><span class="header-section-number">35.11</span> Commit checkpoint</h2>
-<p>The learner has verified checkpoints 1–6 but has not yet completed the first project commit. The next checkpoint is to review the staging area and commit only the package, tests and configuration. See <a href="../chapters/07-safe-daily-git-workflow.html">Safe daily Git workflow</a> for the staging model.</p>
+<section id="record-the-first-verified-version" class="level3" data-number="35.11.1">
+<h3 data-number="35.11.1" class="anchored" data-anchor-id="record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</h3>
+<p>Run these commands from the <code>ancestryflow</code> project root. First inspect what Git has staged:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In the learner’s working copy, the editor had staged <code>.idea/</code> configuration files. If your status also lists staged <code>.idea/</code> files, ensure <code>.idea/</code> appears in <code>.gitignore</code>, then run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>--cached</code> removes the files from Git’s staging area while keeping them on disk. <code>-r</code> includes the directory’s contents. Skip this command if no <code>.idea/</code> files are staged or tracked. Adding an ignore pattern alone does not unstage files.</p>
+<p>Select the five project files and inspect the selection:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>git add</code> stages the named files for the next commit. <code>git diff --cached --stat</code> summarizes that selection. Expect five files, with no environment, genotype data or editor settings.</p>
+<p>Create the checkpoint and verify it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>git commit</code> records the staged content locally; <code>-m</code> supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. <code>git log -1 --oneline</code> shows only the latest commit in compact form.</p>
+<p>The learner verified a clean working directory and this commit:</p>
+<pre class="text"><code>b1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests</code></pre>
+<p>Your commit identifier will differ. The pass condition is a clean status and the expected commit message, not a matching identifier. This completes checkpoint 7. See <a href="../chapters/07-safe-daily-git-workflow.html">Safe daily Git workflow</a> for more detail about staging and history.</p>
+</section>
 </section>
 <section id="try-it-yourself" class="level2" data-number="35.12">
 <h2 data-number="35.12" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">35.12</span> Try it yourself</h2>
