@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 15 tests for sample-ID validation and text-file input. The sample-validation command-line interface has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 20 tests covering sample-ID validation, text-file input and the command-line interface. The installed sample-validation command has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–9: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input and a command-line interface.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–10: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface and CLI integration tests.
 
 ## Mental model
 
@@ -364,6 +364,97 @@ All **15 existing tests passed** after adding the command. This checkpoint verif
 
 New files are `src/ancestryflow/cli.py` and `examples/samples.txt`; `pyproject.toml` gains the command registration. If the shell reports `command not found`, check that the environment is active and repeat installation after saving the `[project.scripts]` table.
 
+### 10. Test the CLI as a program
+
+Create `tests/test_cli.py`:
+
+```python
+"""Integration tests for the command-line interface."""
+
+import subprocess
+import sys
+
+
+def run_cli(*arguments):
+    """Run the CLI using the active Python environment."""
+    return subprocess.run(
+        [sys.executable, "-m", "ancestryflow.cli", *arguments],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+
+def test_cli_help():
+    result = run_cli("--help")
+
+    assert result.returncode == 0
+    assert "validate-samples" in result.stdout
+
+
+def test_cli_valid_samples(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\ndonor_02\n", encoding="utf-8")
+
+    result = run_cli("validate-samples", "--samples", str(sample_file))
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "Validated 2 sample IDs."
+    assert result.stderr == ""
+
+
+def test_cli_duplicate_samples(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\ndonor_01\n", encoding="utf-8")
+
+    result = run_cli("validate-samples", "--samples", str(sample_file))
+
+    assert result.returncode == 2
+    assert "Duplicate sample ID" in result.stderr
+    assert result.stdout == ""
+
+
+def test_cli_missing_file(tmp_path):
+    missing_file = tmp_path / "missing.txt"
+
+    result = run_cli("validate-samples", "--samples", str(missing_file))
+
+    assert result.returncode == 2
+    assert "missing.txt" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_cli_requires_samples_argument():
+    result = run_cli("validate-samples")
+
+    assert result.returncode == 2
+    assert "--samples" in result.stderr
+```
+
+These five integration tests launch a separate Python process. They verify help, valid input, duplicate IDs, a missing file and a missing required argument. A successful exit has status 0; the argparse-based CLI reports these input errors with status 2.
+
+| Code | Purpose |
+|---|---|
+| `subprocess.run()` | Runs the command in a separate process |
+| `sys.executable` | Uses the Python interpreter running pytest |
+| `-m ancestryflow.cli` | Executes the CLI module |
+| `capture_output=True` | Captures normal output (`stdout`) and error output (`stderr`) for assertions |
+| `text=True` | Returns captured output as strings |
+| `timeout=10` | Fails the test if the command takes more than ten seconds |
+| `returncode` | Reports the process's exit status |
+
+The helper deliberately does not use `check=True`: error exits are expected in the negative tests, so the assertions inspect their status and messages directly. `tmp_path` isolates test inputs from real sample files. No additional dependencies are required.
+
+From the project root, with the virtual environment active:
+
+```bash
+python -m pytest -q
+```
+
+The learner verified **20 passed**: the earlier 15 tests plus five CLI tests. These checks exercise the CLI module, while checkpoint 9 manually checked the installed `ancestryflow` command. They do not yet constitute a scientific validation of ancestry inference.
+
+Only `tests/test_cli.py` is new in this checkpoint. The next milestone is to commit the verified file reader, CLI, example and tests together; that milestone is not yet recorded as completed here.
+
 ## Read the command
 
 | Command or syntax | What it does and why |
@@ -403,7 +494,7 @@ Execution time varies. Twelve passing tests is the initial checkpoint; after ste
 
 ## Verification checkpoint
 
-Run `python -m pytest -q` from the project root. All 15 tests must pass after completing step 8. These tests establish the documented sample-ID and file-reading behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+Run `python -m pytest -q` from the project root. All 20 tests must pass after completing step 10. These tests establish the documented sample-ID, file-reading and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
 
 ## What changed on disk
 
@@ -417,7 +508,8 @@ ancestryflow/
 │   └── cli.py
 ├── examples/samples.txt   # synthetic sample names
 ├── tests/
-│   └── test_samples.py
+│   ├── test_samples.py
+│   └── test_cli.py
 └── .venv/                  # ignored, machine-local environment
 ```
 
