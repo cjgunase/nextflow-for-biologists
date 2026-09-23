@@ -3305,47 +3305,201 @@
     ]
   },
   {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html",
+    "href": "chapters/35-ancestryflow-reusable-software.html",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "",
+    "text": "35.1 Why a biologist should care\nAn analysis script often works only with its author’s paths and sample names. A reusable tool needs explicit inputs, clear errors and tests that another researcher can run. Here we build toward reference-based ancestry estimation, beginning with one small component: sample-ID validation.\nAll examples use invented donor names. No controlled-access genotypes or donor-level results are included.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#engineering-objective",
+    "href": "chapters/35-ancestryflow-reusable-software.html#engineering-objective",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.2 Engineering objective",
+    "text": "35.2 Engineering objective\nCreate an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–6: repository setup, an isolated environment, package configuration, validation, tests and development dependencies.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#mental-model",
+    "href": "chapters/35-ancestryflow-reusable-software.html#mental-model",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.3 Mental model",
+    "text": "35.3 Mental model\nThe eventual architecture is a Python library, a command-line interface and a Nextflow workflow. The library contains reusable logic; the command-line interface exposes it to shell users; Nextflow connects the analysis stages. Only the library foundation is implemented here.\n\n\n\nItem\nPurpose\n\n\n\n\nGit repository\nRecords changes to project files\n\n\n.venv/\nHolds this project’s isolated Python environment\n\n\npyproject.toml\nDescribes installation, metadata and dependencies\n\n\nsrc/ancestryflow/\nContains importable Python code\n\n\ntests/\nContains automated checks of behavior",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#before-you-type",
+    "href": "chapters/35-ancestryflow-reusable-software.html#before-you-type",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.4 Before you type",
+    "text": "35.4 Before you type\nUse a macOS or Linux terminal with Git and Python 3.11 or later. Basic Python knowledge is assumed. The learner’s initial run used Python 3.14.6; a Python-version declaration is not evidence that every supported version has been tested.\nUse a new project directory. If you already followed these checkpoints, compare your files instead of overwriting them. Existing genotype data should remain outside this tutorial repository.\nThe complete source for this checkpoint is in examples/ancestryflow. The commands below reconstruct it without requiring a clone of the book.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#build-it",
+    "href": "chapters/35-ancestryflow-reusable-software.html#build-it",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.5 Build it",
+    "text": "35.5 Build it\n\n35.5.1 1. Create the repository\nmkdir -p ~/projects/bioinformatics_projects/ancestryflow\ncd ~/projects/bioinformatics_projects/ancestryflow\ngit init\nIn your editor, create .gitignore in this directory and save:\n.venv/\n__pycache__/\n*.py[cod]\n*.egg-info/\nbuild/\ndist/\n.pytest_cache/\n.coverage\nhtmlcov/\ndata/\nreference/\nresults/\nwork/\n.nextflow/\n.nextflow.log*\n.env\n.env.*\n.DS_Store\n.idea/\nIgnored paths are local files that Git should not start tracking. This is not a comprehensive data-protection mechanism: review staged files before committing. Adding a pattern does not untrack files already staged or committed.\n\n\n35.5.2 2. Create and activate the environment\npython3 -m venv .venv\nsource .venv/bin/activate\npython -c \"import sys; print('Isolated:', sys.prefix != sys.base_prefix)\"\nExpect Isolated: True. Activation applies to this terminal session; repeat the source command in a new terminal.\n\n\n35.5.3 3. Create the package\nmkdir -p src/ancestryflow tests\nCreate src/ancestryflow/__init__.py in your editor:\n\"\"\"Reusable tools for reference-based genetic ancestry analysis.\"\"\"\nCreate pyproject.toml in the project root. This is the configuration after completing the development-dependency checkpoint:\n[build-system]\nrequires = [\"setuptools&gt;=77\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[project]\nname = \"ancestryflow\"\nversion = \"0.1.0\"\ndescription = \"Reusable tools for reference-based genetic ancestry analysis\"\nrequires-python = \"&gt;=3.11\"\n\n[tool.setuptools.packages.find]\nwhere = [\"src\"]\n\n[project.optional-dependencies]\ndev = [\n    \"pytest&gt;=8,&lt;10\",\n]\n\n\n35.5.4 4. Implement sample-ID validation\nCreate src/ancestryflow/samples.py:\n\"\"\"Validation utilities for sample identifiers.\"\"\"\n\nfrom collections.abc import Iterable\n\n\ndef validate_sample_ids(sample_ids: Iterable[str]) -&gt; list[str]:\n    \"\"\"Return sample IDs in their original order after validation.\n\n    Raises:\n        TypeError: If the input is a single string or contains nonstrings.\n        ValueError: If IDs are empty, contain whitespace, repeat, or are absent.\n    \"\"\"\n    if isinstance(sample_ids, (str, bytes)):\n        raise TypeError(\"Provide a collection of sample IDs, not a single string.\")\n\n    validated: list[str] = []\n    seen: set[str] = set()\n\n    for position, sample_id in enumerate(sample_ids, start=1):\n        if not isinstance(sample_id, str):\n            raise TypeError(f\"Sample ID at position {position} must be a string.\")\n\n        if not sample_id:\n            raise ValueError(f\"Sample ID at position {position} is empty.\")\n\n        if any(character.isspace() for character in sample_id):\n            raise ValueError(f\"Sample ID contains whitespace: {sample_id!r}\")\n\n        if sample_id in seen:\n            raise ValueError(f\"Duplicate sample ID: {sample_id!r}\")\n\n        seen.add(sample_id)\n        validated.append(sample_id)\n\n    if not validated:\n        raise ValueError(\"At least one sample ID is required.\")\n\n    return validated\nThe function preserves exact names and order. It rejects whitespace instead of silently changing an identifier that must later match a VCF header. Exceptions let the caller choose how to report errors. At this stage it validates names only; it does not check whether those names exist in a VCF.\n\n\n35.5.5 5. Write tests\nCreate tests/test_samples.py:\n\"\"\"Tests for sample identifier validation.\"\"\"\n\nimport pytest\n\nfrom ancestryflow.samples import validate_sample_ids\n\n\ndef test_preserves_sample_order():\n    samples = [\"donor_02\", \"donor_01\"]\n    assert validate_sample_ids(samples) == samples\n\n\ndef test_accepts_a_generator():\n    samples = (f\"donor_{i}\" for i in range(3))\n    assert validate_sample_ids(samples) == [\"donor_0\", \"donor_1\", \"donor_2\"]\n\n\n@pytest.mark.parametrize(\n    \"samples, message\",\n    [\n        ([], \"At least one sample ID\"),\n        ([\"\"], \"is empty\"),\n        ([\" donor_01\"], \"contains whitespace\"),\n        ([\"donor 01\"], \"contains whitespace\"),\n        ([\"donor_01\\n\"], \"contains whitespace\"),\n        ([\"donor_01\", \"donor_01\"], \"Duplicate sample ID\"),\n    ],\n)\ndef test_rejects_invalid_ids(samples, message):\n    with pytest.raises(ValueError, match=message):\n        validate_sample_ids(samples)\n\n\n@pytest.mark.parametrize(\n    \"samples\",\n    [\"donor_01\", b\"donor_01\", [123], [\"donor_01\", None]],\n)\ndef test_rejects_incorrect_types(samples):\n    with pytest.raises(TypeError):\n        validate_sample_ids(samples)\nThe parameterized tests exercise several inputs independently. A generator is accepted; a single string is rejected because treating it as an iterable would otherwise process individual characters as sample names.\n\n\n35.5.6 6. Install and verify\nFrom the project root, with the environment active:\npython -m pip install -e \".[dev]\"\npython -c \"import ancestryflow; print(ancestryflow.__file__)\"\npython -m pytest -q",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#read-the-command",
+    "href": "chapters/35-ancestryflow-reusable-software.html#read-the-command",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.6 Read the command",
+    "text": "35.6 Read the command\n\n\n\n\n\n\n\nCommand or syntax\nWhat it does and why\n\n\n\n\nmkdir -p PATH\nCreates the directory and missing parents; an existing directory is allowed\n\n\ncd PATH\nChanges the terminal’s current directory; relative paths now refer to this location\n\n\ngit init\nCreates local Git history storage; nothing is published to GitHub\n\n\npython3 -m venv .venv\nRuns Python’s environment-creation module and stores the environment in .venv\n\n\nsource .venv/bin/activate\nAdjusts this shell so python resolves to the environment’s interpreter\n\n\npython -m pip\nRuns pip using the selected Python interpreter\n\n\ninstall -e \".[dev]\"\nInstalls the current project in editable mode, plus its dev dependencies\n\n\n-e\nMakes edits to source code available without reinstalling; dependency or configuration changes can still require reinstalling\n\n\n.[dev]\n. means the current project; [dev] selects its optional development dependencies; quotes protect brackets from shell expansion\n\n\npython -c \"...\"\nExecutes a short Python statement without creating a script\n\n\npython -m pytest -q\nRuns the tests with concise output; -q means quiet\n\n\n\nThe earlier teaching session used cat &gt; file &lt;&lt;'EOF' to write files. It is only a file-creation convenience: &gt; replaces the file, and the text up to EOF becomes its contents. Using an editor is equally valid and often easier to follow.\npytest&gt;=8,&lt;10 defines an allowed range, not an exact dependency lock. Precise runtime and container pinning belong to later reproducibility checkpoints.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#expected-output",
+    "href": "chapters/35-ancestryflow-reusable-software.html#expected-output",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.7 Expected output",
+    "text": "35.7 Expected output\nThe import check prints a path ending in:\nancestryflow/src/ancestryflow/__init__.py\nThe learner’s test run produced:\n............ [100%]\n12 passed in 0.02s\nExecution time varies. Twelve passing tests is the checkpoint, not a particular duration.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#verification-checkpoint",
+    "href": "chapters/35-ancestryflow-reusable-software.html#verification-checkpoint",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.8 Verification checkpoint",
+    "text": "35.8 Verification checkpoint\nRun python -m pytest -q from the project root. All 12 tests must pass. These tests establish the documented sample-ID behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#what-changed-on-disk",
+    "href": "chapters/35-ancestryflow-reusable-software.html#what-changed-on-disk",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.9 What changed on disk",
+    "text": "35.9 What changed on disk\nancestryflow/\n├── .gitignore\n├── pyproject.toml\n├── src/ancestryflow/\n│   ├── __init__.py\n│   └── samples.py\n├── tests/\n│   └── test_samples.py\n└── .venv/                  # ignored, machine-local environment\nInstallation and testing can also create ignored metadata and cache directories. Git does not track empty directories.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#common-failure",
+    "href": "chapters/35-ancestryflow-reusable-software.html#common-failure",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.10 Common failure",
+    "text": "35.10 Common failure\nModuleNotFoundError: No module named 'ancestryflow': check that the environment is active and that editable installation ran from the directory containing pyproject.toml. Do not solve this by copying package files into Python’s installation directory.\nEditor files appear in git status: an IDE may stage its .idea/ files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint will address this separately.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#commit-checkpoint",
+    "href": "chapters/35-ancestryflow-reusable-software.html#commit-checkpoint",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.11 Commit checkpoint",
+    "text": "35.11 Commit checkpoint\nThe learner has verified checkpoints 1–6 but has not yet completed the first project commit. The next checkpoint is to review the staging area and commit only the package, tests and configuration. See Safe daily Git workflow for the staging model.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#try-it-yourself",
+    "href": "chapters/35-ancestryflow-reusable-software.html#try-it-yourself",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.12 Try it yourself",
+    "text": "35.12 Try it yourself\nOptional: run the function with [\"donor_01\", \"donor_01\"]. Predict the exception before executing it.\n\n\n\n\n\n\nTipExpected behavior\n\n\n\n\n\nIt raises ValueError with Duplicate sample ID: 'donor_01'. Rejecting a duplicate avoids silently processing a donor twice.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#what-to-remember",
+    "href": "chapters/35-ancestryflow-reusable-software.html#what-to-remember",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.13 What to remember",
+    "text": "35.13 What to remember\n\nPackage code is importable independently of the future workflow.\nEditable installation makes local development convenient.\nTests define behavior that future contributors must preserve.\nDeclaring dependency ranges is useful, but it is not full environment locking.",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/35-ancestryflow-reusable-software.html#interview-grill",
+    "href": "chapters/35-ancestryflow-reusable-software.html#interview-grill",
+    "title": "35  AncestryFlow: building reusable bioinformatics software",
+    "section": "35.14 Interview grill",
+    "text": "35.14 Interview grill\n\nWhy separate a Python library from a Nextflow process?\nWhat does a virtual environment isolate?\nWhat does editable installation change?\nWhy reject a single string when an iterable is expected?\nWhy preserve sample order?\nWhy reject whitespace instead of stripping it?\nWhy raise an exception rather than print and continue?\nWhat does parameterization add to these tests?\nWhy does declaring a Python version range not prove compatibility?\nWhat do these tests establish, and what remains untested scientifically?",
+    "crumbs": [
+      "Case study — Building AncestryFlow",
+      "<span class='chapter-number'>35</span>  <span class='chapter-title'>AncestryFlow: building reusable bioinformatics software</span>"
+    ]
+  },
+  {
     "objectID": "appendices/glossary.html",
     "href": "appendices/glossary.html",
-    "title": "35  Glossary",
+    "title": "36  Glossary",
     "section": "",
     "text": "Channel\nA Nextflow dataflow object that carries values between workflow components.\nConda environment\nAn isolated collection of software packages and their dependencies.\nContainer image\nAn immutable package of files and metadata used to create a container runtime.\nExecutor\nThe Nextflow component that determines how tasks are launched, such as locally or through SLURM.\nProcess\nA Nextflow definition describing a repeatable unit of work, its inputs, outputs and command script.\nSLURM\nA workload manager that schedules jobs and allocates shared cluster resources.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>35</span>  <span class='chapter-title'>Glossary</span>"
+      "<span class='chapter-number'>36</span>  <span class='chapter-title'>Glossary</span>"
     ]
   },
   {
     "objectID": "appendices/troubleshooting.html",
     "href": "appendices/troubleshooting.html",
-    "title": "36  Troubleshooting",
+    "title": "37  Troubleshooting",
     "section": "",
     "text": "The final appendix will organize the real failures from the companion project by symptom, diagnostic observation, root cause, fix and durable lesson.\nInitial cases include Java G1 initialization failure, home-directory quota exhaustion, Conda dependency solving, missing container PATH entries, missing ps, invalid SAMtools options and misleading whole-file BAM hashes.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>36</span>  <span class='chapter-title'>Troubleshooting</span>"
+      "<span class='chapter-number'>37</span>  <span class='chapter-title'>Troubleshooting</span>"
     ]
   },
   {
     "objectID": "appendices/command-reference.html",
     "href": "appendices/command-reference.html",
-    "title": "37  Command reference",
+    "title": "38  Command reference",
     "section": "",
     "text": "This appendix will collect the small set of shell, Git, Conda, Singularity, Nextflow and SLURM commands introduced in the lessons. It is a memory aid, not a replacement for understanding the commands in context.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>37</span>  <span class='chapter-title'>Command reference</span>"
+      "<span class='chapter-number'>38</span>  <span class='chapter-title'>Command reference</span>"
     ]
   },
   {
     "objectID": "appendices/next-steps.html",
     "href": "appendices/next-steps.html",
-    "title": "38  Next steps",
+    "title": "39  Next steps",
     "section": "",
     "text": "After completing the book, readers will be directed toward Nextflow training, nf-core conventions, larger test suites, workflow modules, continuous integration and domain-appropriate aligners. These are presented as future skills rather than accomplishments of the teaching pipeline.",
     "crumbs": [
       "Appendices",
-      "<span class='chapter-number'>38</span>  <span class='chapter-title'>Next steps</span>"
+      "<span class='chapter-number'>39</span>  <span class='chapter-title'>Next steps</span>"
     ]
   }
 ]

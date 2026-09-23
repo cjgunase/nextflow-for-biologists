@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>22&nbsp; Your first Nextflow process – From FASTQ to Nextflow</title>
+<title>35&nbsp; AncestryFlow: building reusable bioinformatics software – From FASTQ to Nextflow</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -71,8 +71,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../chapters/23-channels-tuples-paired-files.html" rel="next">
-<link href="../chapters/11-nextflow-mental-model.html" rel="prev">
+<link href="../appendices/glossary.html" rel="next">
+<link href="../chapters/34-rwe-wgbs-production-case-study.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -124,7 +124,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/11-nextflow-mental-model.html">Part VI — Nextflow DSL2 from first process to complete pipeline</a></li><li class="breadcrumb-item"><a href="../chapters/12-first-nextflow-process.html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/35-ancestryflow-reusable-software.html">Case study — Building AncestryFlow</a></li><li class="breadcrumb-item"><a href="../chapters/35-ancestryflow-reusable-software.html"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">AncestryFlow: building reusable bioinformatics software</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -356,7 +356,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/12-first-nextflow-process.html" class="sidebar-item-text sidebar-link active">
+  <a href="../chapters/12-first-nextflow-process.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></span></a>
   </div>
 </li>
@@ -478,7 +478,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../chapters/35-ancestryflow-reusable-software.html" class="sidebar-item-text sidebar-link">
+  <a href="../chapters/35-ancestryflow-reusable-software.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">AncestryFlow: building reusable bioinformatics software</span></span></a>
   </div>
 </li>
@@ -529,37 +529,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">22.1</span> Why a biologist should care</a></li>
-  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">22.2</span> Engineering objective</a></li>
-  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">22.3</span> Before you type</a></li>
-  <li><a href="#build-it-read-the-complete-file" id="toc-build-it-read-the-complete-file" class="nav-link" data-scroll-target="#build-it-read-the-complete-file"><span class="header-section-number">22.4</span> Build it: read the complete file</a>
+  <li><a href="#why-a-biologist-should-care" id="toc-why-a-biologist-should-care" class="nav-link active" data-scroll-target="#why-a-biologist-should-care"><span class="header-section-number">35.1</span> Why a biologist should care</a></li>
+  <li><a href="#engineering-objective" id="toc-engineering-objective" class="nav-link" data-scroll-target="#engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</a></li>
+  <li><a href="#mental-model" id="toc-mental-model" class="nav-link" data-scroll-target="#mental-model"><span class="header-section-number">35.3</span> Mental model</a></li>
+  <li><a href="#before-you-type" id="toc-before-you-type" class="nav-link" data-scroll-target="#before-you-type"><span class="header-section-number">35.4</span> Before you type</a></li>
+  <li><a href="#build-it" id="toc-build-it" class="nav-link" data-scroll-target="#build-it"><span class="header-section-number">35.5</span> Build it</a>
   <ul class="collapse">
-  <li><a href="#read-the-syntax" id="toc-read-the-syntax" class="nav-link" data-scroll-target="#read-the-syntax"><span class="header-section-number">22.4.1</span> Read the syntax</a></li>
+  <li><a href="#create-the-repository" id="toc-create-the-repository" class="nav-link" data-scroll-target="#create-the-repository"><span class="header-section-number">35.5.1</span> 1. Create the repository</a></li>
+  <li><a href="#create-and-activate-the-environment" id="toc-create-and-activate-the-environment" class="nav-link" data-scroll-target="#create-and-activate-the-environment"><span class="header-section-number">35.5.2</span> 2. Create and activate the environment</a></li>
+  <li><a href="#create-the-package" id="toc-create-the-package" class="nav-link" data-scroll-target="#create-the-package"><span class="header-section-number">35.5.3</span> 3. Create the package</a></li>
+  <li><a href="#implement-sample-id-validation" id="toc-implement-sample-id-validation" class="nav-link" data-scroll-target="#implement-sample-id-validation"><span class="header-section-number">35.5.4</span> 4. Implement sample-ID validation</a></li>
+  <li><a href="#write-tests" id="toc-write-tests" class="nav-link" data-scroll-target="#write-tests"><span class="header-section-number">35.5.5</span> 5. Write tests</a></li>
+  <li><a href="#install-and-verify" id="toc-install-and-verify" class="nav-link" data-scroll-target="#install-and-verify"><span class="header-section-number">35.5.6</span> 6. Install and verify</a></li>
   </ul></li>
-  <li><a href="#run-it" id="toc-run-it" class="nav-link" data-scroll-target="#run-it"><span class="header-section-number">22.5</span> Run it</a></li>
-  <li><a href="#inspect-task-anatomy" id="toc-inspect-task-anatomy" class="nav-link" data-scroll-target="#inspect-task-anatomy"><span class="header-section-number">22.6</span> Inspect task anatomy</a></li>
-  <li><a href="#prove-caching" id="toc-prove-caching" class="nav-link" data-scroll-target="#prove-caching"><span class="header-section-number">22.7</span> Prove caching</a></li>
-  <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">22.8</span> What changed on disk</a></li>
-  <li><a href="#common-failures" id="toc-common-failures" class="nav-link" data-scroll-target="#common-failures"><span class="header-section-number">22.9</span> Common failures</a>
-  <ul class="collapse">
-  <li><a href="#nextflow-command-not-found" id="toc-nextflow-command-not-found" class="nav-link" data-scroll-target="#nextflow-command-not-found"><span class="header-section-number">22.9.1</span> <code>nextflow: command not found</code></a></li>
-  <li><a href="#java-fails-before-the-pipeline-starts" id="toc-java-fails-before-the-pipeline-starts" class="nav-link" data-scroll-target="#java-fails-before-the-pipeline-starts"><span class="header-section-number">22.9.2</span> Java fails before the pipeline starts</a></li>
-  <li><a href="#output-already-exists" id="toc-output-already-exists" class="nav-link" data-scroll-target="#output-already-exists"><span class="header-section-number">22.9.3</span> Output already exists</a></li>
-  </ul></li>
-  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">22.10</span> Verification checkpoint</a></li>
-  <li><a href="#commit-checkpoint" id="toc-commit-checkpoint" class="nav-link" data-scroll-target="#commit-checkpoint"><span class="header-section-number">22.11</span> Commit checkpoint</a></li>
-  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">22.12</span> Try it yourself</a></li>
-  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">22.13</span> What to remember</a></li>
-  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">22.14</span> Interview grill</a></li>
+  <li><a href="#read-the-command" id="toc-read-the-command" class="nav-link" data-scroll-target="#read-the-command"><span class="header-section-number">35.6</span> Read the command</a></li>
+  <li><a href="#expected-output" id="toc-expected-output" class="nav-link" data-scroll-target="#expected-output"><span class="header-section-number">35.7</span> Expected output</a></li>
+  <li><a href="#verification-checkpoint" id="toc-verification-checkpoint" class="nav-link" data-scroll-target="#verification-checkpoint"><span class="header-section-number">35.8</span> Verification checkpoint</a></li>
+  <li><a href="#what-changed-on-disk" id="toc-what-changed-on-disk" class="nav-link" data-scroll-target="#what-changed-on-disk"><span class="header-section-number">35.9</span> What changed on disk</a></li>
+  <li><a href="#common-failure" id="toc-common-failure" class="nav-link" data-scroll-target="#common-failure"><span class="header-section-number">35.10</span> Common failure</a></li>
+  <li><a href="#commit-checkpoint" id="toc-commit-checkpoint" class="nav-link" data-scroll-target="#commit-checkpoint"><span class="header-section-number">35.11</span> Commit checkpoint</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself"><span class="header-section-number">35.12</span> Try it yourself</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember"><span class="header-section-number">35.13</span> What to remember</a></li>
+  <li><a href="#interview-grill" id="toc-interview-grill" class="nav-link" data-scroll-target="#interview-grill"><span class="header-section-number">35.14</span> Interview grill</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/12-first-nextflow-process.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/35-ancestryflow-reusable-software.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/11-nextflow-mental-model.html">Part VI — Nextflow DSL2 from first process to complete pipeline</a></li><li class="breadcrumb-item"><a href="../chapters/12-first-nextflow-process.html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/35-ancestryflow-reusable-software.html">Case study — Building AncestryFlow</a></li><li class="breadcrumb-item"><a href="../chapters/35-ancestryflow-reusable-software.html"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">AncestryFlow: building reusable bioinformatics software</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Your first Nextflow process</span></h1>
+<h1 class="title"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">AncestryFlow: building reusable bioinformatics software</span></h1>
 </div>
 
 
@@ -576,171 +576,361 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="why-a-biologist-should-care" class="level2" data-number="22.1">
-<h2 data-number="22.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">22.1</span> Why a biologist should care</h2>
-<p>The safest way to learn a workflow language is to remove the biology briefly. If a one-line command fails, you can focus on Nextflow rather than wondering whether the reference genome, sample chemistry or tool parameters are wrong.</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 12 tests for sample-ID validation. VCF processing, ancestry inference, a command-line interface, and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
+</div>
+</div>
+</div>
+<section id="why-a-biologist-should-care" class="level2" data-number="35.1">
+<h2 data-number="35.1" class="anchored" data-anchor-id="why-a-biologist-should-care"><span class="header-section-number">35.1</span> Why a biologist should care</h2>
+<p>An analysis script often works only with its author’s paths and sample names. A reusable tool needs explicit inputs, clear errors and tests that another researcher can run. Here we build toward reference-based ancestry estimation, beginning with one small component: sample-ID validation.</p>
+<p>All examples use invented donor names. No controlled-access genotypes or donor-level results are included.</p>
 </section>
-<section id="engineering-objective" class="level2" data-number="22.2">
-<h2 data-number="22.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">22.2</span> Engineering objective</h2>
-<p>Run one process, locate its task directory, inspect the exact command, verify the output and rerun it from cache.</p>
+<section id="engineering-objective" class="level2" data-number="35.2">
+<h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–6: repository setup, an isolated environment, package configuration, validation, tests and development dependencies.</p>
 </section>
-<section id="before-you-type" class="level2" data-number="22.3">
-<h2 data-number="22.3" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">22.3</span> Before you type</h2>
-<p>Verify Java and Nextflow:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> <span class="at">-version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Then enter the examples directory from the book repository:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> examples/nextflow-basics</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> 01-hello.nf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Do not run computational tutorials on an HPC login node if local policy forbids Java or analysis processes there. Request a small compute allocation.</p>
+<section id="mental-model" class="level2" data-number="35.3">
+<h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
+<p>The eventual architecture is a Python library, a command-line interface and a Nextflow workflow. The library contains reusable logic; the command-line interface exposes it to shell users; Nextflow connects the analysis stages. Only the library foundation is implemented here.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Git repository</td>
+<td>Records changes to project files</td>
+</tr>
+<tr class="even">
+<td><code>.venv/</code></td>
+<td>Holds this project’s isolated Python environment</td>
+</tr>
+<tr class="odd">
+<td><code>pyproject.toml</code></td>
+<td>Describes installation, metadata and dependencies</td>
+</tr>
+<tr class="even">
+<td><code>src/ancestryflow/</code></td>
+<td>Contains importable Python code</td>
+</tr>
+<tr class="odd">
+<td><code>tests/</code></td>
+<td>Contains automated checks of behavior</td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="build-it-read-the-complete-file" class="level2" data-number="22.4">
-<h2 data-number="22.4" class="anchored" data-anchor-id="build-it-read-the-complete-file"><span class="header-section-number">22.4</span> Build it: read the complete file</h2>
-<p>Open <code>01-hello.nf</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode groovy code-with-copy"><code class="sourceCode groovy"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>nextflow<span class="op">.</span>enable<span class="op">.</span>dsl<span class="op">=</span><span class="dv">2</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>params<span class="op">.</span>name <span class="op">=</span> <span class="st">'biologist'</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>process MAKE_GREETING <span class="op">{</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    tag <span class="st">"</span><span class="ss">${</span>name<span class="ss">}</span><span class="st">"</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    publishDir <span class="st">'results/01-hello'</span><span class="op">,</span> mode<span class="op">:</span> <span class="st">'copy'</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    input<span class="op">:</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    val name</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    output<span class="op">:</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    path <span class="st">'greeting.txt'</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    script<span class="op">:</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">    echo "Hello, </span><span class="ss">${</span>name<span class="ss">}</span><span class="st">!" &gt; greeting.txt</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>workflow <span class="op">{</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">MAKE_GREETING</span><span class="op">(</span>params<span class="op">.</span>name<span class="op">)</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="read-the-syntax" class="level3" data-number="22.4.1">
-<h3 data-number="22.4.1" class="anchored" data-anchor-id="read-the-syntax"><span class="header-section-number">22.4.1</span> Read the syntax</h3>
-<ul>
-<li><code>nextflow.enable.dsl=2</code> makes the DSL generation explicit for learners.</li>
-<li><code>params.name</code> declares a command-line parameter with a default.</li>
-<li><code>MAKE_GREETING</code> is the process definition.</li>
-<li><code>tag</code> places a meaningful value in logs instead of only a task hash.</li>
-<li><code>val name</code> accepts an ordinary value.</li>
-<li><code>path 'greeting.txt'</code> declares the file that success must produce.</li>
-<li>the triple-quoted block is the shell script.</li>
-<li><code>MAKE_GREETING(params.name)</code> invokes the process in the workflow.</li>
-<li><code>publishDir ... mode: 'copy'</code> copies the selected result out of <code>work/</code>.</li>
-</ul>
-<p>This book uses process-level <code>publishDir</code> because it remains common in production and nf-core pipelines and is supported by the validated tutorial version. Newer Nextflow training also teaches workflow-level output publishing; learn to recognize both and follow the version policy of the project you join.</p>
+<section id="before-you-type" class="level2" data-number="35.4">
+<h2 data-number="35.4" class="anchored" data-anchor-id="before-you-type"><span class="header-section-number">35.4</span> Before you type</h2>
+<p>Use a macOS or Linux terminal with Git and Python 3.11 or later. Basic Python knowledge is assumed. The learner’s initial run used Python 3.14.6; a Python-version declaration is not evidence that every supported version has been tested.</p>
+<p>Use a new project directory. If you already followed these checkpoints, compare your files instead of overwriting them. Existing genotype data should remain outside this tutorial repository.</p>
+<p>The complete source for this checkpoint is in <a href="https://github.com/cjgunase/nextflow-for-biologists/tree/main/examples/ancestryflow">examples/ancestryflow</a>. The commands below reconstruct it without requiring a clone of the book.</p>
 </section>
-</section>
-<section id="run-it" class="level2" data-number="22.5">
-<h2 data-number="22.5" class="anchored" data-anchor-id="run-it"><span class="header-section-number">22.5</span> Run it</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 01-hello.nf <span class="at">--name</span> Ada</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Why two dashes before <code>name</code>: pipeline parameters use <code>--</code>. Core Nextflow options such as <code>-resume</code>, <code>-profile</code> and <code>-with-trace</code> use one dash.</p>
-<p>Expected status shape:</p>
-<pre class="text"><code>[ab/cdef12] MAKE_GREETING (Ada) | 1 of 1 ✔</code></pre>
-<p>The hash will differ. Verify the published result:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/01-hello/greeting.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Expected:</p>
-<pre class="text"><code>Hello, Ada!</code></pre>
-</section>
-<section id="inspect-task-anatomy" class="level2" data-number="22.6">
-<h2 data-number="22.6" class="anchored" data-anchor-id="inspect-task-anatomy"><span class="header-section-number">22.6</span> Inspect task anatomy</h2>
-<p>Ask Nextflow for the most recent task directory:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> log last <span class="at">-f</span> hash,name,status,workdir</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Copy the printed work-directory path into a variable:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="va">TASK_DIR</span><span class="op">=</span>/absolute/path/printed/by/nextflow</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Inspect evidence one file at a time:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">/.command.sh"</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">/.command.log"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TASK_DIR</span><span class="st">/.exitcode"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li><code>.command.sh</code> is the scientific command generated for the process.</li>
-<li><code>.command.run</code> is Nextflow’s execution wrapper, including staging/runtime.</li>
-<li><code>.command.out</code> and <code>.command.err</code> capture standard streams.</li>
-<li><code>.command.log</code> combines task output useful for diagnosis.</li>
-<li><code>.exitcode</code> should contain <code>0</code> for success.</li>
-</ul>
-<p>Do not edit files in a task directory to “fix” a run. Fix tracked pipeline code or configuration, then rerun.</p>
-</section>
-<section id="prove-caching" class="level2" data-number="22.7">
-<h2 data-number="22.7" class="anchored" data-anchor-id="prove-caching"><span class="header-section-number">22.7</span> Prove caching</h2>
-<p>Run the same command with <code>-resume</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 01-hello.nf <span class="at">--name</span> Ada <span class="at">-resume</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Expected status includes <code>cached: 1</code>.</p>
-<p>Now change the input value:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run 01-hello.nf <span class="at">--name</span> Grace <span class="at">-resume</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This creates a new task because an input changed. Cache reuse is based on task identity, not merely the process name.</p>
-</section>
-<section id="what-changed-on-disk" class="level2" data-number="22.8">
-<h2 data-number="22.8" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">22.8</span> What changed on disk</h2>
-<p>After the first run you should have:</p>
-<pre class="text"><code>.nextflow.log
-.nextflow/
+<section id="build-it" class="level2" data-number="35.5">
+<h2 data-number="35.5" class="anchored" data-anchor-id="build-it"><span class="header-section-number">35.5</span> Build it</h2>
+<section id="create-the-repository" class="level3" data-number="35.5.1">
+<h3 data-number="35.5.1" class="anchored" data-anchor-id="create-the-repository"><span class="header-section-number">35.5.1</span> 1. Create the repository</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/projects/bioinformatics_projects/ancestryflow</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/projects/bioinformatics_projects/ancestryflow</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In your editor, create <code>.gitignore</code> in this directory and save:</p>
+<pre class="text"><code>.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+data/
+reference/
+results/
 work/
-results/01-hello/greeting.txt</code></pre>
-<p>The hidden metadata and <code>work/</code> support history, diagnosis and resume. They are normally ignored by Git.</p>
+.nextflow/
+.nextflow.log*
+.env
+.env.*
+.DS_Store
+.idea/</code></pre>
+<p>Ignored paths are local files that Git should not start tracking. This is not a comprehensive data-protection mechanism: review staged files before committing. Adding a pattern does not untrack files already staged or committed.</p>
 </section>
-<section id="common-failures" class="level2" data-number="22.9">
-<h2 data-number="22.9" class="anchored" data-anchor-id="common-failures"><span class="header-section-number">22.9</span> Common failures</h2>
-<section id="nextflow-command-not-found" class="level3" data-number="22.9.1">
-<h3 data-number="22.9.1" class="anchored" data-anchor-id="nextflow-command-not-found"><span class="header-section-number">22.9.1</span> <code>nextflow: command not found</code></h3>
-<p>The launcher is absent or not in <code>PATH</code>. Return to the setup chapter and verify <code>command -v nextflow</code>.</p>
+<section id="create-and-activate-the-environment" class="level3" data-number="35.5.2">
+<h3 data-number="35.5.2" class="anchored" data-anchor-id="create-and-activate-the-environment"><span class="header-section-number">35.5.2</span> 2. Create and activate the environment</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"import sys; print('Isolated:', sys.prefix != sys.base_prefix)"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expect <code>Isolated: True</code>. Activation applies to this terminal session; repeat the <code>source</code> command in a new terminal.</p>
 </section>
-<section id="java-fails-before-the-pipeline-starts" class="level3" data-number="22.9.2">
-<h3 data-number="22.9.2" class="anchored" data-anchor-id="java-fails-before-the-pipeline-starts"><span class="header-section-number">22.9.2</span> Java fails before the pipeline starts</h3>
-<p>Nextflow itself requires Java. On HPC, load a validated Java module inside a compute allocation and place <code>NXF_HOME</code> on a filesystem with adequate quota.</p>
+<section id="create-the-package" class="level3" data-number="35.5.3">
+<h3 data-number="35.5.3" class="anchored" data-anchor-id="create-the-package"><span class="header-section-number">35.5.3</span> 3. Create the package</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> src/ancestryflow tests</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create <code>src/ancestryflow/__init__.py</code> in your editor:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Reusable tools for reference-based genetic ancestry analysis."""</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create <code>pyproject.toml</code> in the project root. This is the configuration after completing the development-dependency checkpoint:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=77"</span><span class="op">]</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"ancestryflow"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">"Reusable tools for reference-based genetic ancestry analysis"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">"&gt;=3.11"</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.setuptools.packages.find]</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">where</span> <span class="op">=</span> <span class="op">[</span><span class="st">"src"</span><span class="op">]</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.optional-dependencies]</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=8,&lt;10"</span><span class="op">,</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="output-already-exists" class="level3" data-number="22.9.3">
-<h3 data-number="22.9.3" class="anchored" data-anchor-id="output-already-exists"><span class="header-section-number">22.9.3</span> Output already exists</h3>
-<p>Repeated publishing may overwrite or conflict depending on publish settings and Nextflow version. Use a new result directory for independent production runs; use <code>-resume</code> for continuation of the same run.</p>
+<section id="implement-sample-id-validation" class="level3" data-number="35.5.4">
+<h3 data-number="35.5.4" class="anchored" data-anchor-id="implement-sample-id-validation"><span class="header-section-number">35.5.4</span> 4. Implement sample-ID validation</h3>
+<p>Create <code>src/ancestryflow/samples.py</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Validation utilities for sample identifiers."""</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections.abc <span class="im">import</span> Iterable</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> validate_sample_ids(sample_ids: Iterable[<span class="bu">str</span>]) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return sample IDs in their original order after validation.</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Raises:</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">        TypeError: If the input is a single string or contains nonstrings.</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">        ValueError: If IDs are empty, contain whitespace, repeat, or are absent.</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(sample_ids, (<span class="bu">str</span>, <span class="bu">bytes</span>)):</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="st">"Provide a collection of sample IDs, not a single string."</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    validated: <span class="bu">list</span>[<span class="bu">str</span>] <span class="op">=</span> []</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    seen: <span class="bu">set</span>[<span class="bu">str</span>] <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> position, sample_id <span class="kw">in</span> <span class="bu">enumerate</span>(sample_ids, start<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(sample_id, <span class="bu">str</span>):</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="ss">f"Sample ID at position </span><span class="sc">{</span>position<span class="sc">}</span><span class="ss"> must be a string."</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> sample_id:</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"Sample ID at position </span><span class="sc">{</span>position<span class="sc">}</span><span class="ss"> is empty."</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">any</span>(character.isspace() <span class="cf">for</span> character <span class="kw">in</span> sample_id):</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"Sample ID contains whitespace: </span><span class="sc">{</span>sample_id<span class="sc">!r}</span><span class="ss">"</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> sample_id <span class="kw">in</span> seen:</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"Duplicate sample ID: </span><span class="sc">{</span>sample_id<span class="sc">!r}</span><span class="ss">"</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        seen.add(sample_id)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        validated.append(sample_id)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> validated:</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"At least one sample ID is required."</span>)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> validated</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The function preserves exact names and order. It rejects whitespace instead of silently changing an identifier that must later match a VCF header. Exceptions let the caller choose how to report errors. At this stage it validates names only; it does not check whether those names exist in a VCF.</p>
+</section>
+<section id="write-tests" class="level3" data-number="35.5.5">
+<h3 data-number="35.5.5" class="anchored" data-anchor-id="write-tests"><span class="header-section-number">35.5.5</span> 5. Write tests</h3>
+<p>Create <code>tests/test_samples.py</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Tests for sample identifier validation."""</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ancestryflow.samples <span class="im">import</span> validate_sample_ids</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_preserves_sample_order():</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> [<span class="st">"donor_02"</span>, <span class="st">"donor_01"</span>]</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> validate_sample_ids(samples) <span class="op">==</span> samples</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_accepts_a_generator():</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    samples <span class="op">=</span> (<span class="ss">f"donor_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>))</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> validate_sample_ids(samples) <span class="op">==</span> [<span class="st">"donor_0"</span>, <span class="st">"donor_1"</span>, <span class="st">"donor_2"</span>]</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"samples, message"</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        ([], <span class="st">"At least one sample ID"</span>),</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        ([<span class="st">""</span>], <span class="st">"is empty"</span>),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        ([<span class="st">" donor_01"</span>], <span class="st">"contains whitespace"</span>),</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>        ([<span class="st">"donor 01"</span>], <span class="st">"contains whitespace"</span>),</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        ([<span class="st">"donor_01</span><span class="ch">\n</span><span class="st">"</span>], <span class="st">"contains whitespace"</span>),</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        ([<span class="st">"donor_01"</span>, <span class="st">"donor_01"</span>], <span class="st">"Duplicate sample ID"</span>),</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_rejects_invalid_ids(samples, message):</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">ValueError</span>, match<span class="op">=</span>message):</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        validate_sample_ids(samples)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"samples"</span>,</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"donor_01"</span>, <span class="st">b"donor_01"</span>, [<span class="dv">123</span>], [<span class="st">"donor_01"</span>, <span class="va">None</span>]],</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_rejects_incorrect_types(samples):</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">TypeError</span>):</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        validate_sample_ids(samples)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The parameterized tests exercise several inputs independently. A generator is accepted; a single string is rejected because treating it as an iterable would otherwise process individual characters as sample names.</p>
+</section>
+<section id="install-and-verify" class="level3" data-number="35.5.6">
+<h3 data-number="35.5.6" class="anchored" data-anchor-id="install-and-verify"><span class="header-section-number">35.5.6</span> 6. Install and verify</h3>
+<p>From the project root, with the environment active:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">-e</span> <span class="st">".[dev]"</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"import ancestryflow; print(ancestryflow.__file__)"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pytest <span class="at">-q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
-<section id="verification-checkpoint" class="level2" data-number="22.10">
-<h2 data-number="22.10" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">22.10</span> Verification checkpoint</h2>
-<p>Pass only if:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">test</span> <span class="st">"</span><span class="va">$(</span><span class="fu">cat</span> results/01-hello/greeting.txt<span class="va">)</span><span class="st">"</span> = <span class="st">'Hello, Grace!'</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> log last <span class="at">-f</span> name,status</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The shell test must exit zero and the latest task must be <code>COMPLETED</code> or <code>CACHED</code> as appropriate.</p>
+<section id="read-the-command" class="level2" data-number="35.6">
+<h2 data-number="35.6" class="anchored" data-anchor-id="read-the-command"><span class="header-section-number">35.6</span> Read the command</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command or syntax</th>
+<th>What it does and why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mkdir -p PATH</code></td>
+<td>Creates the directory and missing parents; an existing directory is allowed</td>
+</tr>
+<tr class="even">
+<td><code>cd PATH</code></td>
+<td>Changes the terminal’s current directory; relative paths now refer to this location</td>
+</tr>
+<tr class="odd">
+<td><code>git init</code></td>
+<td>Creates local Git history storage; nothing is published to GitHub</td>
+</tr>
+<tr class="even">
+<td><code>python3 -m venv .venv</code></td>
+<td>Runs Python’s environment-creation module and stores the environment in <code>.venv</code></td>
+</tr>
+<tr class="odd">
+<td><code>source .venv/bin/activate</code></td>
+<td>Adjusts this shell so <code>python</code> resolves to the environment’s interpreter</td>
+</tr>
+<tr class="even">
+<td><code>python -m pip</code></td>
+<td>Runs pip using the selected Python interpreter</td>
+</tr>
+<tr class="odd">
+<td><code>install -e ".[dev]"</code></td>
+<td>Installs the current project in editable mode, plus its <code>dev</code> dependencies</td>
+</tr>
+<tr class="even">
+<td><code>-e</code></td>
+<td>Makes edits to source code available without reinstalling; dependency or configuration changes can still require reinstalling</td>
+</tr>
+<tr class="odd">
+<td><code>.[dev]</code></td>
+<td><code>.</code> means the current project; <code>[dev]</code> selects its optional development dependencies; quotes protect brackets from shell expansion</td>
+</tr>
+<tr class="even">
+<td><code>python -c "..."</code></td>
+<td>Executes a short Python statement without creating a script</td>
+</tr>
+<tr class="odd">
+<td><code>python -m pytest -q</code></td>
+<td>Runs the tests with concise output; <code>-q</code> means quiet</td>
+</tr>
+</tbody>
+</table>
+<p>The earlier teaching session used <code>cat &gt; file &lt;&lt;'EOF'</code> to write files. It is only a file-creation convenience: <code>&gt;</code> replaces the file, and the text up to <code>EOF</code> becomes its contents. Using an editor is equally valid and often easier to follow.</p>
+<p><code>pytest&gt;=8,&lt;10</code> defines an allowed range, not an exact dependency lock. Precise runtime and container pinning belong to later reproducibility checkpoints.</p>
 </section>
-<section id="commit-checkpoint" class="level2" data-number="22.11">
-<h2 data-number="22.11" class="anchored" data-anchor-id="commit-checkpoint"><span class="header-section-number">22.11</span> Commit checkpoint</h2>
-<p>In your practice repository, a useful message would be:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add 01-hello.nf</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: add first Nextflow greeting process"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Never commit <code>work/</code>, <code>.nextflow/</code> or large generated results.</p>
+<section id="expected-output" class="level2" data-number="35.7">
+<h2 data-number="35.7" class="anchored" data-anchor-id="expected-output"><span class="header-section-number">35.7</span> Expected output</h2>
+<p>The import check prints a path ending in:</p>
+<pre class="text"><code>ancestryflow/src/ancestryflow/__init__.py</code></pre>
+<p>The learner’s test run produced:</p>
+<pre class="text"><code>............ [100%]
+12 passed in 0.02s</code></pre>
+<p>Execution time varies. Twelve passing tests is the checkpoint, not a particular duration.</p>
 </section>
-<section id="try-it-yourself" class="level2" data-number="22.12">
-<h2 data-number="22.12" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">22.12</span> Try it yourself</h2>
-<p>Add a <code>--species</code> parameter and produce <code>Hello, Ada! Species: mouse.</code> Predict whether changing only <code>--species</code> with <code>-resume</code> should create a new task.</p>
+<section id="verification-checkpoint" class="level2" data-number="35.8">
+<h2 data-number="35.8" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">35.8</span> Verification checkpoint</h2>
+<p>Run <code>python -m pytest -q</code> from the project root. All 12 tests must pass. These tests establish the documented sample-ID behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.</p>
 </section>
-<section id="what-to-remember" class="level2" data-number="22.13">
-<h2 data-number="22.13" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">22.13</span> What to remember</h2>
+<section id="what-changed-on-disk" class="level2" data-number="35.9">
+<h2 data-number="35.9" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">35.9</span> What changed on disk</h2>
+<pre class="text"><code>ancestryflow/
+├── .gitignore
+├── pyproject.toml
+├── src/ancestryflow/
+│   ├── __init__.py
+│   └── samples.py
+├── tests/
+│   └── test_samples.py
+└── .venv/                  # ignored, machine-local environment</code></pre>
+<p>Installation and testing can also create ignored metadata and cache directories. Git does not track empty directories.</p>
+</section>
+<section id="common-failure" class="level2" data-number="35.10">
+<h2 data-number="35.10" class="anchored" data-anchor-id="common-failure"><span class="header-section-number">35.10</span> Common failure</h2>
+<p><strong><code>ModuleNotFoundError: No module named 'ancestryflow'</code>:</strong> check that the environment is active and that editable installation ran from the directory containing <code>pyproject.toml</code>. Do not solve this by copying package files into Python’s installation directory.</p>
+<p><strong>Editor files appear in <code>git status</code>:</strong> an IDE may stage its <code>.idea/</code> files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint will address this separately.</p>
+</section>
+<section id="commit-checkpoint" class="level2" data-number="35.11">
+<h2 data-number="35.11" class="anchored" data-anchor-id="commit-checkpoint"><span class="header-section-number">35.11</span> Commit checkpoint</h2>
+<p>The learner has verified checkpoints 1–6 but has not yet completed the first project commit. The next checkpoint is to review the staging area and commit only the package, tests and configuration. See <a href="../chapters/07-safe-daily-git-workflow.html">Safe daily Git workflow</a> for the staging model.</p>
+</section>
+<section id="try-it-yourself" class="level2" data-number="35.12">
+<h2 data-number="35.12" class="anchored" data-anchor-id="try-it-yourself"><span class="header-section-number">35.12</span> Try it yourself</h2>
+<p>Optional: run the function with <code>["donor_01", "donor_01"]</code>. Predict the exception before executing it.</p>
+<div class="callout callout-style-simple callout-tip callout-titled" title="Expected behavior">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Expected behavior
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>It raises <code>ValueError</code> with <code>Duplicate sample ID: 'donor_01'</code>. Rejecting a duplicate avoids silently processing a donor twice.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-remember" class="level2" data-number="35.13">
+<h2 data-number="35.13" class="anchored" data-anchor-id="what-to-remember"><span class="header-section-number">35.13</span> What to remember</h2>
 <ul>
-<li>Pipeline parameters use <code>--</code>; Nextflow options use <code>-</code>.</li>
-<li>A declared output is part of the process contract.</li>
-<li>The work hash points to task evidence.</li>
-<li><code>-resume</code> reuses only matching successful work.</li>
+<li>Package code is importable independently of the future workflow.</li>
+<li>Editable installation makes local development convenient.</li>
+<li>Tests define behavior that future contributors must preserve.</li>
+<li>Declaring dependency ranges is useful, but it is not full environment locking.</li>
 </ul>
 </section>
-<section id="interview-grill" class="level2" data-number="22.14">
-<h2 data-number="22.14" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">22.14</span> Interview grill</h2>
+<section id="interview-grill" class="level2" data-number="35.14">
+<h2 data-number="35.14" class="anchored" data-anchor-id="interview-grill"><span class="header-section-number">35.14</span> Interview grill</h2>
 <ol type="1">
-<li>What launches the process in this file?</li>
-<li>Why is <code>name</code> a <code>val</code> rather than a <code>path</code>?</li>
-<li>What proves the shell command ran successfully?</li>
-<li>What happens if <code>greeting.txt</code> is not created?</li>
-<li>Why is <code>tag</code> useful in a cohort?</li>
-<li>Which directory supports resume?</li>
-<li>Why should task files not be edited manually?</li>
-<li>What invalidates the cached greeting task?</li>
-<li>How do pipeline parameters differ from core options?</li>
-<li>What does publishing add beyond a work-directory output?</li>
+<li>Why separate a Python library from a Nextflow process?</li>
+<li>What does a virtual environment isolate?</li>
+<li>What does editable installation change?</li>
+<li>Why reject a single string when an iterable is expected?</li>
+<li>Why preserve sample order?</li>
+<li>Why reject whitespace instead of stripping it?</li>
+<li>Why raise an exception rather than print and continue?</li>
+<li>What does parameterization add to these tests?</li>
+<li>Why does declaring a Python version range not prove compatibility?</li>
+<li>What do these tests establish, and what remains untested scientifically?</li>
 </ol>
 
 
@@ -1154,13 +1344,13 @@ results/01-hello/greeting.txt</code></pre>
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../chapters/11-nextflow-mental-model.html" class="pagination-link" aria-label="Nextflow mental model">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Nextflow mental model</span></span>
+      <a href="../chapters/34-rwe-wgbs-production-case-study.html" class="pagination-link" aria-label="Real-world case study: production WGBS with nf-core/methylseq">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Real-world case study: production WGBS with nf-core/methylseq</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../chapters/23-channels-tuples-paired-files.html" class="pagination-link" aria-label="Channels, tuples and paired files">
-        <span class="nav-page-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Channels, tuples and paired files</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../appendices/glossary.html" class="pagination-link" aria-label="Glossary">
+        <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Glossary</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1172,7 +1362,7 @@ results/01-hello/greeting.txt</code></pre>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/12-first-nextflow-process.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cjgunase/nextflow-for-biologists/edit/main/chapters/35-ancestryflow-reusable-software.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/cjgunase/nextflow-for-biologists/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>A reproducible learning resource</p>
 </div>
