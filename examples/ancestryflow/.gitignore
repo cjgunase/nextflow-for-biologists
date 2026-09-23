@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local data and outputs
+data/
+reference/
+results/
+work/
+
+# Nextflow
+.nextflow/
+.nextflow.log*
+
+# Local settings
+.env
+.env.*
+.DS_Store
+
+.idea/

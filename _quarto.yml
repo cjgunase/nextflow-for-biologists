@@ -64,6 +64,9 @@ book:
     - part: "Bonus — Real-world production case study"
       chapters:
         - chapters/34-rwe-wgbs-production-case-study.qmd
+    - part: "Case study — Building AncestryFlow"
+      chapters:
+        - chapters/35-ancestryflow-reusable-software.qmd
     - part: "Appendices"
       chapters:
         - appendices/glossary.qmd

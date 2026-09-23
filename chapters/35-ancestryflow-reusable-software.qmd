@@ -1,0 +1,316 @@
+# AncestryFlow: building reusable bioinformatics software
+
+::: {.callout-note}
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 12 tests for sample-ID validation. VCF processing, ancestry inference, a command-line interface, and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+:::
+
+## Why a biologist should care
+
+An analysis script often works only with its author's paths and sample names. A reusable tool needs explicit inputs, clear errors and tests that another researcher can run. Here we build toward reference-based ancestry estimation, beginning with one small component: sample-ID validation.
+
+All examples use invented donor names. No controlled-access genotypes or donor-level results are included.
+
+## Engineering objective
+
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–6: repository setup, an isolated environment, package configuration, validation, tests and development dependencies.
+
+## Mental model
+
+The eventual architecture is a Python library, a command-line interface and a Nextflow workflow. The library contains reusable logic; the command-line interface exposes it to shell users; Nextflow connects the analysis stages. Only the library foundation is implemented here.
+
+| Item | Purpose |
+|---|---|
+| Git repository | Records changes to project files |
+| `.venv/` | Holds this project's isolated Python environment |
+| `pyproject.toml` | Describes installation, metadata and dependencies |
+| `src/ancestryflow/` | Contains importable Python code |
+| `tests/` | Contains automated checks of behavior |
+
+## Before you type
+
+Use a macOS or Linux terminal with Git and Python 3.11 or later. Basic Python knowledge is assumed. The learner's initial run used Python 3.14.6; a Python-version declaration is not evidence that every supported version has been tested.
+
+Use a new project directory. If you already followed these checkpoints, compare your files instead of overwriting them. Existing genotype data should remain outside this tutorial repository.
+
+The complete source for this checkpoint is in [examples/ancestryflow](https://github.com/cjgunase/nextflow-for-biologists/tree/main/examples/ancestryflow). The commands below reconstruct it without requiring a clone of the book.
+
+## Build it
+
+### 1. Create the repository
+
+```bash
+mkdir -p ~/projects/bioinformatics_projects/ancestryflow
+cd ~/projects/bioinformatics_projects/ancestryflow
+git init
+```
+
+In your editor, create `.gitignore` in this directory and save:
+
+```text
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+data/
+reference/
+results/
+work/
+.nextflow/
+.nextflow.log*
+.env
+.env.*
+.DS_Store
+.idea/
+```
+
+Ignored paths are local files that Git should not start tracking. This is not a comprehensive data-protection mechanism: review staged files before committing. Adding a pattern does not untrack files already staged or committed.
+
+### 2. Create and activate the environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -c "import sys; print('Isolated:', sys.prefix != sys.base_prefix)"
+```
+
+Expect `Isolated: True`. Activation applies to this terminal session; repeat the `source` command in a new terminal.
+
+### 3. Create the package
+
+```bash
+mkdir -p src/ancestryflow tests
+```
+
+Create `src/ancestryflow/__init__.py` in your editor:
+
+```python
+"""Reusable tools for reference-based genetic ancestry analysis."""
+```
+
+Create `pyproject.toml` in the project root. This is the configuration after completing the development-dependency checkpoint:
+
+```toml
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ancestryflow"
+version = "0.1.0"
+description = "Reusable tools for reference-based genetic ancestry analysis"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+]
+```
+
+### 4. Implement sample-ID validation
+
+Create `src/ancestryflow/samples.py`:
+
+```python
+"""Validation utilities for sample identifiers."""
+
+from collections.abc import Iterable
+
+
+def validate_sample_ids(sample_ids: Iterable[str]) -> list[str]:
+    """Return sample IDs in their original order after validation.
+
+    Raises:
+        TypeError: If the input is a single string or contains nonstrings.
+        ValueError: If IDs are empty, contain whitespace, repeat, or are absent.
+    """
+    if isinstance(sample_ids, (str, bytes)):
+        raise TypeError("Provide a collection of sample IDs, not a single string.")
+
+    validated: list[str] = []
+    seen: set[str] = set()
+
+    for position, sample_id in enumerate(sample_ids, start=1):
+        if not isinstance(sample_id, str):
+            raise TypeError(f"Sample ID at position {position} must be a string.")
+
+        if not sample_id:
+            raise ValueError(f"Sample ID at position {position} is empty.")
+
+        if any(character.isspace() for character in sample_id):
+            raise ValueError(f"Sample ID contains whitespace: {sample_id!r}")
+
+        if sample_id in seen:
+            raise ValueError(f"Duplicate sample ID: {sample_id!r}")
+
+        seen.add(sample_id)
+        validated.append(sample_id)
+
+    if not validated:
+        raise ValueError("At least one sample ID is required.")
+
+    return validated
+```
+
+The function preserves exact names and order. It rejects whitespace instead of silently changing an identifier that must later match a VCF header. Exceptions let the caller choose how to report errors. At this stage it validates names only; it does not check whether those names exist in a VCF.
+
+### 5. Write tests
+
+Create `tests/test_samples.py`:
+
+```python
+"""Tests for sample identifier validation."""
+
+import pytest
+
+from ancestryflow.samples import validate_sample_ids
+
+
+def test_preserves_sample_order():
+    samples = ["donor_02", "donor_01"]
+    assert validate_sample_ids(samples) == samples
+
+
+def test_accepts_a_generator():
+    samples = (f"donor_{i}" for i in range(3))
+    assert validate_sample_ids(samples) == ["donor_0", "donor_1", "donor_2"]
+
+
+@pytest.mark.parametrize(
+    "samples, message",
+    [
+        ([], "At least one sample ID"),
+        ([""], "is empty"),
+        ([" donor_01"], "contains whitespace"),
+        (["donor 01"], "contains whitespace"),
+        (["donor_01\n"], "contains whitespace"),
+        (["donor_01", "donor_01"], "Duplicate sample ID"),
+    ],
+)
+def test_rejects_invalid_ids(samples, message):
+    with pytest.raises(ValueError, match=message):
+        validate_sample_ids(samples)
+
+
+@pytest.mark.parametrize(
+    "samples",
+    ["donor_01", b"donor_01", [123], ["donor_01", None]],
+)
+def test_rejects_incorrect_types(samples):
+    with pytest.raises(TypeError):
+        validate_sample_ids(samples)
+```
+
+The parameterized tests exercise several inputs independently. A generator is accepted; a single string is rejected because treating it as an iterable would otherwise process individual characters as sample names.
+
+### 6. Install and verify
+
+From the project root, with the environment active:
+
+```bash
+python -m pip install -e ".[dev]"
+python -c "import ancestryflow; print(ancestryflow.__file__)"
+python -m pytest -q
+```
+
+## Read the command
+
+| Command or syntax | What it does and why |
+|---|---|
+| `mkdir -p PATH` | Creates the directory and missing parents; an existing directory is allowed |
+| `cd PATH` | Changes the terminal's current directory; relative paths now refer to this location |
+| `git init` | Creates local Git history storage; nothing is published to GitHub |
+| `python3 -m venv .venv` | Runs Python's environment-creation module and stores the environment in `.venv` |
+| `source .venv/bin/activate` | Adjusts this shell so `python` resolves to the environment's interpreter |
+| `python -m pip` | Runs pip using the selected Python interpreter |
+| `install -e ".[dev]"` | Installs the current project in editable mode, plus its `dev` dependencies |
+| `-e` | Makes edits to source code available without reinstalling; dependency or configuration changes can still require reinstalling |
+| `.[dev]` | `.` means the current project; `[dev]` selects its optional development dependencies; quotes protect brackets from shell expansion |
+| `python -c "..."` | Executes a short Python statement without creating a script |
+| `python -m pytest -q` | Runs the tests with concise output; `-q` means quiet |
+
+The earlier teaching session used `cat > file <<'EOF'` to write files. It is only a file-creation convenience: `>` replaces the file, and the text up to `EOF` becomes its contents. Using an editor is equally valid and often easier to follow.
+
+`pytest>=8,<10` defines an allowed range, not an exact dependency lock. Precise runtime and container pinning belong to later reproducibility checkpoints.
+
+## Expected output
+
+The import check prints a path ending in:
+
+```text
+ancestryflow/src/ancestryflow/__init__.py
+```
+
+The learner's test run produced:
+
+```text
+............ [100%]
+12 passed in 0.02s
+```
+
+Execution time varies. Twelve passing tests is the checkpoint, not a particular duration.
+
+## Verification checkpoint
+
+Run `python -m pytest -q` from the project root. All 12 tests must pass. These tests establish the documented sample-ID behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+
+## What changed on disk
+
+```text
+ancestryflow/
+├── .gitignore
+├── pyproject.toml
+├── src/ancestryflow/
+│   ├── __init__.py
+│   └── samples.py
+├── tests/
+│   └── test_samples.py
+└── .venv/                  # ignored, machine-local environment
+```
+
+Installation and testing can also create ignored metadata and cache directories. Git does not track empty directories.
+
+## Common failure
+
+**`ModuleNotFoundError: No module named 'ancestryflow'`:** check that the environment is active and that editable installation ran from the directory containing `pyproject.toml`. Do not solve this by copying package files into Python's installation directory.
+
+**Editor files appear in `git status`:** an IDE may stage its `.idea/` files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint will address this separately.
+
+## Commit checkpoint
+
+The learner has verified checkpoints 1–6 but has not yet completed the first project commit. The next checkpoint is to review the staging area and commit only the package, tests and configuration. See [Safe daily Git workflow](07-safe-daily-git-workflow.qmd) for the staging model.
+
+## Try it yourself
+
+Optional: run the function with `["donor_01", "donor_01"]`. Predict the exception before executing it.
+
+::: {.callout-tip collapse="true" title="Expected behavior"}
+It raises `ValueError` with `Duplicate sample ID: 'donor_01'`. Rejecting a duplicate avoids silently processing a donor twice.
+:::
+
+## What to remember
+
+- Package code is importable independently of the future workflow.
+- Editable installation makes local development convenient.
+- Tests define behavior that future contributors must preserve.
+- Declaring dependency ranges is useful, but it is not full environment locking.
+
+## Interview grill
+
+1. Why separate a Python library from a Nextflow process?
+2. What does a virtual environment isolate?
+3. What does editable installation change?
+4. Why reject a single string when an iterable is expected?
+5. Why preserve sample order?
+6. Why reject whitespace instead of stripping it?
+7. Why raise an exception rather than print and continue?
+8. What does parameterization add to these tests?
+9. Why does declaring a Python version range not prove compatibility?
+10. What do these tests establish, and what remains untested scientifically?
