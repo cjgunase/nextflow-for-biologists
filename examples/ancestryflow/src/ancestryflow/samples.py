@@ -1,7 +1,16 @@
 """Validation utilities for sample identifiers."""
 
 from collections.abc import Iterable
+from pathlib import Path
 
+def read_sample_ids(path: str | Path) -> list[str]:
+    """Read and validate a file containing one sample ID per line.
+
+    Blank lines, duplicate IDs and whitespace within IDs are rejected.
+    File access errors propagate to the caller.
+    """
+    text = Path(path).read_text(encoding="utf-8-sig")
+    return validate_sample_ids(text.splitlines())
 
 def validate_sample_ids(sample_ids: Iterable[str]) -> list[str]:
     """Return sample IDs in their original order after validation.

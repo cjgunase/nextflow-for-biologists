@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 12 tests for sample-ID validation. VCF processing, ancestry inference, a command-line interface, and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 15 tests for sample-ID validation and text-file input. VCF processing, ancestry inference, a command-line interface, and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–7: repository setup, an isolated environment, package configuration, validation, tests, development dependencies and the first Git commit.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–8: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit and text-file input.
 
 ## Mental model
 
@@ -220,6 +220,64 @@ python -c "import ancestryflow; print(ancestryflow.__file__)"
 python -m pytest -q
 ```
 
+### 8. Read sample IDs from a text file
+
+The next verified component accepts a filename, reads one exact sample ID per line and reuses the validator. The file has no header. Blank lines and whitespace within an ID are rejected; a normal final newline is accepted.
+
+In `src/ancestryflow/samples.py`, add `from pathlib import Path` with the imports and add this function:
+
+```python
+def read_sample_ids(path: str | Path) -> list[str]:
+    """Read and validate a file containing one sample ID per line.
+
+    Blank lines, duplicate IDs and whitespace within IDs are rejected.
+    File access errors propagate to the caller.
+    """
+    text = Path(path).read_text(encoding="utf-8-sig")
+    return validate_sample_ids(text.splitlines())
+```
+
+`Path(path)` accepts a filename string or a `Path` object. `read_text()` reads the file; `utf-8-sig` also handles a UTF-8 byte-order mark that some editors add. `splitlines()` removes line endings without silently stripping spaces from IDs. Missing-file and access errors propagate to the caller.
+
+In `tests/test_samples.py`, replace the existing function import with:
+
+```python
+from ancestryflow.samples import read_sample_ids, validate_sample_ids
+```
+
+Append these tests:
+
+```python
+def test_reads_sample_file(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_02\ndonor_01\n", encoding="utf-8")
+
+    assert read_sample_ids(sample_file) == ["donor_02", "donor_01"]
+
+
+def test_rejects_blank_line_in_sample_file(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\n\ndonor_02\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="is empty"):
+        read_sample_ids(sample_file)
+
+
+def test_reports_missing_sample_file(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        read_sample_ids(tmp_path / "missing.txt")
+```
+
+`tmp_path` is a pytest fixture: pytest supplies a separate temporary directory for each test. These checks never read or overwrite real sample files. The tests cover successful reading in input order, a blank-line validation failure and a missing file.
+
+From the project root with the environment active, run:
+
+```bash
+python -m pytest -q
+```
+
+The verified result is **15 passed**. The 12 earlier tests still run, plus three file-reader tests. Two existing files changed: `samples.py` and `test_samples.py`. No additional dependency was needed. The companion example contains this completed checkpoint; a command-line interface remains a future step.
+
 ## Read the command
 
 | Command or syntax | What it does and why |
@@ -255,11 +313,11 @@ The learner's test run produced:
 12 passed in 0.02s
 ```
 
-Execution time varies. Twelve passing tests is the checkpoint, not a particular duration.
+Execution time varies. Twelve passing tests is the initial checkpoint; after step 8, expect 15. Execution time is not a pass condition.
 
 ## Verification checkpoint
 
-Run `python -m pytest -q` from the project root. All 12 tests must pass. These tests establish the documented sample-ID behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+Run `python -m pytest -q` from the project root. All 15 tests must pass after completing step 8. These tests establish the documented sample-ID and file-reading behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
 
 ## What changed on disk
 

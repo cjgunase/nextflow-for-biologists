@@ -1,8 +1,6 @@
 """Tests for sample identifier validation."""
-
 import pytest
-
-from ancestryflow.samples import validate_sample_ids
+from ancestryflow.samples import read_sample_ids, validate_sample_ids
 
 
 def test_preserves_sample_order():
@@ -38,3 +36,22 @@ def test_rejects_invalid_ids(samples, message):
 def test_rejects_incorrect_types(samples):
     with pytest.raises(TypeError):
         validate_sample_ids(samples)
+
+def test_reads_sample_file(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_02\ndonor_01\n", encoding="utf-8")
+
+    assert read_sample_ids(sample_file) == ["donor_02", "donor_01"]
+
+
+def test_rejects_blank_line_in_sample_file(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\n\ndonor_02\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="is empty"):
+        read_sample_ids(sample_file)
+
+
+def test_reports_missing_sample_file(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        read_sample_ids(tmp_path / "missing.txt")
