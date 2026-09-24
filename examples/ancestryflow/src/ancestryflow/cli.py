@@ -3,7 +3,8 @@
 import argparse
 from pathlib import Path
 
-from ancestryflow.samples import read_sample_ids
+from ancestryflow.samples import read_sample_ids, validate_sample_selection
+from ancestryflow.vcf import read_vcf_samples
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -16,7 +17,7 @@ def main(argv: list[str] | None = None) -> int:
 
     validate = commands.add_parser(
         "validate-samples",
-        help="Check a file containing one sample ID per line.",
+        help="Check sample IDs, optionally against a VCF header.",
     )
     validate.add_argument(
         "--samples",
@@ -24,15 +25,30 @@ def main(argv: list[str] | None = None) -> int:
         required=True,
         help="Sample-list file without a header.",
     )
+    validate.add_argument(
+        "--vcf",
+        type=Path,
+        help="VCF whose header must contain every requested sample.",
+    )
 
     args = parser.parse_args(argv)
 
     try:
         sample_ids = read_sample_ids(args.samples)
+
+        if args.vcf is not None:
+            available_ids = read_vcf_samples(args.vcf)
+            sample_ids = validate_sample_selection(
+                sample_ids, available_ids
+            )
     except (OSError, ValueError) as error:
         parser.error(str(error))
 
-    print(f"Validated {len(sample_ids)} sample IDs.")
+    if args.vcf is None:
+        print(f"Validated {len(sample_ids)} sample IDs.")
+    else:
+        print(f"Matched {len(sample_ids)} sample IDs in the VCF header.")
+
     return 0
 
 

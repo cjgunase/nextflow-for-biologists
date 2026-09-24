@@ -12,4 +12,6 @@ python -m pytest -q
 ancestryflow validate-samples --samples examples/samples.txt
 ```
 
-Expected: 28 passing tests. Sample names are synthetic. No genotype data is included.
+Expected: 31 passing tests. Sample names are synthetic. No genotype data is included.
+
+To check names against your own VCF header, add `--vcf /path/to/cohort.vcf.gz`. This checks sample presence only.

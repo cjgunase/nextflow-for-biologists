@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 28 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the command-line interface. The installed sample-validation command has also been verified manually. Connecting VCF-header checks to the CLI, genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 31 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the VCF-aware command-line interface. The installed sample-validation command has also been verified manually. Genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–13: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection and VCF-header reading.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–14: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading and CLI integration.
 
 ## Mental model
 
@@ -679,6 +679,157 @@ The learner confirmed the checkpoint passed; the independently checked suite con
 
 The CLI still checks sample-list contents only. Connecting it to this reader is the next checkpoint.
 
+### 14. Connect VCF sample matching to the CLI
+
+Replace `src/ancestryflow/cli.py` with:
+
+```python
+"""Command-line interface for AncestryFlow."""
+
+import argparse
+from pathlib import Path
+
+from ancestryflow.samples import read_sample_ids, validate_sample_selection
+from ancestryflow.vcf import read_vcf_samples
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="ancestryflow",
+        description="Tools for reference-based genetic ancestry analysis.",
+    )
+
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    validate = commands.add_parser(
+        "validate-samples",
+        help="Check sample IDs, optionally against a VCF header.",
+    )
+    validate.add_argument(
+        "--samples",
+        type=Path,
+        required=True,
+        help="Sample-list file without a header.",
+    )
+    validate.add_argument(
+        "--vcf",
+        type=Path,
+        help="VCF whose header must contain every requested sample.",
+    )
+
+    args = parser.parse_args(argv)
+
+    try:
+        sample_ids = read_sample_ids(args.samples)
+
+        if args.vcf is not None:
+            available_ids = read_vcf_samples(args.vcf)
+            sample_ids = validate_sample_selection(
+                sample_ids, available_ids
+            )
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+
+    if args.vcf is None:
+        print(f"Validated {len(sample_ids)} sample IDs.")
+    else:
+        print(f"Matched {len(sample_ids)} sample IDs in the VCF header.")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+The optional `--vcf` argument connects three existing components: reading requested IDs, reading the VCF header and checking exact matches. Without `--vcf`, the original sample-list validation command behaves as before. A successful match checks sample presence, not genotype quality or genome assembly.
+
+Both VCF and CLI tests need the same synthetic input. Move the complete `vcf_path` fixture, including its decorator, out of `tests/test_vcf.py` and into a new `tests/conftest.py`:
+
+```python
+"""Shared pytest fixtures."""
+
+import pytest
+
+@pytest.fixture
+def vcf_path(tmp_path):
+    path = tmp_path / "example.vcf"
+    path.write_text(
+        "##fileformat=VCFv4.2\n"
+        "##contig=<ID=1,length=248956422>\n"
+        '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n'
+        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT"
+        "\tdonor_02\tdonor_01\n"
+        "1\t100\t.\tA\tC\t.\tPASS\t.\tGT\t0/1\t0/0\n",
+        encoding="utf-8",
+    )
+    return path
+```
+
+Keep the four test functions in `test_vcf.py`. Pytest automatically discovers fixtures in `conftest.py` for tests in that directory; do not import the fixture into each test module.
+
+Append these tests to `tests/test_cli.py`:
+
+```python
+def test_cli_matches_vcf_samples(tmp_path, vcf_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\ndonor_02\n", encoding="utf-8")
+
+    result = run_cli(
+        "validate-samples",
+        "--samples", str(sample_file),
+        "--vcf", str(vcf_path),
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "Matched 2 sample IDs in the VCF header."
+    assert result.stderr == ""
+
+def test_cli_rejects_sample_absent_from_vcf(tmp_path, vcf_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("absent_donor\n", encoding="utf-8")
+
+    result = run_cli(
+        "validate-samples",
+        "--samples", str(sample_file),
+        "--vcf", str(vcf_path),
+    )
+
+    assert result.returncode == 2
+    assert "Requested samples not found: absent_donor" in result.stderr
+    assert result.stdout == ""
+
+def test_cli_reports_missing_vcf(tmp_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\n", encoding="utf-8")
+
+    result = run_cli(
+        "validate-samples",
+        "--samples", str(sample_file),
+        "--vcf", str(tmp_path / "missing.vcf"),
+    )
+
+    assert result.returncode == 2
+    assert "missing.vcf" in result.stderr
+    assert "Traceback" not in result.stderr
+```
+
+They exercise successful matching, an absent donor and a missing VCF through a separate CLI process. The failure tests verify exit status 2 and readable error messages. No additional dependency or command-registration change is needed, so editable installation makes the source changes available without reinstalling.
+
+From the project root, run:
+
+```bash
+python -m pytest -q
+```
+
+The independently verified result is **31 passed**. The command interface is now:
+
+```bash
+ancestryflow validate-samples --samples samples.txt --vcf cohort.vcf.gz
+```
+
+Here `samples.txt` and `cohort.vcf.gz` represent the user's real file paths; they are not bundled example filenames. This checkpoint modifies `cli.py`, `test_cli.py` and `test_vcf.py`, and adds the shared `conftest.py`. The next milestone is to document usage and commit the VCF-validation feature.
+
 ## Read the command
 
 | Command or syntax | What it does and why |
@@ -718,7 +869,7 @@ Execution time varies. Twelve passing tests is the initial checkpoint; after ste
 
 ## Verification checkpoint
 
-Run `python -m pytest -q` from the project root. All 28 tests must pass after completing step 13. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+Run `python -m pytest -q` from the project root. All 31 tests must pass after completing step 14. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
 
 ## What changed on disk
 
@@ -733,6 +884,7 @@ ancestryflow/
 │   └── vcf.py
 ├── examples/samples.txt   # synthetic sample names
 ├── tests/
+│   ├── conftest.py
 │   ├── test_samples.py
 │   ├── test_cli.py
 │   └── test_vcf.py
@@ -745,7 +897,7 @@ Installation and testing can also create ignored metadata and cache directories.
 
 **Tests pass, but the count is lower than expected:** during the next CLI-integration step, three new `test_cli_*` functions were accidentally indented inside an existing test. Pytest still reported 28 passing tests, but did not discover the three nested functions. Passing tests alone does not prove that newly added tests ran. Put each standalone test function at the top level, with its `def` starting at the left margin. Its body remains indented by four spaces.
 
-Use `python -m pytest --collect-only -q` to list discovered tests without running them, then `python -m pytest -q` to run them. For that CLI-integration checkpoint, the expected total is 31. At this point, the learner's indentation correction is pending; the companion example remains at the verified 28-test checkpoint.
+Use `python -m pytest --collect-only -q` to list discovered tests without running them, then `python -m pytest -q` to run them. For that CLI-integration checkpoint, the expected total is 31. The learner corrected the indentation and confirmed all 31 tests passed. The companion example includes that correction.
 
 
 **`ModuleNotFoundError: No module named 'ancestryflow'`:** check that the environment is active and that editable installation ran from the directory containing `pyproject.toml`. Do not solve this by copying package files into Python's installation directory.
