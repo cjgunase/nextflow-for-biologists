@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 31 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the VCF-aware command-line interface. The installed sample-validation command has also been verified manually. Genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 31 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the VCF-aware command-line interface. GitHub Actions also verified all 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–17: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication and an MIT license.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–18: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license and automated tests on GitHub.
 
 ## Mental model
 
@@ -970,6 +970,83 @@ gh repo view --json licenseInfo
 ```
 
 The verified GitHub result identifies `key: mit` and `name: MIT License`. License recognition can lag briefly after a push. This checkpoint changes distribution metadata and permissions for reuse; it does not add analysis functionality. Automated GitHub testing is the next step.
+
+### 18. Run the tests automatically on GitHub
+
+Continuous integration (CI) runs the checks in fresh environments whenever contributors submit changes. This helps detect missing dependencies and differences between supported Python versions.
+
+Create the workflow directory from the project root:
+
+```bash
+mkdir -p .github/workflows
+```
+
+`mkdir` creates a directory; `-p` also creates missing parent directories and accepts directories that already exist. Save this as `.github/workflows/tests.yml`:
+
+```yaml
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and test dependencies
+        run: python -m pip install ".[dev]"
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Check installed command
+        run: ancestryflow validate-samples --samples examples/samples.txt
+```
+
+The workflow runs on pushes to `main`, pull requests and manual requests. The matrix creates four separate jobs, one for each Python version. `fail-fast: false` lets all four finish even if one fails. Each job checks out the source, installs Python, installs the package with its test dependencies, runs pytest and checks the installed command. `contents: read` gives the workflow read-only repository access.
+
+Here `python -m pip install ".[dev]"` performs a regular installation from the current directory, including the optional `dev` dependencies. The quotes protect the brackets from shell expansion. A regular installation checks how another user installs the package; local development previously used editable installation with `-e`.
+
+Publish the workflow:
+
+```bash
+git add .github/workflows/tests.yml
+git commit -m "Add GitHub Actions tests across supported Python versions"
+git push origin main
+```
+
+These commands stage the workflow, record it locally and send the commit to GitHub, which starts the checks. Inspect the latest run:
+
+```bash
+gh run list --workflow tests.yml --limit 1
+```
+
+`--workflow` selects this workflow and `--limit 1` shows only its latest run. A check mark means the run succeeded. If it fails, open the run in GitHub's Actions tab and inspect the failed step before changing code.
+
+The learner's [verified run](https://github.com/cjgunase/ancestryflow/actions/runs/35944854738) passed on Python 3.11, 3.12, 3.13 and 3.14. Each job reported **31 passed**, and the installed command printed `Validated 2 sample IDs.` The license notice was also cleaned up to remove the leftover template brackets.
+
+This establishes compatibility for the tested package behavior on those Python versions and Ubuntu. It does not yet validate ancestry estimates or guarantee identical results across all systems. The companion directory contains a copy of the workflow for teaching; GitHub only discovers workflows in the repository's root `.github/workflows/` directory.
 
 ## Read the command
 
