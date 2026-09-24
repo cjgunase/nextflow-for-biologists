@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–16: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit and public GitHub publication.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–17: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication and an MIT license.
 
 ## Mental model
 
@@ -917,6 +917,60 @@ The verified public repository is [cjgunase/ancestryflow](https://github.com/cjg
 
 A local `M` beside a file means an uncommitted change remains on the computer; publication does not upload such changes. During verification, `tests/test_cli.py` had an uncommitted end-of-file whitespace edit. That does not change which commit was published. Review it separately rather than including it accidentally in the next feature commit.
 
+### 17. License the original code for reuse
+
+The learner chose the [MIT license](https://choosealicense.com/licenses/mit/) for the original project code. It permits reuse and modification while requiring preservation of the copyright and license notice. Dependencies retain their own licenses.
+
+From the project root, retrieve GitHub's standard template:
+
+```bash
+gh api licenses/mit --jq .body > LICENSE
+```
+
+`gh api` queries GitHub, `--jq .body` extracts the text from the JSON response, and `>` writes that text into `LICENSE`. This replaces an existing file of the same name, so use it for the initial license creation only.
+
+Open the file and replace the year/name placeholders, including the square brackets, with the appropriate copyright year and holder. Leave the rest of the license unchanged. For this project the intended notice is:
+
+```text
+Copyright (c) 2026 Chathura J. Gunasekara
+```
+
+The learner's first committed notice retained square brackets around the filled-in values. GitHub still recognized MIT; removing those leftover template delimiters is a cosmetic cleanup, not evidence of license detection failure.
+
+Inside the existing `[project]` table in `pyproject.toml`, add:
+
+```toml
+license = "MIT"
+license-files = ["LICENSE"]
+```
+
+Update the existing `[build-system]` requirement to:
+
+```toml
+requires = ["setuptools>=77.0.3"]
+```
+
+The license expression identifies the license in package metadata, and `license-files` includes its text in the distribution. This form follows the [Python packaging guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/).
+
+Verify installation, then select only these two files:
+
+```bash
+python -m pip install -e ".[dev]"
+git add LICENSE pyproject.toml
+git diff --cached --stat
+git diff --cached --check
+```
+
+Expect two staged files and no whitespace warnings. Keep unrelated working-tree changes out of this commit. After inspection:
+
+```bash
+git commit -m "Add MIT license and package license metadata"
+git push
+gh repo view --json licenseInfo
+```
+
+The verified GitHub result identifies `key: mit` and `name: MIT License`. License recognition can lag briefly after a push. This checkpoint changes distribution metadata and permissions for reuse; it does not add analysis functionality. Automated GitHub testing is the next step.
+
 ## Read the command
 
 | Command or syntax | What it does and why |
@@ -964,6 +1018,7 @@ Run `python -m pytest -q` from the project root. All 31 tests must pass after co
 ancestryflow/
 ├── .gitignore
 ├── README.md
+├── LICENSE
 ├── pyproject.toml
 ├── src/ancestryflow/
 │   ├── __init__.py
