@@ -547,6 +547,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#commit-the-tested-sample-validation-feature" id="toc-commit-the-tested-sample-validation-feature" class="nav-link" data-scroll-target="#commit-the-tested-sample-validation-feature"><span class="header-section-number">35.5.10</span> 11. Commit the tested sample-validation feature</a></li>
   <li><a href="#match-requested-sample-ids-exactly" id="toc-match-requested-sample-ids-exactly" class="nav-link" data-scroll-target="#match-requested-sample-ids-exactly"><span class="header-section-number">35.5.11</span> 12. Match requested sample IDs exactly</a></li>
   <li><a href="#read-sample-names-from-a-vcf-header" id="toc-read-sample-names-from-a-vcf-header" class="nav-link" data-scroll-target="#read-sample-names-from-a-vcf-header"><span class="header-section-number">35.5.12</span> 13. Read sample names from a VCF header</a></li>
+  <li><a href="#connect-vcf-sample-matching-to-the-cli" id="toc-connect-vcf-sample-matching-to-the-cli" class="nav-link" data-scroll-target="#connect-vcf-sample-matching-to-the-cli"><span class="header-section-number">35.5.13</span> 14. Connect VCF sample matching to the CLI</a></li>
   </ul></li>
   <li><a href="#read-the-command" id="toc-read-the-command" class="nav-link" data-scroll-target="#read-the-command"><span class="header-section-number">35.6</span> Read the command</a></li>
   <li><a href="#expected-output" id="toc-expected-output" class="nav-link" data-scroll-target="#expected-output"><span class="header-section-number">35.7</span> Expected output</a></li>
@@ -591,7 +592,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 28 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the command-line interface. The installed sample-validation command has also been verified manually. Connecting VCF-header checks to the CLI, genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
+<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 31 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the VCF-aware command-line interface. The installed sample-validation command has also been verified manually. Genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
 </div>
 </div>
 </div>
@@ -602,7 +603,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="engineering-objective" class="level2" data-number="35.2">
 <h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
-<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–13: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection and VCF-header reading.</p>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–14: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading and CLI integration.</p>
 </section>
 <section id="mental-model" class="level2" data-number="35.3">
 <h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
@@ -1179,6 +1180,134 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <p>The learner confirmed the checkpoint passed; the independently checked suite contains <strong>28 passing tests</strong>. The four new tests exercise file reading, not ancestry inference. New files are <code>vcf.py</code> and <code>test_vcf.py</code>; <code>pyproject.toml</code> adds the runtime dependency. If <code>import pysam</code> fails, check the active environment and repeat installation after saving the dependency under <code>[project]</code>, not under another table.</p>
 <p>The CLI still checks sample-list contents only. Connecting it to this reader is the next checkpoint.</p>
 </section>
+<section id="connect-vcf-sample-matching-to-the-cli" class="level3" data-number="35.5.13">
+<h3 data-number="35.5.13" class="anchored" data-anchor-id="connect-vcf-sample-matching-to-the-cli"><span class="header-section-number">35.5.13</span> 14. Connect VCF sample matching to the CLI</h3>
+<p>Replace <code>src/ancestryflow/cli.py</code> with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Command-line interface for AncestryFlow."""</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> argparse</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ancestryflow.samples <span class="im">import</span> read_sample_ids, validate_sample_selection</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ancestryflow.vcf <span class="im">import</span> read_vcf_samples</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main(argv: <span class="bu">list</span>[<span class="bu">str</span>] <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    parser <span class="op">=</span> argparse.ArgumentParser(</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>        prog<span class="op">=</span><span class="st">"ancestryflow"</span>,</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>        description<span class="op">=</span><span class="st">"Tools for reference-based genetic ancestry analysis."</span>,</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    commands <span class="op">=</span> parser.add_subparsers(dest<span class="op">=</span><span class="st">"command"</span>, required<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    validate <span class="op">=</span> commands.add_parser(</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"validate-samples"</span>,</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">help</span><span class="op">=</span><span class="st">"Check sample IDs, optionally against a VCF header."</span>,</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>    validate.add_argument(</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--samples"</span>,</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">type</span><span class="op">=</span>Path,</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>        required<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>        <span class="bu">help</span><span class="op">=</span><span class="st">"Sample-list file without a header."</span>,</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    validate.add_argument(</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--vcf"</span>,</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>        <span class="bu">type</span><span class="op">=</span>Path,</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">help</span><span class="op">=</span><span class="st">"VCF whose header must contain every requested sample."</span>,</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>    args <span class="op">=</span> parser.parse_args(argv)</span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>        sample_ids <span class="op">=</span> read_sample_ids(args.samples)</span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> args.vcf <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a>            available_ids <span class="op">=</span> read_vcf_samples(args.vcf)</span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a>            sample_ids <span class="op">=</span> validate_sample_selection(</span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a>                sample_ids, available_ids</span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> (<span class="pp">OSError</span>, <span class="pp">ValueError</span>) <span class="im">as</span> error:</span>
+<span id="cb33-45"><a href="#cb33-45" aria-hidden="true" tabindex="-1"></a>        parser.error(<span class="bu">str</span>(error))</span>
+<span id="cb33-46"><a href="#cb33-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> args.vcf <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Validated </span><span class="sc">{</span><span class="bu">len</span>(sample_ids)<span class="sc">}</span><span class="ss"> sample IDs."</span>)</span>
+<span id="cb33-49"><a href="#cb33-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb33-50"><a href="#cb33-50" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Matched </span><span class="sc">{</span><span class="bu">len</span>(sample_ids)<span class="sc">}</span><span class="ss"> sample IDs in the VCF header."</span>)</span>
+<span id="cb33-51"><a href="#cb33-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-52"><a href="#cb33-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb33-53"><a href="#cb33-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-54"><a href="#cb33-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-55"><a href="#cb33-55" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
+<span id="cb33-56"><a href="#cb33-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">SystemExit</span>(main())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The optional <code>--vcf</code> argument connects three existing components: reading requested IDs, reading the VCF header and checking exact matches. Without <code>--vcf</code>, the original sample-list validation command behaves as before. A successful match checks sample presence, not genotype quality or genome assembly.</p>
+<p>Both VCF and CLI tests need the same synthetic input. Move the complete <code>vcf_path</code> fixture, including its decorator, out of <code>tests/test_vcf.py</code> and into a new <code>tests/conftest.py</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Shared pytest fixtures."""</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.fixture</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> vcf_path(tmp_path):</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    path <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"example.vcf"</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    path.write_text(</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"##fileformat=VCFv4.2</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"##contig=&lt;ID=1,length=248956422&gt;</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'##FORMAT=&lt;ID=GT,Number=1,Type=String,Description="Genotype"&gt;</span><span class="ch">\n</span><span class="st">'</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"#CHROM</span><span class="ch">\t</span><span class="st">POS</span><span class="ch">\t</span><span class="st">ID</span><span class="ch">\t</span><span class="st">REF</span><span class="ch">\t</span><span class="st">ALT</span><span class="ch">\t</span><span class="st">QUAL</span><span class="ch">\t</span><span class="st">FILTER</span><span class="ch">\t</span><span class="st">INFO</span><span class="ch">\t</span><span class="st">FORMAT"</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">"</span><span class="ch">\t</span><span class="st">donor_02</span><span class="ch">\t</span><span class="st">donor_01</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"1</span><span class="ch">\t</span><span class="st">100</span><span class="ch">\t</span><span class="st">.</span><span class="ch">\t</span><span class="st">A</span><span class="ch">\t</span><span class="st">C</span><span class="ch">\t</span><span class="st">.</span><span class="ch">\t</span><span class="st">PASS</span><span class="ch">\t</span><span class="st">.</span><span class="ch">\t</span><span class="st">GT</span><span class="ch">\t</span><span class="st">0/1</span><span class="ch">\t</span><span class="st">0/0</span><span class="ch">\n</span><span class="st">"</span>,</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>        encoding<span class="op">=</span><span class="st">"utf-8"</span>,</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Keep the four test functions in <code>test_vcf.py</code>. Pytest automatically discovers fixtures in <code>conftest.py</code> for tests in that directory; do not import the fixture into each test module.</p>
+<p>Append these tests to <code>tests/test_cli.py</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_cli_matches_vcf_samples(tmp_path, vcf_path):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    sample_file <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"samples.txt"</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    sample_file.write_text(<span class="st">"donor_01</span><span class="ch">\n</span><span class="st">donor_02</span><span class="ch">\n</span><span class="st">"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> run_cli(</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"validate-samples"</span>,</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--samples"</span>, <span class="bu">str</span>(sample_file),</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--vcf"</span>, <span class="bu">str</span>(vcf_path),</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.returncode <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.stdout.strip() <span class="op">==</span> <span class="st">"Matched 2 sample IDs in the VCF header."</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.stderr <span class="op">==</span> <span class="st">""</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_cli_rejects_sample_absent_from_vcf(tmp_path, vcf_path):</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    sample_file <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"samples.txt"</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    sample_file.write_text(<span class="st">"absent_donor</span><span class="ch">\n</span><span class="st">"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>)</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> run_cli(</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"validate-samples"</span>,</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--samples"</span>, <span class="bu">str</span>(sample_file),</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--vcf"</span>, <span class="bu">str</span>(vcf_path),</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.returncode <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"Requested samples not found: absent_donor"</span> <span class="kw">in</span> result.stderr</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.stdout <span class="op">==</span> <span class="st">""</span></span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_cli_reports_missing_vcf(tmp_path):</span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>    sample_file <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"samples.txt"</span></span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>    sample_file.write_text(<span class="st">"donor_01</span><span class="ch">\n</span><span class="st">"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>)</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> run_cli(</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>        <span class="st">"validate-samples"</span>,</span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--samples"</span>, <span class="bu">str</span>(sample_file),</span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>        <span class="st">"--vcf"</span>, <span class="bu">str</span>(tmp_path <span class="op">/</span> <span class="st">"missing.vcf"</span>),</span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.returncode <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"missing.vcf"</span> <span class="kw">in</span> result.stderr</span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"Traceback"</span> <span class="kw">not</span> <span class="kw">in</span> result.stderr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>They exercise successful matching, an absent donor and a missing VCF through a separate CLI process. The failure tests verify exit status 2 and readable error messages. No additional dependency or command-registration change is needed, so editable installation makes the source changes available without reinstalling.</p>
+<p>From the project root, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pytest <span class="at">-q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The independently verified result is <strong>31 passed</strong>. The command interface is now:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ancestryflow</span> validate-samples <span class="at">--samples</span> samples.txt <span class="at">--vcf</span> cohort.vcf.gz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Here <code>samples.txt</code> and <code>cohort.vcf.gz</code> represent the user’s real file paths; they are not bundled example filenames. This checkpoint modifies <code>cli.py</code>, <code>test_cli.py</code> and <code>test_vcf.py</code>, and adds the shared <code>conftest.py</code>. The next milestone is to document usage and commit the VCF-validation feature.</p>
+</section>
 </section>
 <section id="read-the-command" class="level2" data-number="35.6">
 <h2 data-number="35.6" class="anchored" data-anchor-id="read-the-command"><span class="header-section-number">35.6</span> Read the command</h2>
@@ -1254,7 +1383,7 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 </section>
 <section id="verification-checkpoint" class="level2" data-number="35.8">
 <h2 data-number="35.8" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">35.8</span> Verification checkpoint</h2>
-<p>Run <code>python -m pytest -q</code> from the project root. All 28 tests must pass after completing step 13. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.</p>
+<p>Run <code>python -m pytest -q</code> from the project root. All 31 tests must pass after completing step 14. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.</p>
 </section>
 <section id="what-changed-on-disk" class="level2" data-number="35.9">
 <h2 data-number="35.9" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">35.9</span> What changed on disk</h2>
@@ -1268,6 +1397,7 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 │   └── vcf.py
 ├── examples/samples.txt   # synthetic sample names
 ├── tests/
+│   ├── conftest.py
 │   ├── test_samples.py
 │   ├── test_cli.py
 │   └── test_vcf.py
@@ -1277,7 +1407,7 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <section id="common-failure" class="level2" data-number="35.10">
 <h2 data-number="35.10" class="anchored" data-anchor-id="common-failure"><span class="header-section-number">35.10</span> Common failure</h2>
 <p><strong>Tests pass, but the count is lower than expected:</strong> during the next CLI-integration step, three new <code>test_cli_*</code> functions were accidentally indented inside an existing test. Pytest still reported 28 passing tests, but did not discover the three nested functions. Passing tests alone does not prove that newly added tests ran. Put each standalone test function at the top level, with its <code>def</code> starting at the left margin. Its body remains indented by four spaces.</p>
-<p>Use <code>python -m pytest --collect-only -q</code> to list discovered tests without running them, then <code>python -m pytest -q</code> to run them. For that CLI-integration checkpoint, the expected total is 31. At this point, the learner’s indentation correction is pending; the companion example remains at the verified 28-test checkpoint.</p>
+<p>Use <code>python -m pytest --collect-only -q</code> to list discovered tests without running them, then <code>python -m pytest -q</code> to run them. For that CLI-integration checkpoint, the expected total is 31. The learner corrected the indentation and confirmed all 31 tests passed. The companion example includes that correction.</p>
 <p><strong><code>ModuleNotFoundError: No module named 'ancestryflow'</code>:</strong> check that the environment is active and that editable installation ran from the directory containing <code>pyproject.toml</code>. Do not solve this by copying package files into Python’s installation directory.</p>
 <p><strong>Editor files appear in <code>git status</code>:</strong> an IDE may stage its <code>.idea/</code> files automatically. Ignore rules do not remove already staged files. Inspect the staging area before the first commit; the Git checkpoint below shows how to remove them from staging while keeping the local files.</p>
 </section>
@@ -1286,18 +1416,18 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <section id="record-the-first-verified-version" class="level3" data-number="35.11.1">
 <h3 data-number="35.11.1" class="anchored" data-anchor-id="record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</h3>
 <p>Run these commands from the <code>ancestryflow</code> project root. First inspect what Git has staged:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In the learner’s working copy, the editor had staged <code>.idea/</code> configuration files. If your status also lists staged <code>.idea/</code> files, ensure <code>.idea/</code> appears in <code>.gitignore</code>, then run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>--cached</code> removes the files from Git’s staging area while keeping them on disk. <code>-r</code> includes the directory’s contents. Skip this command if no <code>.idea/</code> files are staged or tracked. Adding an ignore pattern alone does not unstage files.</p>
 <p>Select the five project files and inspect the selection:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git add</code> stages the named files for the next commit. <code>git diff --cached --stat</code> summarizes that selection. Expect five files, with no environment, genotype data or editor settings.</p>
 <p>Create the checkpoint and verify it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git commit</code> records the staged content locally; <code>-m</code> supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. <code>git log -1 --oneline</code> shows only the latest commit in compact form.</p>
 <p>The learner verified a clean working directory and this commit:</p>
 <pre class="text"><code>b1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests</code></pre>
