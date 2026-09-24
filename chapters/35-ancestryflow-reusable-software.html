@@ -545,6 +545,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#expose-the-library-as-a-terminal-command" id="toc-expose-the-library-as-a-terminal-command" class="nav-link" data-scroll-target="#expose-the-library-as-a-terminal-command"><span class="header-section-number">35.5.8</span> 9. Expose the library as a terminal command</a></li>
   <li><a href="#test-the-cli-as-a-program" id="toc-test-the-cli-as-a-program" class="nav-link" data-scroll-target="#test-the-cli-as-a-program"><span class="header-section-number">35.5.9</span> 10. Test the CLI as a program</a></li>
   <li><a href="#commit-the-tested-sample-validation-feature" id="toc-commit-the-tested-sample-validation-feature" class="nav-link" data-scroll-target="#commit-the-tested-sample-validation-feature"><span class="header-section-number">35.5.10</span> 11. Commit the tested sample-validation feature</a></li>
+  <li><a href="#match-requested-sample-ids-exactly" id="toc-match-requested-sample-ids-exactly" class="nav-link" data-scroll-target="#match-requested-sample-ids-exactly"><span class="header-section-number">35.5.11</span> 12. Match requested sample IDs exactly</a></li>
   </ul></li>
   <li><a href="#read-the-command" id="toc-read-the-command" class="nav-link" data-scroll-target="#read-the-command"><span class="header-section-number">35.6</span> Read the command</a></li>
   <li><a href="#expected-output" id="toc-expected-output" class="nav-link" data-scroll-target="#expected-output"><span class="header-section-number">35.7</span> Expected output</a></li>
@@ -589,7 +590,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 20 tests covering sample-ID validation, text-file input and the command-line interface. The installed sample-validation command has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
+<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 24 tests covering sample-ID validation, text-file input, exact sample selection and the command-line interface. The installed sample-validation command has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
 </div>
 </div>
 </div>
@@ -600,7 +601,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="engineering-objective" class="level2" data-number="35.2">
 <h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
-<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–11: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests and a feature commit.</p>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–12: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit and exact sample selection.</p>
 </section>
 <section id="mental-model" class="level2" data-number="35.3">
 <h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
@@ -1031,7 +1032,66 @@ work/
 <p>The learner verified a clean status and these two commits:</p>
 <pre class="text"><code>a4fde05 (HEAD -&gt; main) Add sample-file reader and CLI with integration tests
 b1b3644 Initialize package with sample validation and tests</code></pre>
-<p>Commit identifiers differ between repositories. The pass condition is a clean working directory and a commit containing the tested feature. This checkpoint records 20 passing tests; it does not add functionality or publish the project to GitHub. VCF-header reading and matching requested IDs against available samples remain future work.</p>
+<p>Commit identifiers differ between repositories. The pass condition is a clean working directory and a commit containing the tested feature. This checkpoint records 20 passing tests; it does not add functionality or publish the project to GitHub. Matching requested IDs against available names is added in checkpoint 12; VCF-header reading remains future work.</p>
+</section>
+<section id="match-requested-sample-ids-exactly" class="level3" data-number="35.5.11">
+<h3 data-number="35.5.11" class="anchored" data-anchor-id="match-requested-sample-ids-exactly"><span class="header-section-number">35.5.11</span> 12. Match requested sample IDs exactly</h3>
+<p>Before extracting genotypes, compare the requested names with the names available in the VCF. This checkpoint implements the comparison independently of file parsing, so it can be tested without genotype data.</p>
+<p>Append this function to <code>src/ancestryflow/samples.py</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> validate_sample_selection(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    requested_ids: Iterable[<span class="bu">str</span>],</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    available_ids: Iterable[<span class="bu">str</span>],</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Validate exact sample matches and preserve the requested order.</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Raises:</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">        TypeError: If either collection contains invalid types.</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">        ValueError: If IDs are invalid or requested samples are absent.</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    requested <span class="op">=</span> validate_sample_ids(requested_ids)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    available <span class="op">=</span> <span class="bu">set</span>(validate_sample_ids(available_ids))</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    missing <span class="op">=</span> [</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        sample_id</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> sample_id <span class="kw">in</span> requested</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> sample_id <span class="kw">not</span> <span class="kw">in</span> available</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> missing:</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Requested samples not found: "</span> <span class="op">+</span> <span class="st">", "</span>.join(missing)</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> requested</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Both collections pass through the existing validator. A set makes membership checks efficient; the returned list preserves the requested order. All absent names are reported together. Matching is exact and case-sensitive: a prefix such as <code>donor_01</code> must not silently select <code>donor_01-extra</code>.</p>
+<p>In <code>tests/test_samples.py</code>, include <code>validate_sample_selection</code> in the import from <code>ancestryflow.samples</code>, then append:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_selection_preserves_requested_order():</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    requested <span class="op">=</span> [<span class="st">"donor_02"</span>, <span class="st">"donor_01"</span>]</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    available <span class="op">=</span> [<span class="st">"donor_01"</span>, <span class="st">"donor_02"</span>, <span class="st">"donor_03"</span>]</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> validate_sample_selection(requested, available) <span class="op">==</span> requested</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_selection_reports_all_missing_samples():</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    requested <span class="op">=</span> [<span class="st">"donor_01"</span>, <span class="st">"missing_01"</span>, <span class="st">"missing_02"</span>]</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    available <span class="op">=</span> [<span class="st">"donor_01"</span>]</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">ValueError</span>, match<span class="op">=</span><span class="st">"missing_01, missing_02"</span>):</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>        validate_sample_selection(requested, available)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_selection_rejects_prefix_matches():</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">ValueError</span>, match<span class="op">=</span><span class="st">"Requested samples not found"</span>):</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>        validate_sample_selection([<span class="st">"donor_01"</span>], [<span class="st">"donor_01-extra"</span>])</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_selection_is_case_sensitive():</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">ValueError</span>, match<span class="op">=</span><span class="st">"Requested samples not found"</span>):</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>        validate_sample_selection([<span class="st">"donor_01"</span>], [<span class="st">"DONOR_01"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>From the project root with the environment active:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pytest <span class="at">-q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The learner verified <strong>24 passed</strong>, including the four new selection tests. No reinstall is required for source-only changes in the editable package. Only <code>samples.py</code> and <code>test_samples.py</code> change in this checkpoint.</p>
+<p>The function currently receives available sample IDs as an argument. It does not open a VCF or change the CLI yet. VCF-header reading will supply those names in a later checkpoint.</p>
 </section>
 </section>
 <section id="read-the-command" class="level2" data-number="35.6">
@@ -1108,7 +1168,7 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 </section>
 <section id="verification-checkpoint" class="level2" data-number="35.8">
 <h2 data-number="35.8" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">35.8</span> Verification checkpoint</h2>
-<p>Run <code>python -m pytest -q</code> from the project root. All 20 tests must pass after completing step 10. These tests establish the documented sample-ID, file-reading and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.</p>
+<p>Run <code>python -m pytest -q</code> from the project root. All 24 tests must pass after completing step 12. These tests establish the documented sample-ID, file-reading, exact-selection and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.</p>
 </section>
 <section id="what-changed-on-disk" class="level2" data-number="35.9">
 <h2 data-number="35.9" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">35.9</span> What changed on disk</h2>
@@ -1136,18 +1196,18 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <section id="record-the-first-verified-version" class="level3" data-number="35.11.1">
 <h3 data-number="35.11.1" class="anchored" data-anchor-id="record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</h3>
 <p>Run these commands from the <code>ancestryflow</code> project root. First inspect what Git has staged:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In the learner’s working copy, the editor had staged <code>.idea/</code> configuration files. If your status also lists staged <code>.idea/</code> files, ensure <code>.idea/</code> appears in <code>.gitignore</code>, then run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>--cached</code> removes the files from Git’s staging area while keeping them on disk. <code>-r</code> includes the directory’s contents. Skip this command if no <code>.idea/</code> files are staged or tracked. Adding an ignore pattern alone does not unstage files.</p>
 <p>Select the five project files and inspect the selection:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git add</code> stages the named files for the next commit. <code>git diff --cached --stat</code> summarizes that selection. Expect five files, with no environment, genotype data or editor settings.</p>
 <p>Create the checkpoint and verify it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git commit</code> records the staged content locally; <code>-m</code> supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. <code>git log -1 --oneline</code> shows only the latest commit in compact form.</p>
 <p>The learner verified a clean working directory and this commit:</p>
 <pre class="text"><code>b1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests</code></pre>
