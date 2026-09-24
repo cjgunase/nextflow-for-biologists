@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa39313ee0ae67082205aa4c05164dde.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-aae1decb7c0a57a761683734fafe0f97.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -549,6 +549,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#read-sample-names-from-a-vcf-header" id="toc-read-sample-names-from-a-vcf-header" class="nav-link" data-scroll-target="#read-sample-names-from-a-vcf-header"><span class="header-section-number">35.5.12</span> 13. Read sample names from a VCF header</a></li>
   <li><a href="#connect-vcf-sample-matching-to-the-cli" id="toc-connect-vcf-sample-matching-to-the-cli" class="nav-link" data-scroll-target="#connect-vcf-sample-matching-to-the-cli"><span class="header-section-number">35.5.13</span> 14. Connect VCF sample matching to the CLI</a></li>
   <li><a href="#document-and-commit-the-working-feature" id="toc-document-and-commit-the-working-feature" class="nav-link" data-scroll-target="#document-and-commit-the-working-feature"><span class="header-section-number">35.5.14</span> 15. Document and commit the working feature</a></li>
+  <li><a href="#publish-the-standalone-project-on-github" id="toc-publish-the-standalone-project-on-github" class="nav-link" data-scroll-target="#publish-the-standalone-project-on-github"><span class="header-section-number">35.5.15</span> 16. Publish the standalone project on GitHub</a></li>
   </ul></li>
   <li><a href="#read-the-command" id="toc-read-the-command" class="nav-link" data-scroll-target="#read-the-command"><span class="header-section-number">35.6</span> Read the command</a></li>
   <li><a href="#expected-output" id="toc-expected-output" class="nav-link" data-scroll-target="#expected-output"><span class="header-section-number">35.7</span> Expected output</a></li>
@@ -604,7 +605,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="engineering-objective" class="level2" data-number="35.2">
 <h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
-<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–15: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration and a documented feature commit.</p>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–16: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit and public GitHub publication.</p>
 </section>
 <section id="mental-model" class="level2" data-number="35.3">
 <h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
@@ -1331,7 +1332,58 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The learner confirmed a clean status and this commit:</p>
 <pre class="text"><code>db441ec (HEAD -&gt; main) Add VCF sample validation, integration tests, and usage documentation</code></pre>
-<p>Your commit identifier will differ. This records the documented feature and 31-test checkpoint locally. Publishing the standalone project to GitHub and adding continuous integration remain future steps. The book’s companion source is already public, but it is separate from the learner’s project repository.</p>
+<p>Your commit identifier will differ. This records the documented feature and 31-test checkpoint locally. The standalone project is published in checkpoint 16 below. Adding an open-source license and continuous integration remain future steps. The book’s companion source is a separate teaching snapshot.</p>
+</section>
+<section id="publish-the-standalone-project-on-github" class="level3" data-number="35.5.15">
+<h3 data-number="35.5.15" class="anchored" data-anchor-id="publish-the-standalone-project-on-github"><span class="header-section-number">35.5.15</span> 16. Publish the standalone project on GitHub</h3>
+<p>From the local <code>ancestryflow</code> project root, check authentication:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth status</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>gh</code> is GitHub’s command-line tool. If it reports that you are not logged in, run <code>gh auth login</code>, choose GitHub.com and follow the browser instructions.</p>
+<p>Create a public repository from the existing local Git history. Replace <code>YOUR_USERNAME</code> with your own GitHub account:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo create YOUR_USERNAME/ancestryflow <span class="dt">\</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--public</span> <span class="dt">\</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--source</span><span class="op">=</span>. <span class="dt">\</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--remote</span><span class="op">=</span>origin <span class="dt">\</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--push</span> <span class="dt">\</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--description</span> <span class="st">"Reusable Python tools and a developing Nextflow workflow for reference-based ancestry analysis"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>--public</code></td>
+<td>Makes the repository visible to everyone</td>
+</tr>
+<tr class="even">
+<td><code>--source=.</code></td>
+<td>Uses the repository in the current directory</td>
+</tr>
+<tr class="odd">
+<td><code>--remote=origin</code></td>
+<td>Saves the remote destination locally as <code>origin</code></td>
+</tr>
+<tr class="even">
+<td><code>--push</code></td>
+<td>Uploads existing commits</td>
+</tr>
+<tr class="odd">
+<td><code>--description</code></td>
+<td>Sets the description displayed on GitHub</td>
+</tr>
+</tbody>
+</table>
+<p>Review the files and history intended for public sharing before this command. The verified project contains source, tests and synthetic examples; it does not include controlled-access genotypes or donor-level ancestry results. If the repository already exists, inspect its state instead of repeatedly issuing the creation command.</p>
+<p>Verify the connection:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">-sb</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo view <span class="at">--web</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>git remote -v</code> shows the fetch/push destinations. <code>git status -sb</code> shows a compact branch and working-tree summary. A clean synchronized branch normally appears as <code>## main...origin/main</code>. <code>gh repo view --web</code> opens the repository in a browser.</p>
+<p>The verified public repository is <a href="https://github.com/cjgunase/ancestryflow">cjgunase/ancestryflow</a>, with default branch <code>main</code> and commit <code>db441ec</code> at publication. Public availability and an open-source license are distinct: a license has not yet been added at this checkpoint. The README describes the implemented input-validation features and the analysis features still to come.</p>
+<p>A local <code>M</code> beside a file means an uncommitted change remains on the computer; publication does not upload such changes. During verification, <code>tests/test_cli.py</code> had an uncommitted end-of-file whitespace edit. That does not change which commit was published. Review it separately rather than including it accidentally in the next feature commit.</p>
 </section>
 </section>
 <section id="read-the-command" class="level2" data-number="35.6">
@@ -1442,18 +1494,18 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <section id="record-the-first-verified-version" class="level3" data-number="35.11.1">
 <h3 data-number="35.11.1" class="anchored" data-anchor-id="record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</h3>
 <p>Run these commands from the <code>ancestryflow</code> project root. First inspect what Git has staged:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In the learner’s working copy, the editor had staged <code>.idea/</code> configuration files. If your status also lists staged <code>.idea/</code> files, ensure <code>.idea/</code> appears in <code>.gitignore</code>, then run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>--cached</code> removes the files from Git’s staging area while keeping them on disk. <code>-r</code> includes the directory’s contents. Skip this command if no <code>.idea/</code> files are staged or tracked. Adding an ignore pattern alone does not unstage files.</p>
 <p>Select the five project files and inspect the selection:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git add</code> stages the named files for the next commit. <code>git diff --cached --stat</code> summarizes that selection. Expect five files, with no environment, genotype data or editor settings.</p>
 <p>Create the checkpoint and verify it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git commit</code> records the staged content locally; <code>-m</code> supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. <code>git log -1 --oneline</code> shows only the latest commit in compact form.</p>
 <p>The learner verified a clean working directory and this commit:</p>
 <pre class="text"><code>b1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests</code></pre>
