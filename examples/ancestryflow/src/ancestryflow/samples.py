@@ -45,3 +45,29 @@ def validate_sample_ids(sample_ids: Iterable[str]) -> list[str]:
         raise ValueError("At least one sample ID is required.")
 
     return validated
+
+def validate_sample_selection(
+    requested_ids: Iterable[str],
+    available_ids: Iterable[str],
+) -> list[str]:
+    """Validate exact sample matches and preserve the requested order.
+
+    Raises:
+        TypeError: If either collection contains invalid types.
+        ValueError: If IDs are invalid or requested samples are absent.
+    """
+    requested = validate_sample_ids(requested_ids)
+    available = set(validate_sample_ids(available_ids))
+
+    missing = [
+        sample_id
+        for sample_id in requested
+        if sample_id not in available
+    ]
+
+    if missing:
+        raise ValueError(
+            "Requested samples not found: " + ", ".join(missing)
+        )
+
+    return requested

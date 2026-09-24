@@ -12,4 +12,4 @@ python -m pytest -q
 ancestryflow validate-samples --samples examples/samples.txt
 ```
 
-Expected: 20 passing tests. Sample names are synthetic. No genotype data is included.
+Expected: 24 passing tests. Sample names are synthetic. No genotype data is included.

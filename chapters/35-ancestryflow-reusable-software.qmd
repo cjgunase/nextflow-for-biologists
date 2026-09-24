@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 20 tests covering sample-ID validation, text-file input and the command-line interface. The installed sample-validation command has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 24 tests covering sample-ID validation, text-file input, exact sample selection and the command-line interface. The installed sample-validation command has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–11: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests and a feature commit.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–12: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit and exact sample selection.
 
 ## Mental model
 
@@ -494,7 +494,81 @@ a4fde05 (HEAD -> main) Add sample-file reader and CLI with integration tests
 b1b3644 Initialize package with sample validation and tests
 ```
 
-Commit identifiers differ between repositories. The pass condition is a clean working directory and a commit containing the tested feature. This checkpoint records 20 passing tests; it does not add functionality or publish the project to GitHub. VCF-header reading and matching requested IDs against available samples remain future work.
+Commit identifiers differ between repositories. The pass condition is a clean working directory and a commit containing the tested feature. This checkpoint records 20 passing tests; it does not add functionality or publish the project to GitHub. Matching requested IDs against available names is added in checkpoint 12; VCF-header reading remains future work.
+
+### 12. Match requested sample IDs exactly
+
+Before extracting genotypes, compare the requested names with the names available in the VCF. This checkpoint implements the comparison independently of file parsing, so it can be tested without genotype data.
+
+Append this function to `src/ancestryflow/samples.py`:
+
+```python
+def validate_sample_selection(
+    requested_ids: Iterable[str],
+    available_ids: Iterable[str],
+) -> list[str]:
+    """Validate exact sample matches and preserve the requested order.
+
+    Raises:
+        TypeError: If either collection contains invalid types.
+        ValueError: If IDs are invalid or requested samples are absent.
+    """
+    requested = validate_sample_ids(requested_ids)
+    available = set(validate_sample_ids(available_ids))
+
+    missing = [
+        sample_id
+        for sample_id in requested
+        if sample_id not in available
+    ]
+
+    if missing:
+        raise ValueError(
+            "Requested samples not found: " + ", ".join(missing)
+        )
+
+    return requested
+```
+
+Both collections pass through the existing validator. A set makes membership checks efficient; the returned list preserves the requested order. All absent names are reported together. Matching is exact and case-sensitive: a prefix such as `donor_01` must not silently select `donor_01-extra`.
+
+In `tests/test_samples.py`, include `validate_sample_selection` in the import from `ancestryflow.samples`, then append:
+
+```python
+def test_selection_preserves_requested_order():
+    requested = ["donor_02", "donor_01"]
+    available = ["donor_01", "donor_02", "donor_03"]
+
+    assert validate_sample_selection(requested, available) == requested
+
+
+def test_selection_reports_all_missing_samples():
+    requested = ["donor_01", "missing_01", "missing_02"]
+    available = ["donor_01"]
+
+    with pytest.raises(ValueError, match="missing_01, missing_02"):
+        validate_sample_selection(requested, available)
+
+
+def test_selection_rejects_prefix_matches():
+    with pytest.raises(ValueError, match="Requested samples not found"):
+        validate_sample_selection(["donor_01"], ["donor_01-extra"])
+
+
+def test_selection_is_case_sensitive():
+    with pytest.raises(ValueError, match="Requested samples not found"):
+        validate_sample_selection(["donor_01"], ["DONOR_01"])
+```
+
+From the project root with the environment active:
+
+```bash
+python -m pytest -q
+```
+
+The learner verified **24 passed**, including the four new selection tests. No reinstall is required for source-only changes in the editable package. Only `samples.py` and `test_samples.py` change in this checkpoint.
+
+The function currently receives available sample IDs as an argument. It does not open a VCF or change the CLI yet. VCF-header reading will supply those names in a later checkpoint.
 
 ## Read the command
 
@@ -535,7 +609,7 @@ Execution time varies. Twelve passing tests is the initial checkpoint; after ste
 
 ## Verification checkpoint
 
-Run `python -m pytest -q` from the project root. All 20 tests must pass after completing step 10. These tests establish the documented sample-ID, file-reading and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+Run `python -m pytest -q` from the project root. All 24 tests must pass after completing step 12. These tests establish the documented sample-ID, file-reading, exact-selection and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
 
 ## What changed on disk
 

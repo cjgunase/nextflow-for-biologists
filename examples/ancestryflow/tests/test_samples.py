@@ -1,6 +1,10 @@
 """Tests for sample identifier validation."""
 import pytest
-from ancestryflow.samples import read_sample_ids, validate_sample_ids
+from ancestryflow.samples import (
+    read_sample_ids,
+    validate_sample_ids,
+    validate_sample_selection,
+)
 
 
 def test_preserves_sample_order():
@@ -55,3 +59,28 @@ def test_rejects_blank_line_in_sample_file(tmp_path):
 def test_reports_missing_sample_file(tmp_path):
     with pytest.raises(FileNotFoundError):
         read_sample_ids(tmp_path / "missing.txt")
+
+
+def test_selection_preserves_requested_order():
+    requested = ["donor_02", "donor_01"]
+    available = ["donor_01", "donor_02", "donor_03"]
+
+    assert validate_sample_selection(requested, available) == requested
+
+
+def test_selection_reports_all_missing_samples():
+    requested = ["donor_01", "missing_01", "missing_02"]
+    available = ["donor_01"]
+
+    with pytest.raises(ValueError, match="missing_01, missing_02"):
+        validate_sample_selection(requested, available)
+
+
+def test_selection_rejects_prefix_matches():
+    with pytest.raises(ValueError, match="Requested samples not found"):
+        validate_sample_selection(["donor_01"], ["donor_01-extra"])
+
+
+def test_selection_is_case_sensitive():
+    with pytest.raises(ValueError, match="Requested samples not found"):
+        validate_sample_selection(["donor_01"], ["DONOR_01"])
