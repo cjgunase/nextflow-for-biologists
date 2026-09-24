@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–14: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading and CLI integration.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–15: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration and a documented feature commit.
 
 ## Mental model
 
@@ -828,7 +828,49 @@ The independently verified result is **31 passed**. The command interface is now
 ancestryflow validate-samples --samples samples.txt --vcf cohort.vcf.gz
 ```
 
-Here `samples.txt` and `cohort.vcf.gz` represent the user's real file paths; they are not bundled example filenames. This checkpoint modifies `cli.py`, `test_cli.py` and `test_vcf.py`, and adds the shared `conftest.py`. The next milestone is to document usage and commit the VCF-validation feature.
+Here `samples.txt` and `cohort.vcf.gz` represent the user's real file paths; they are not bundled example filenames. This checkpoint modifies `cli.py`, `test_cli.py` and `test_vcf.py`, and adds the shared `conftest.py`. Checkpoint 15 documents usage and commits the verified VCF-validation feature.
+
+### 15. Document and commit the working feature
+
+Create `README.md` at the project root using the [verified companion README](https://github.com/cjgunase/nextflow-for-biologists/blob/main/examples/ancestryflow/README.md). It explains installation, the synthetic example, checking a user's own VCF, exit statuses and running tests. It states that ancestry estimation and Nextflow integration are not implemented yet.
+
+A useful README lets another researcher start without the original teaching conversation. Describe current behavior and distinguish tested input handling from future scientific analysis.
+
+From the project root, stage the feature and documentation:
+
+```bash
+git add README.md pyproject.toml \
+  src/ancestryflow/samples.py \
+  src/ancestryflow/vcf.py \
+  src/ancestryflow/cli.py \
+  tests/test_samples.py \
+  tests/test_vcf.py \
+  tests/test_cli.py \
+  tests/conftest.py
+```
+
+`git add` selects these nine files. Each trailing backslash continues the same command. Inspect the selection:
+
+```bash
+git diff --cached --stat
+git diff --cached --check
+```
+
+Expect nine files in the summary and no whitespace warnings. If warnings appear, fix them and stage the corrected files before committing.
+
+```bash
+git commit -m "Add VCF sample validation, integration tests, and usage documentation"
+git status --short
+git log -1 --oneline
+```
+
+The learner confirmed a clean status and this commit:
+
+```text
+db441ec (HEAD -> main) Add VCF sample validation, integration tests, and usage documentation
+```
+
+Your commit identifier will differ. This records the documented feature and 31-test checkpoint locally. Publishing the standalone project to GitHub and adding continuous integration remain future steps. The book's companion source is already public, but it is separate from the learner's project repository.
 
 ## Read the command
 
@@ -876,6 +918,7 @@ Run `python -m pytest -q` from the project root. All 31 tests must pass after co
 ```text
 ancestryflow/
 ├── .gitignore
+├── README.md
 ├── pyproject.toml
 ├── src/ancestryflow/
 │   ├── __init__.py
