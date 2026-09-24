@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–15: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration and a documented feature commit.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–16: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit and public GitHub publication.
 
 ## Mental model
 
@@ -870,7 +870,52 @@ The learner confirmed a clean status and this commit:
 db441ec (HEAD -> main) Add VCF sample validation, integration tests, and usage documentation
 ```
 
-Your commit identifier will differ. This records the documented feature and 31-test checkpoint locally. Publishing the standalone project to GitHub and adding continuous integration remain future steps. The book's companion source is already public, but it is separate from the learner's project repository.
+Your commit identifier will differ. This records the documented feature and 31-test checkpoint locally. The standalone project is published in checkpoint 16 below. Adding an open-source license and continuous integration remain future steps. The book's companion source is a separate teaching snapshot.
+
+### 16. Publish the standalone project on GitHub
+
+From the local `ancestryflow` project root, check authentication:
+
+```bash
+gh auth status
+```
+
+`gh` is GitHub's command-line tool. If it reports that you are not logged in, run `gh auth login`, choose GitHub.com and follow the browser instructions.
+
+Create a public repository from the existing local Git history. Replace `YOUR_USERNAME` with your own GitHub account:
+
+```bash
+gh repo create YOUR_USERNAME/ancestryflow \
+  --public \
+  --source=. \
+  --remote=origin \
+  --push \
+  --description "Reusable Python tools and a developing Nextflow workflow for reference-based ancestry analysis"
+```
+
+| Option | Meaning |
+|---|---|
+| `--public` | Makes the repository visible to everyone |
+| `--source=.` | Uses the repository in the current directory |
+| `--remote=origin` | Saves the remote destination locally as `origin` |
+| `--push` | Uploads existing commits |
+| `--description` | Sets the description displayed on GitHub |
+
+Review the files and history intended for public sharing before this command. The verified project contains source, tests and synthetic examples; it does not include controlled-access genotypes or donor-level ancestry results. If the repository already exists, inspect its state instead of repeatedly issuing the creation command.
+
+Verify the connection:
+
+```bash
+git remote -v
+git status -sb
+gh repo view --web
+```
+
+`git remote -v` shows the fetch/push destinations. `git status -sb` shows a compact branch and working-tree summary. A clean synchronized branch normally appears as `## main...origin/main`. `gh repo view --web` opens the repository in a browser.
+
+The verified public repository is [cjgunase/ancestryflow](https://github.com/cjgunase/ancestryflow), with default branch `main` and commit `db441ec` at publication. Public availability and an open-source license are distinct: a license has not yet been added at this checkpoint. The README describes the implemented input-validation features and the analysis features still to come.
+
+A local `M` beside a file means an uncommitted change remains on the computer; publication does not upload such changes. During verification, `tests/test_cli.py` had an uncommitted end-of-file whitespace edit. That does not change which commit was published. Review it separately rather than including it accidentally in the next feature commit.
 
 ## Read the command
 
