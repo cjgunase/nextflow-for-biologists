@@ -7,6 +7,10 @@ name = "ancestryflow"
 version = "0.1.0"
 description = "Reusable tools for reference-based genetic ancestry analysis"
 requires-python = ">=3.11"
+dependencies = [
+    "pysam==0.24.1",
+]
+
 
 [tool.setuptools.packages.find]
 where = ["src"]

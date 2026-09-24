@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 24 tests covering sample-ID validation, text-file input, exact sample selection and the command-line interface. The installed sample-validation command has also been verified manually. VCF processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 28 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the command-line interface. The installed sample-validation command has also been verified manually. Connecting VCF-header checks to the CLI, genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–12: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit and exact sample selection.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–13: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection and VCF-header reading.
 
 ## Mental model
 
@@ -570,6 +570,115 @@ The learner verified **24 passed**, including the four new selection tests. No r
 
 The function currently receives available sample IDs as an argument. It does not open a VCF or change the CLI yet. VCF-header reading will supply those names in a later checkpoint.
 
+### 13. Read sample names from a VCF header
+
+Use [pysam's VariantFile reader](https://pysam.readthedocs.io/en/stable/api.html) to access header sample names without scanning variant records.
+
+Inside the existing `[project]` table in `pyproject.toml`, immediately below `requires-python`, add:
+
+```toml
+dependencies = [
+    "pysam==0.24.1",
+]
+```
+
+This is a runtime dependency: users need it to read variant files. The exact version is selected by `==`. Installing a direct dependency at a fixed version is useful, but does not lock the entire environment. From the project root with the environment active, install the updated configuration:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Create `src/ancestryflow/vcf.py`:
+
+```python
+"""Utilities for reading variant-file metadata."""
+
+from pathlib import Path
+
+import pysam
+
+from ancestryflow.samples import validate_sample_ids
+
+
+def read_vcf_samples(path: str | Path) -> list[str]:
+    """Read and validate sample IDs in VCF header order.
+
+    This checks sample identifiers, not variant records or genotype quality.
+    File-opening and parsing errors propagate to the caller.
+    """
+    with pysam.VariantFile(str(path)) as variant_file:
+        return validate_sample_ids(variant_file.header.samples)
+```
+
+The `with` statement closes the file automatically. `header.samples` supplies the identifiers in header order. The existing validator rejects an empty sample collection. This function does not validate the variant records, genotype quality or genome assembly.
+
+Create `tests/test_vcf.py`:
+
+```python
+"""Tests for reading sample names from VCF headers."""
+
+import pysam
+import pytest
+
+from ancestryflow.vcf import read_vcf_samples
+
+
+@pytest.fixture
+def vcf_path(tmp_path):
+    path = tmp_path / "example.vcf"
+    path.write_text(
+        "##fileformat=VCFv4.2\n"
+        "##contig=<ID=1,length=248956422>\n"
+        '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n'
+        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT"
+        "\tdonor_02\tdonor_01\n"
+        "1\t100\t.\tA\tC\t.\tPASS\t.\tGT\t0/1\t0/0\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_reads_samples_in_header_order(vcf_path):
+    assert read_vcf_samples(vcf_path) == ["donor_02", "donor_01"]
+
+
+def test_reads_bgzip_compressed_vcf(vcf_path):
+    compressed = str(vcf_path) + ".gz"
+    pysam.tabix_compress(str(vcf_path), compressed)
+    pysam.tabix_index(compressed, preset="vcf")
+
+    assert read_vcf_samples(compressed) == ["donor_02", "donor_01"]
+
+
+def test_rejects_vcf_without_samples(tmp_path):
+    path = tmp_path / "sites_only.vcf"
+    path.write_text(
+        "##fileformat=VCFv4.2\n"
+        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="At least one sample ID"):
+        read_vcf_samples(path)
+
+
+def test_reports_missing_vcf(tmp_path):
+    with pytest.raises(OSError):
+        read_vcf_samples(tmp_path / "missing.vcf")
+```
+
+All inputs are tiny synthetic VCFs. The tests cover header order, a BGZF-compressed and indexed VCF, a sites-only VCF with no samples and a missing file. BGZF is the block-compression format used for indexed VCFs. `tabix_compress` creates it, and `tabix_index` writes its index. Reading the header itself does not require indexed regional queries.
+
+Run:
+
+```bash
+python -m pytest -q
+```
+
+The learner confirmed the checkpoint passed; the independently checked suite contains **28 passing tests**. The four new tests exercise file reading, not ancestry inference. New files are `vcf.py` and `test_vcf.py`; `pyproject.toml` adds the runtime dependency. If `import pysam` fails, check the active environment and repeat installation after saving the dependency under `[project]`, not under another table.
+
+The CLI still checks sample-list contents only. Connecting it to this reader is the next checkpoint.
+
 ## Read the command
 
 | Command or syntax | What it does and why |
@@ -609,7 +718,7 @@ Execution time varies. Twelve passing tests is the initial checkpoint; after ste
 
 ## Verification checkpoint
 
-Run `python -m pytest -q` from the project root. All 24 tests must pass after completing step 12. These tests establish the documented sample-ID, file-reading, exact-selection and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+Run `python -m pytest -q` from the project root. All 28 tests must pass after completing step 13. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
 
 ## What changed on disk
 
@@ -620,11 +729,13 @@ ancestryflow/
 ├── src/ancestryflow/
 │   ├── __init__.py
 │   ├── samples.py
-│   └── cli.py
+│   ├── cli.py
+│   └── vcf.py
 ├── examples/samples.txt   # synthetic sample names
 ├── tests/
 │   ├── test_samples.py
-│   └── test_cli.py
+│   ├── test_cli.py
+│   └── test_vcf.py
 └── .venv/                  # ignored, machine-local environment
 ```
 
