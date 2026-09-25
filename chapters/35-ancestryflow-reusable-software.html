@@ -552,6 +552,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#publish-the-standalone-project-on-github" id="toc-publish-the-standalone-project-on-github" class="nav-link" data-scroll-target="#publish-the-standalone-project-on-github"><span class="header-section-number">35.5.15</span> 16. Publish the standalone project on GitHub</a></li>
   <li><a href="#license-the-original-code-for-reuse" id="toc-license-the-original-code-for-reuse" class="nav-link" data-scroll-target="#license-the-original-code-for-reuse"><span class="header-section-number">35.5.16</span> 17. License the original code for reuse</a></li>
   <li><a href="#run-the-tests-automatically-on-github" id="toc-run-the-tests-automatically-on-github" class="nav-link" data-scroll-target="#run-the-tests-automatically-on-github"><span class="header-section-number">35.5.17</span> 18. Run the tests automatically on GitHub</a></li>
+  <li><a href="#extract-selected-donors-into-a-smaller-vcf" id="toc-extract-selected-donors-into-a-smaller-vcf" class="nav-link" data-scroll-target="#extract-selected-donors-into-a-smaller-vcf"><span class="header-section-number">35.5.18</span> 19. Extract selected donors into a smaller VCF</a></li>
   </ul></li>
   <li><a href="#read-the-command" id="toc-read-the-command" class="nav-link" data-scroll-target="#read-the-command"><span class="header-section-number">35.6</span> Read the command</a></li>
   <li><a href="#expected-output" id="toc-expected-output" class="nav-link" data-scroll-target="#expected-output"><span class="header-section-number">35.7</span> Expected output</a></li>
@@ -596,7 +597,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 31 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the VCF-aware command-line interface. GitHub Actions also verified all 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
+<p>This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 34 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading, the VCF-aware command-line interface and sample extraction. At checkpoint 18, GitHub Actions verified the then-current 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Sample extraction is now implemented as a library function. Genotype quality filtering, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.</p>
 </div>
 </div>
 </div>
@@ -607,7 +608,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="engineering-objective" class="level2" data-number="35.2">
 <h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
-<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–18: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license and automated tests on GitHub.</p>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–19: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub and a sample-extraction function.</p>
 </section>
 <section id="mental-model" class="level2" data-number="35.3">
 <h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
@@ -1469,6 +1470,114 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <p>The learner’s <a href="https://github.com/cjgunase/ancestryflow/actions/runs/35944854738">verified run</a> passed on Python 3.11, 3.12, 3.13 and 3.14. Each job reported <strong>31 passed</strong>, and the installed command printed <code>Validated 2 sample IDs.</code> The license notice was also cleaned up to remove the leftover template brackets.</p>
 <p>This establishes compatibility for the tested package behavior on those Python versions and Ubuntu. It does not yet validate ancestry estimates or guarantee identical results across all systems. The companion directory contains a copy of the workflow for teaching; GitHub only discovers workflows in the repository’s root <code>.github/workflows/</code> directory.</p>
 </section>
+<section id="extract-selected-donors-into-a-smaller-vcf" class="level3" data-number="35.5.18">
+<h3 data-number="35.5.18" class="anchored" data-anchor-id="extract-selected-donors-into-a-smaller-vcf"><span class="header-section-number">35.5.18</span> 19. Extract selected donors into a smaller VCF</h3>
+<p>The next reusable component writes selected sample columns into a new VCF. It validates exact sample IDs before creating output, preserves input sample order and keeps all variant rows. This checkpoint adds the Python function; a command-line extraction command is not implemented yet.</p>
+<p>Update <code>src/ancestryflow/vcf.py</code> to contain:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Utilities for reading variant-file metadata."""</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections.abc <span class="im">import</span> Iterable</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pysam</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ancestryflow.samples <span class="im">import</span> (</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>    validate_sample_ids,</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>    validate_sample_selection,</span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_vcf_samples(path: <span class="bu">str</span> <span class="op">|</span> Path) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Read and validate sample IDs in VCF header order.</span></span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a><span class="co">    This checks sample identifiers, not variant records or genotype quality.</span></span>
+<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a><span class="co">    File-opening and parsing errors propagate to the caller.</span></span>
+<span id="cb55-18"><a href="#cb55-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb55-19"><a href="#cb55-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pysam.VariantFile(<span class="bu">str</span>(path)) <span class="im">as</span> variant_file:</span>
+<span id="cb55-20"><a href="#cb55-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> validate_sample_ids(variant_file.header.samples)</span>
+<span id="cb55-21"><a href="#cb55-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-22"><a href="#cb55-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_vcf_samples(</span>
+<span id="cb55-23"><a href="#cb55-23" aria-hidden="true" tabindex="-1"></a>    input_path: <span class="bu">str</span> <span class="op">|</span> Path,</span>
+<span id="cb55-24"><a href="#cb55-24" aria-hidden="true" tabindex="-1"></a>    output_path: <span class="bu">str</span> <span class="op">|</span> Path,</span>
+<span id="cb55-25"><a href="#cb55-25" aria-hidden="true" tabindex="-1"></a>    sample_ids: Iterable[<span class="bu">str</span>],</span>
+<span id="cb55-26"><a href="#cb55-26" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb55-27"><a href="#cb55-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Extract sample columns and return the number of variant records written.</span></span>
+<span id="cb55-28"><a href="#cb55-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-29"><a href="#cb55-29" aria-hidden="true" tabindex="-1"></a><span class="co">    Keeps all variant records and preserves input sample order.</span></span>
+<span id="cb55-30"><a href="#cb55-30" aria-hidden="true" tabindex="-1"></a><span class="co">    INFO annotations are copied without recalculation.</span></span>
+<span id="cb55-31"><a href="#cb55-31" aria-hidden="true" tabindex="-1"></a><span class="co">    Output must be a new, uncompressed .vcf file.</span></span>
+<span id="cb55-32"><a href="#cb55-32" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb55-33"><a href="#cb55-33" aria-hidden="true" tabindex="-1"></a>    input_path <span class="op">=</span> Path(input_path)</span>
+<span id="cb55-34"><a href="#cb55-34" aria-hidden="true" tabindex="-1"></a>    output_path <span class="op">=</span> Path(output_path)</span>
+<span id="cb55-35"><a href="#cb55-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-36"><a href="#cb55-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> output_path.suffix <span class="op">!=</span> <span class="st">".vcf"</span>:</span>
+<span id="cb55-37"><a href="#cb55-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Output must have a .vcf extension."</span>)</span>
+<span id="cb55-38"><a href="#cb55-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-39"><a href="#cb55-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> output_path.exists():</span>
+<span id="cb55-40"><a href="#cb55-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">FileExistsError</span>(<span class="ss">f"Output already exists: </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb55-41"><a href="#cb55-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-42"><a href="#cb55-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pysam.VariantFile(<span class="bu">str</span>(input_path)) <span class="im">as</span> source:</span>
+<span id="cb55-43"><a href="#cb55-43" aria-hidden="true" tabindex="-1"></a>        requested <span class="op">=</span> validate_sample_selection(</span>
+<span id="cb55-44"><a href="#cb55-44" aria-hidden="true" tabindex="-1"></a>            sample_ids,</span>
+<span id="cb55-45"><a href="#cb55-45" aria-hidden="true" tabindex="-1"></a>            source.header.samples,</span>
+<span id="cb55-46"><a href="#cb55-46" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb55-47"><a href="#cb55-47" aria-hidden="true" tabindex="-1"></a>        source.subset_samples(requested)</span>
+<span id="cb55-48"><a href="#cb55-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-49"><a href="#cb55-49" aria-hidden="true" tabindex="-1"></a>        count <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb55-50"><a href="#cb55-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> pysam.VariantFile(</span>
+<span id="cb55-51"><a href="#cb55-51" aria-hidden="true" tabindex="-1"></a>            <span class="bu">str</span>(output_path),</span>
+<span id="cb55-52"><a href="#cb55-52" aria-hidden="true" tabindex="-1"></a>            <span class="st">"w"</span>,</span>
+<span id="cb55-53"><a href="#cb55-53" aria-hidden="true" tabindex="-1"></a>            header<span class="op">=</span>source.header,</span>
+<span id="cb55-54"><a href="#cb55-54" aria-hidden="true" tabindex="-1"></a>        ) <span class="im">as</span> destination:</span>
+<span id="cb55-55"><a href="#cb55-55" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> record <span class="kw">in</span> source:</span>
+<span id="cb55-56"><a href="#cb55-56" aria-hidden="true" tabindex="-1"></a>                destination.write(record)</span>
+<span id="cb55-57"><a href="#cb55-57" aria-hidden="true" tabindex="-1"></a>                count <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb55-58"><a href="#cb55-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-59"><a href="#cb55-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> count</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>subset_samples()</code> selects the genotype columns before iteration begins. The loop processes one record at a time rather than loading the whole VCF into memory. The returned count is the number of variant records written, not the number of samples. Output is currently an uncompressed <code>.vcf</code>; the parent directory must already exist.</p>
+<p>INFO annotations are copied without recalculation. An allele frequency stored there may describe the original cohort, so it must not be treated as a frequency calculated from the selected donors. This is sample extraction, not variant filtering or ancestry inference. This initial implementation checks for an existing output before writing, but does not provide atomic publication or cleanup after a mid-stream failure; these remain engineering improvements before production use.</p>
+<p>In <code>tests/test_vcf.py</code>, change the import to:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ancestryflow.vcf <span class="im">import</span> extract_vcf_samples, read_vcf_samples</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Append these tests at module level, outside all existing functions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_extracts_selected_donor_and_genotype(vcf_path, tmp_path):</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"selected.vcf"</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    count <span class="op">=</span> extract_vcf_samples(vcf_path, output, [<span class="st">"donor_01"</span>])</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> count <span class="op">==</span> <span class="dv">1</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pysam.VariantFile(<span class="bu">str</span>(output)) <span class="im">as</span> result:</span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">list</span>(result.header.samples) <span class="op">==</span> [<span class="st">"donor_01"</span>]</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>        records <span class="op">=</span> <span class="bu">list</span>(result)</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">len</span>(records) <span class="op">==</span> <span class="dv">1</span></span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> records[<span class="dv">0</span>].contig <span class="op">==</span> <span class="st">"1"</span></span>
+<span id="cb57-14"><a href="#cb57-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> records[<span class="dv">0</span>].pos <span class="op">==</span> <span class="dv">100</span></span>
+<span id="cb57-15"><a href="#cb57-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> records[<span class="dv">0</span>].alleles <span class="op">==</span> (<span class="st">"A"</span>, <span class="st">"C"</span>)</span>
+<span id="cb57-16"><a href="#cb57-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> records[<span class="dv">0</span>].samples[<span class="st">"donor_01"</span>][<span class="st">"GT"</span>] <span class="op">==</span> (<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb57-17"><a href="#cb57-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-18"><a href="#cb57-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-19"><a href="#cb57-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_extraction_rejects_missing_donor(vcf_path, tmp_path):</span>
+<span id="cb57-20"><a href="#cb57-20" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"selected.vcf"</span></span>
+<span id="cb57-21"><a href="#cb57-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-22"><a href="#cb57-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">ValueError</span>, match<span class="op">=</span><span class="st">"Requested samples not found"</span>):</span>
+<span id="cb57-23"><a href="#cb57-23" aria-hidden="true" tabindex="-1"></a>        extract_vcf_samples(vcf_path, output, [<span class="st">"missing_donor"</span>])</span>
+<span id="cb57-24"><a href="#cb57-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-25"><a href="#cb57-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="kw">not</span> output.exists()</span>
+<span id="cb57-26"><a href="#cb57-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-27"><a href="#cb57-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-28"><a href="#cb57-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_extraction_preserves_existing_output(vcf_path, tmp_path):</span>
+<span id="cb57-29"><a href="#cb57-29" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"selected.vcf"</span></span>
+<span id="cb57-30"><a href="#cb57-30" aria-hidden="true" tabindex="-1"></a>    output.write_text(<span class="st">"existing content</span><span class="ch">\n</span><span class="st">"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>)</span>
+<span id="cb57-31"><a href="#cb57-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-32"><a href="#cb57-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">FileExistsError</span>, match<span class="op">=</span><span class="st">"Output already exists"</span>):</span>
+<span id="cb57-33"><a href="#cb57-33" aria-hidden="true" tabindex="-1"></a>        extract_vcf_samples(vcf_path, output, [<span class="st">"donor_01"</span>])</span>
+<span id="cb57-34"><a href="#cb57-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-35"><a href="#cb57-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> output.read_text(encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="op">==</span> <span class="st">"existing content</span><span class="ch">\n</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The first test checks the selected donor’s genotype and variant identity, not just file creation. The other tests check that an unknown donor creates no output and that an existing file remains unchanged.</p>
+<p>Run from the project root with the virtual environment active:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pytest <span class="at">-q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>python -m pytest</code> runs the test suite through the active Python interpreter; <code>-q</code> reduces output. The learner reported <strong>34 passed</strong>, and an independent run in the project environment confirmed all 34 tests passed. The book’s companion source includes this verified implementation.</p>
+</section>
 </section>
 <section id="read-the-command" class="level2" data-number="35.6">
 <h2 data-number="35.6" class="anchored" data-anchor-id="read-the-command"><span class="header-section-number">35.6</span> Read the command</h2>
@@ -1544,7 +1653,7 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 </section>
 <section id="verification-checkpoint" class="level2" data-number="35.8">
 <h2 data-number="35.8" class="anchored" data-anchor-id="verification-checkpoint"><span class="header-section-number">35.8</span> Verification checkpoint</h2>
-<p>Run <code>python -m pytest -q</code> from the project root. All 31 tests must pass after completing step 14. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.</p>
+<p>Run <code>python -m pytest -q</code> from the project root. All 31 tests must pass after completing step 14. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference. After step 19, the expected total is 34, including three extraction tests.</p>
 </section>
 <section id="what-changed-on-disk" class="level2" data-number="35.9">
 <h2 data-number="35.9" class="anchored" data-anchor-id="what-changed-on-disk"><span class="header-section-number">35.9</span> What changed on disk</h2>
@@ -1579,18 +1688,18 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <section id="record-the-first-verified-version" class="level3" data-number="35.11.1">
 <h3 data-number="35.11.1" class="anchored" data-anchor-id="record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</h3>
 <p>Run these commands from the <code>ancestryflow</code> project root. First inspect what Git has staged:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb62"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In the learner’s working copy, the editor had staged <code>.idea/</code> configuration files. If your status also lists staged <code>.idea/</code> files, ensure <code>.idea/</code> appears in <code>.gitignore</code>, then run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb63"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>--cached</code> removes the files from Git’s staging area while keeping them on disk. <code>-r</code> includes the directory’s contents. Skip this command if no <code>.idea/</code> files are staged or tracked. Adding an ignore pattern alone does not unstage files.</p>
 <p>Select the five project files and inspect the selection:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb60"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git add</code> stages the named files for the next commit. <code>git diff --cached --stat</code> summarizes that selection. Expect five files, with no environment, genotype data or editor settings.</p>
 <p>Create the checkpoint and verify it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb61"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb65"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git commit</code> records the staged content locally; <code>-m</code> supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. <code>git log -1 --oneline</code> shows only the latest commit in compact form.</p>
 <p>The learner verified a clean working directory and this commit:</p>
 <pre class="text"><code>b1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests</code></pre>
