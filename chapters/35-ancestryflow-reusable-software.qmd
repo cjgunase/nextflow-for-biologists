@@ -1442,7 +1442,7 @@ The learner verified the message `Wrote 2 variant records for 2 samples` followe
 | 100 | 0/0 | 0/1 |
 | 200 | 0/1 | 1/1 |
 
-The output also contained a standard `PASS` filter declaration added by the VCF writer. This verified example is included in the companion source. It demonstrates extraction, not biological validation of ancestry estimates. Adding its usage instructions to the standalone project's README is the next documentation checkpoint.
+The output also contained a standard `PASS` filter declaration added by the VCF writer. This verified example is included in the companion source. It demonstrates extraction, not biological validation of ancestry estimates. The learner also published the example and README instructions in [commit 21d1300](https://github.com/cjgunase/ancestryflow/commit/21d1300). The README describes extraction, its annotation and indexing limitations, and the current 37-test suite. The companion README mirrors this published checkpoint.
 
 ## Read the command
 

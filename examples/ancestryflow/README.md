@@ -8,6 +8,7 @@ Reusable Python tools for a reference-based ancestry-analysis workflow.
 - Read sample names from VCF headers.
 - Check exact, case-sensitive sample matches.
 - Run validation through a command-line interface.
+- Extract selected donors into plain or BGZF-compressed VCF files.
 
 Ancestry estimation and Nextflow integration are not implemented yet.
 
@@ -20,6 +21,31 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
+## Extract selected donors
+
+Try the included synthetic example from the project directory:
+
+```bash
+demo_dir=$(mktemp -d)
+
+ancestryflow extract-samples \
+  --samples examples/samples.txt \
+  --vcf examples/tiny.vcf \
+  --output "$demo_dir/selected.vcf.gz"
+
+gzip -dc "$demo_dir/selected.vcf.gz"
+```
+
+The command writes two variant records for donor_01 and donor_02,
+excluding donor_03.
+
+For your own data, replace the sample-list and input-VCF paths.
+Output must be a new `.vcf` or `.vcf.gz` file in an existing directory.
+
+Extraction preserves input sample order and all variant rows.
+INFO annotations are copied without recalculation; allele frequencies
+in those annotations may still describe the original cohort.
+The command does not automatically create an index.
 
 The development extra installs the testing dependencies.
 
@@ -67,4 +93,4 @@ List discovered tests without running them:
 python -m pytest --collect-only -q
 ```
 
-The current suite contains 31 tests and uses synthetic data.
+The current suite contains 37 tests and uses synthetic data.
