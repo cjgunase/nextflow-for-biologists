@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 36 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading, the VCF-aware command-line interface and sample extraction. At checkpoint 18, GitHub Actions verified the then-current 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Sample extraction is now available as a library function and through the command line. Genotype quality filtering, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 37 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading, the VCF-aware command-line interface and sample extraction. At checkpoint 18, GitHub Actions verified the then-current 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Sample extraction is now available as a library function and through the command line. Genotype quality filtering, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–20: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function and its CLI command.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–21: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function, its CLI command and compressed VCF output.
 
 ## Mental model
 
@@ -1340,6 +1340,72 @@ ancestryflow extract-samples --samples samples.txt --vcf cohort.vcf.gz --output 
 ```
 
 The output parent directory must exist and the output file must be new. This command keeps every variant row and copies INFO annotations without recalculation, as explained in checkpoint 19. It does not yet perform ancestry estimation.
+
+### 21. Support compressed VCF output
+
+Whole-genome VCFs can be large. Add explicit output-mode selection so the extraction function supports both plain `.vcf` and BGZF-compressed `.vcf.gz` files.
+
+In `src/ancestryflow/vcf.py`, replace the output-extension check with:
+
+```python
+    if output_path.name.endswith(".vcf.gz"):
+        output_mode = "wz"
+    elif output_path.suffix == ".vcf":
+        output_mode = "w"
+    else:
+        raise ValueError("Output must have a .vcf or .vcf.gz extension.")
+```
+
+Near the bottom of that same function, replace only `"w"` with `output_mode` in the existing destination-opening block. Do not add a second block:
+
+```python
+        count = 0
+        with pysam.VariantFile(
+            str(output_path),
+            output_mode,
+            header=source.header,
+        ) as destination:
+            for record in source:
+                destination.write(record)
+                count += 1
+```
+
+Update the function docstring to say `Output must be a new .vcf or .vcf.gz file.` In `src/ancestryflow/cli.py`, change the `--output` help text to `New .vcf or .vcf.gz file; must not already exist.`
+
+Append this test at module level in `tests/test_vcf.py`:
+
+```python
+def test_extraction_writes_indexable_compressed_vcf(vcf_path, tmp_path):
+    output = tmp_path / "selected.vcf.gz"
+
+    count = extract_vcf_samples(vcf_path, output, ["donor_01"])
+
+    assert count == 1
+
+    # Indexing verifies that the output uses compatible compression.
+    pysam.tabix_index(str(output), preset="vcf")
+    assert (tmp_path / "selected.vcf.gz.tbi").exists()
+
+    with pysam.VariantFile(str(output)) as selected:
+        assert list(selected.header.samples) == ["donor_01"]
+        records = list(selected.fetch("1", 99, 100))
+
+        assert len(records) == 1
+        assert records[0].pos == 100
+        assert records[0].samples["donor_01"]["GT"] == (0, 0)
+```
+
+This exercises indexing and a region lookup on the output, including the selected donor's genotype. The test creates the index; the extraction command does not yet create one automatically. Indexing requires appropriately sorted records; extraction preserves the input order rather than sorting it.
+
+During this checkpoint, the tests passed even before the learner replaced `"w"` with `output_mode`. A temporary-file check confirmed that the installed pysam inferred compressed output from the `.vcf.gz` filename: the file already had a BGZF header before indexing. The explicit mode remains useful because it makes the format decision visible and uses the variable we introduced. More generally, `tabix_index` can compress uncompressed input, so indexing alone should not be interpreted as proof of the original file's compression.
+
+Run:
+
+```bash
+python -m pytest -q
+```
+
+The learner and an independent local run confirmed **37 passed** after the explicit mode change. The companion source contains that verified version. Ancestry inference and automatic output indexing remain future work.
 
 ## Read the command
 

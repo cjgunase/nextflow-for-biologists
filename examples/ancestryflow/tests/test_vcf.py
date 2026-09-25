@@ -69,3 +69,22 @@ def test_extraction_preserves_existing_output(vcf_path, tmp_path):
         extract_vcf_samples(vcf_path, output, ["donor_01"])
 
     assert output.read_text(encoding="utf-8") == "existing content\n"
+
+def test_extraction_writes_indexable_compressed_vcf(vcf_path, tmp_path):
+    output = tmp_path / "selected.vcf.gz"
+
+    count = extract_vcf_samples(vcf_path, output, ["donor_01"])
+
+    assert count == 1
+
+    # Indexing verifies that the output uses compatible compression.
+    pysam.tabix_index(str(output), preset="vcf")
+    assert (tmp_path / "selected.vcf.gz.tbi").exists()
+
+    with pysam.VariantFile(str(output)) as selected:
+        assert list(selected.header.samples) == ["donor_01"]
+        records = list(selected.fetch("1", 99, 100))
+
+        assert len(records) == 1
+        assert records[0].pos == 100
+        assert records[0].samples["donor_01"]["GT"] == (0, 0)

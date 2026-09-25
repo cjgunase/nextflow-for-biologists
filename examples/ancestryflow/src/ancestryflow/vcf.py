@@ -28,13 +28,17 @@ def extract_vcf_samples(
 
     Keeps all variant records and preserves input sample order.
     INFO annotations are copied without recalculation.
-    Output must be a new, uncompressed .vcf file.
+    Output must be a new .vcf or .vcf.gz file.
     """
     input_path = Path(input_path)
     output_path = Path(output_path)
 
-    if output_path.suffix != ".vcf":
-        raise ValueError("Output must have a .vcf extension.")
+    if output_path.name.endswith(".vcf.gz"):
+        output_mode = "wz"
+    elif output_path.suffix == ".vcf":
+        output_mode = "w"
+    else:
+        raise ValueError("Output must have a .vcf or .vcf.gz extension.")
 
     if output_path.exists():
         raise FileExistsError(f"Output already exists: {output_path}")
@@ -49,7 +53,7 @@ def extract_vcf_samples(
         count = 0
         with pysam.VariantFile(
             str(output_path),
-            "w",
+            output_mode,
             header=source.header,
         ) as destination:
             for record in source:

@@ -50,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
         "--output",
         type=Path,
         required=True,
-        help="New uncompressed .vcf file; must not already exist.",
+        help="New .vcf or .vcf.gz file; must not already exist.",
     )
     args = parser.parse_args(argv)
 
