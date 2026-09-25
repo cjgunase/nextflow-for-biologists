@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–21: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function, its CLI command and compressed VCF output.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–22: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function, its CLI command compressed VCF output and a runnable synthetic example.
 
 ## Mental model
 
@@ -1406,6 +1406,43 @@ python -m pytest -q
 ```
 
 The learner and an independent local run confirmed **37 passed** after the explicit mode change. The companion source contains that verified version. Ancestry inference and automatic output indexing remain future work.
+
+### 22. Run a complete synthetic example
+
+A small example lets a new user try the installed command without downloading genomic data. Create `examples/tiny.vcf` with the following contents. VCF columns must be separated by tabs:
+
+```text
+##fileformat=VCFv4.2
+##contig=<ID=1,length=248956422>
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	donor_01	donor_02	donor_03
+1	100	.	A	C	.	PASS	.	GT	0/0	0/1	1/1
+1	200	.	G	T	.	PASS	.	GT	0/1	1/1	0/0
+```
+
+The existing `examples/samples.txt` contains `donor_01` and `donor_02`, one per line. The input VCF has a third donor, so this example demonstrates removal of an unwanted sample column.
+
+Run from the project root with the environment active:
+
+```bash
+demo_dir=$(mktemp -d)
+ancestryflow extract-samples \
+  --samples examples/samples.txt \
+  --vcf examples/tiny.vcf \
+  --output "$demo_dir/selected.vcf.gz"
+gzip -dc "$demo_dir/selected.vcf.gz"
+```
+
+`mktemp -d` creates a fresh temporary directory and the assignment stores its path in `demo_dir`. Quoting the output path preserves it as one argument. The backslashes continue a command across lines. `gzip -dc` prints decompressed contents while retaining the compressed file.
+
+The learner verified the message `Wrote 2 variant records for 2 samples` followed by the temporary output path. The printed VCF contained only `donor_01` and `donor_02`, both variant rows, and these genotypes:
+
+| Position | donor_01 | donor_02 |
+|---|---|---|
+| 100 | 0/0 | 0/1 |
+| 200 | 0/1 | 1/1 |
+
+The output also contained a standard `PASS` filter declaration added by the VCF writer. This verified example is included in the companion source. It demonstrates extraction, not biological validation of ancestry estimates. Adding its usage instructions to the standalone project's README is the next documentation checkpoint.
 
 ## Read the command
 
