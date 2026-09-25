@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 31 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading and the VCF-aware command-line interface. GitHub Actions also verified all 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Genotype processing, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 34 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading, the VCF-aware command-line interface and sample extraction. At checkpoint 18, GitHub Actions verified the then-current 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Sample extraction is now implemented as a library function. Genotype quality filtering, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–18: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license and automated tests on GitHub.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–19: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub and a sample-extraction function.
 
 ## Mental model
 
@@ -1048,6 +1048,134 @@ The learner's [verified run](https://github.com/cjgunase/ancestryflow/actions/ru
 
 This establishes compatibility for the tested package behavior on those Python versions and Ubuntu. It does not yet validate ancestry estimates or guarantee identical results across all systems. The companion directory contains a copy of the workflow for teaching; GitHub only discovers workflows in the repository's root `.github/workflows/` directory.
 
+### 19. Extract selected donors into a smaller VCF
+
+The next reusable component writes selected sample columns into a new VCF. It validates exact sample IDs before creating output, preserves input sample order and keeps all variant rows. This checkpoint adds the Python function; a command-line extraction command is not implemented yet.
+
+Update `src/ancestryflow/vcf.py` to contain:
+
+```python
+"""Utilities for reading variant-file metadata."""
+from collections.abc import Iterable
+from pathlib import Path
+
+import pysam
+
+from ancestryflow.samples import (
+    validate_sample_ids,
+    validate_sample_selection,
+)
+
+
+def read_vcf_samples(path: str | Path) -> list[str]:
+    """Read and validate sample IDs in VCF header order.
+
+    This checks sample identifiers, not variant records or genotype quality.
+    File-opening and parsing errors propagate to the caller.
+    """
+    with pysam.VariantFile(str(path)) as variant_file:
+        return validate_sample_ids(variant_file.header.samples)
+
+def extract_vcf_samples(
+    input_path: str | Path,
+    output_path: str | Path,
+    sample_ids: Iterable[str],
+) -> int:
+    """Extract sample columns and return the number of variant records written.
+
+    Keeps all variant records and preserves input sample order.
+    INFO annotations are copied without recalculation.
+    Output must be a new, uncompressed .vcf file.
+    """
+    input_path = Path(input_path)
+    output_path = Path(output_path)
+
+    if output_path.suffix != ".vcf":
+        raise ValueError("Output must have a .vcf extension.")
+
+    if output_path.exists():
+        raise FileExistsError(f"Output already exists: {output_path}")
+
+    with pysam.VariantFile(str(input_path)) as source:
+        requested = validate_sample_selection(
+            sample_ids,
+            source.header.samples,
+        )
+        source.subset_samples(requested)
+
+        count = 0
+        with pysam.VariantFile(
+            str(output_path),
+            "w",
+            header=source.header,
+        ) as destination:
+            for record in source:
+                destination.write(record)
+                count += 1
+
+    return count
+```
+
+`subset_samples()` selects the genotype columns before iteration begins. The loop processes one record at a time rather than loading the whole VCF into memory. The returned count is the number of variant records written, not the number of samples. Output is currently an uncompressed `.vcf`; the parent directory must already exist.
+
+INFO annotations are copied without recalculation. An allele frequency stored there may describe the original cohort, so it must not be treated as a frequency calculated from the selected donors. This is sample extraction, not variant filtering or ancestry inference. This initial implementation checks for an existing output before writing, but does not provide atomic publication or cleanup after a mid-stream failure; these remain engineering improvements before production use.
+
+In `tests/test_vcf.py`, change the import to:
+
+```python
+from ancestryflow.vcf import extract_vcf_samples, read_vcf_samples
+```
+
+Append these tests at module level, outside all existing functions:
+
+```python
+def test_extracts_selected_donor_and_genotype(vcf_path, tmp_path):
+    output = tmp_path / "selected.vcf"
+
+    count = extract_vcf_samples(vcf_path, output, ["donor_01"])
+
+    assert count == 1
+
+    with pysam.VariantFile(str(output)) as result:
+        assert list(result.header.samples) == ["donor_01"]
+        records = list(result)
+
+        assert len(records) == 1
+        assert records[0].contig == "1"
+        assert records[0].pos == 100
+        assert records[0].alleles == ("A", "C")
+        assert records[0].samples["donor_01"]["GT"] == (0, 0)
+
+
+def test_extraction_rejects_missing_donor(vcf_path, tmp_path):
+    output = tmp_path / "selected.vcf"
+
+    with pytest.raises(ValueError, match="Requested samples not found"):
+        extract_vcf_samples(vcf_path, output, ["missing_donor"])
+
+    assert not output.exists()
+
+
+def test_extraction_preserves_existing_output(vcf_path, tmp_path):
+    output = tmp_path / "selected.vcf"
+    output.write_text("existing content\n", encoding="utf-8")
+
+    with pytest.raises(FileExistsError, match="Output already exists"):
+        extract_vcf_samples(vcf_path, output, ["donor_01"])
+
+    assert output.read_text(encoding="utf-8") == "existing content\n"
+```
+
+The first test checks the selected donor's genotype and variant identity, not just file creation. The other tests check that an unknown donor creates no output and that an existing file remains unchanged.
+
+Run from the project root with the virtual environment active:
+
+```bash
+python -m pytest -q
+```
+
+`python -m pytest` runs the test suite through the active Python interpreter; `-q` reduces output. The learner reported **34 passed**, and an independent run in the project environment confirmed all 34 tests passed. The book's companion source includes this verified implementation.
+
 ## Read the command
 
 | Command or syntax | What it does and why |
@@ -1087,7 +1215,7 @@ Execution time varies. Twelve passing tests is the initial checkpoint; after ste
 
 ## Verification checkpoint
 
-Run `python -m pytest -q` from the project root. All 31 tests must pass after completing step 14. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference or confirm that samples exist in a VCF.
+Run `python -m pytest -q` from the project root. All 31 tests must pass after completing step 14. These tests establish the documented sample-ID, file-reading, exact-selection, VCF-header and CLI behavior; they do not validate ancestry inference. After step 19, the expected total is 34, including three extraction tests.
 
 ## What changed on disk
 
