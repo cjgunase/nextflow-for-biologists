@@ -1,7 +1,7 @@
 # AncestryFlow: building reusable bioinformatics software
 
 ::: {.callout-note}
-This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 34 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading, the VCF-aware command-line interface and sample extraction. At checkpoint 18, GitHub Actions verified the then-current 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Sample extraction is now implemented as a library function. Genotype quality filtering, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
+This case study grows as its implementation is verified. The current checkpoint covers an installable Python package and 36 tests covering sample-ID validation, text-file input, exact sample selection, VCF-header reading, the VCF-aware command-line interface and sample extraction. At checkpoint 18, GitHub Actions verified the then-current 31 tests and the installed sample-validation command on Python 3.11, 3.12, 3.13 and 3.14. Sample extraction is now available as a library function and through the command line. Genotype quality filtering, ancestry inference and Nextflow integration are future checkpoints. The package below does not estimate ancestry yet.
 :::
 
 ## Why a biologist should care
@@ -12,7 +12,7 @@ All examples use invented donor names. No controlled-access genotypes or donor-l
 
 ## Engineering objective
 
-Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–19: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub and a sample-extraction function.
+Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–20: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function and its CLI command.
 
 ## Mental model
 
@@ -1175,6 +1175,171 @@ python -m pytest -q
 ```
 
 `python -m pytest` runs the test suite through the active Python interpreter; `-q` reduces output. The learner reported **34 passed**, and an independent run in the project environment confirmed all 34 tests passed. The book's companion source includes this verified implementation.
+
+### 20. Expose extraction through the command line
+
+The `extract-samples` command connects the tested extraction function to terminal users. It accepts a sample-list file, an input VCF and a new output path. The existing validation command continues to work.
+
+Update `src/ancestryflow/cli.py` to the following complete version. Showing the whole file makes the placement of the shared sample-file reader explicit:
+
+```python
+"""Command-line interface for AncestryFlow."""
+
+import argparse
+from pathlib import Path
+
+from ancestryflow.samples import read_sample_ids, validate_sample_selection
+from ancestryflow.vcf import extract_vcf_samples, read_vcf_samples
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="ancestryflow",
+        description="Tools for reference-based genetic ancestry analysis.",
+    )
+
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    validate = commands.add_parser(
+        "validate-samples",
+        help="Check sample IDs, optionally against a VCF header.",
+    )
+    validate.add_argument(
+        "--samples",
+        type=Path,
+        required=True,
+        help="Sample-list file without a header.",
+    )
+    validate.add_argument(
+        "--vcf",
+        type=Path,
+        help="VCF whose header must contain every requested sample.",
+    )
+    extract = commands.add_parser(
+        "extract-samples",
+        help="Write selected donors to a new VCF.",
+    )
+    extract.add_argument(
+        "--samples",
+        type=Path,
+        required=True,
+        help="Sample-list file without a header.",
+    )
+    extract.add_argument(
+        "--vcf",
+        type=Path,
+        required=True,
+        help="Input VCF containing the requested donors.",
+    )
+    extract.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="New uncompressed .vcf file; must not already exist.",
+    )
+    args = parser.parse_args(argv)
+
+    try:
+        sample_ids = read_sample_ids(args.samples)
+
+        if args.command == "extract-samples":
+            count = extract_vcf_samples(
+                args.vcf,
+                args.output,
+                sample_ids,
+            )
+            print(
+                f"Wrote {count} variant records for "
+                f"{len(sample_ids)} samples to {args.output}."
+            )
+            return 0
+
+        if args.vcf is not None:
+            available_ids = read_vcf_samples(args.vcf)
+            sample_ids = validate_sample_selection(
+                sample_ids, available_ids
+            )
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+
+    if args.vcf is None:
+        print(f"Validated {len(sample_ids)} sample IDs.")
+    else:
+        print(f"Matched {len(sample_ids)} sample IDs in the VCF header.")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+`argparse` registers the new subcommand and requires all three arguments. Both commands read `args.samples` before branching. The extraction branch calls the library function, reports the number of records written and returns exit status 0. The existing exception handler turns file and validation errors into readable messages with exit status 2.
+
+Add `import pysam` near the imports in `tests/test_cli.py`, then append these tests at module level:
+
+```python
+def test_cli_extracts_samples(tmp_path, vcf_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("donor_01\n", encoding="utf-8")
+    output = tmp_path / "selected.vcf"
+
+    result = run_cli(
+        "extract-samples",
+        "--samples", str(sample_file),
+        "--vcf", str(vcf_path),
+        "--output", str(output),
+    )
+
+    assert result.returncode == 0
+    assert "Wrote 1 variant records for 1 samples" in result.stdout
+    assert result.stderr == ""
+
+    with pysam.VariantFile(str(output)) as selected:
+        assert list(selected.header.samples) == ["donor_01"]
+        record = next(selected)
+        assert record.samples["donor_01"]["GT"] == (0, 0)
+
+
+def test_cli_extraction_reports_missing_donor(tmp_path, vcf_path):
+    sample_file = tmp_path / "samples.txt"
+    sample_file.write_text("missing_donor\n", encoding="utf-8")
+    output = tmp_path / "selected.vcf"
+
+    result = run_cli(
+        "extract-samples",
+        "--samples", str(sample_file),
+        "--vcf", str(vcf_path),
+        "--output", str(output),
+    )
+
+    assert result.returncode == 2
+    assert "Requested samples not found: missing_donor" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert result.stdout == ""
+    assert not output.exists()
+```
+
+These integration tests launch the CLI as a separate process. They verify the selected donor's genotype in the output and check that a missing donor produces a clear error without creating output.
+
+Run:
+
+```bash
+ancestryflow extract-samples --help
+python -m pytest -q
+```
+
+The help command lists `--samples`, `--vcf` and `--output`. The test command runs through the active Python environment; `-q` keeps the output short. The expected total is **36 passed**. An editable installation does not need to be repeated after changing Python source.
+
+During implementation, seven tests failed with `UnboundLocalError` because `sample_ids = read_sample_ids(args.samples)` had been accidentally removed. Restoring that line immediately inside `try`, before the command branch, fixed all seven failures. Multiple failing tests can share one underlying cause. The learner and an independent local run both confirmed **36 passed** after the correction.
+
+For your own files, the command has this form (replace the example paths with existing inputs):
+
+```bash
+ancestryflow extract-samples --samples samples.txt --vcf cohort.vcf.gz --output selected.vcf
+```
+
+The output parent directory must exist and the output file must be new. This command keeps every variant row and copies INFO annotations without recalculation, as explained in checkpoint 19. It does not yet perform ancestry estimation.
 
 ## Read the command
 
