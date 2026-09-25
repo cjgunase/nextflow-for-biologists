@@ -555,6 +555,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#extract-selected-donors-into-a-smaller-vcf" id="toc-extract-selected-donors-into-a-smaller-vcf" class="nav-link" data-scroll-target="#extract-selected-donors-into-a-smaller-vcf"><span class="header-section-number">35.5.18</span> 19. Extract selected donors into a smaller VCF</a></li>
   <li><a href="#expose-extraction-through-the-command-line" id="toc-expose-extraction-through-the-command-line" class="nav-link" data-scroll-target="#expose-extraction-through-the-command-line"><span class="header-section-number">35.5.19</span> 20. Expose extraction through the command line</a></li>
   <li><a href="#support-compressed-vcf-output" id="toc-support-compressed-vcf-output" class="nav-link" data-scroll-target="#support-compressed-vcf-output"><span class="header-section-number">35.5.20</span> 21. Support compressed VCF output</a></li>
+  <li><a href="#run-a-complete-synthetic-example" id="toc-run-a-complete-synthetic-example" class="nav-link" data-scroll-target="#run-a-complete-synthetic-example"><span class="header-section-number">35.5.21</span> 22. Run a complete synthetic example</a></li>
   </ul></li>
   <li><a href="#read-the-command" id="toc-read-the-command" class="nav-link" data-scroll-target="#read-the-command"><span class="header-section-number">35.6</span> Read the command</a></li>
   <li><a href="#expected-output" id="toc-expected-output" class="nav-link" data-scroll-target="#expected-output"><span class="header-section-number">35.7</span> Expected output</a></li>
@@ -610,7 +611,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="engineering-objective" class="level2" data-number="35.2">
 <h2 data-number="35.2" class="anchored" data-anchor-id="engineering-objective"><span class="header-section-number">35.2</span> Engineering objective</h2>
-<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–21: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function, its CLI command and compressed VCF output.</p>
+<p>Create an installable Python package whose validation function can be imported by another program. This section covers completed checkpoints 1–22: repository setup, an isolated environment, package configuration, validation, tests, development dependencies, the first Git commit, text-file input, a command-line interface, CLI integration tests, a feature commit, exact sample selection, VCF-header reading, CLI integration, a documented feature commit, public GitHub publication, an MIT license, automated tests on GitHub a sample-extraction function, its CLI command compressed VCF output and a runnable synthetic example.</p>
 </section>
 <section id="mental-model" class="level2" data-number="35.3">
 <h2 data-number="35.3" class="anchored" data-anchor-id="mental-model"><span class="header-section-number">35.3</span> Mental model</h2>
@@ -1770,6 +1771,48 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pytest <span class="at">-q</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The learner and an independent local run confirmed <strong>37 passed</strong> after the explicit mode change. The companion source contains that verified version. Ancestry inference and automatic output indexing remain future work.</p>
 </section>
+<section id="run-a-complete-synthetic-example" class="level3" data-number="35.5.21">
+<h3 data-number="35.5.21" class="anchored" data-anchor-id="run-a-complete-synthetic-example"><span class="header-section-number">35.5.21</span> 22. Run a complete synthetic example</h3>
+<p>A small example lets a new user try the installed command without downloading genomic data. Create <code>examples/tiny.vcf</code> with the following contents. VCF columns must be separated by tabs:</p>
+<pre class="text"><code>##fileformat=VCFv4.2
+##contig=&lt;ID=1,length=248956422&gt;
+##FORMAT=&lt;ID=GT,Number=1,Type=String,Description="Genotype"&gt;
+#CHROM  POS ID  REF ALT QUAL    FILTER  INFO    FORMAT  donor_01    donor_02    donor_03
+1   100 .   A   C   .   PASS    .   GT  0/0 0/1 1/1
+1   200 .   G   T   .   PASS    .   GT  0/1 1/1 0/0</code></pre>
+<p>The existing <code>examples/samples.txt</code> contains <code>donor_01</code> and <code>donor_02</code>, one per line. The input VCF has a third donor, so this example demonstrates removal of an unwanted sample column.</p>
+<p>Run from the project root with the environment active:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="va">demo_dir</span><span class="op">=</span><span class="va">$(</span><span class="fu">mktemp</span> <span class="at">-d</span><span class="va">)</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ancestryflow</span> extract-samples <span class="dt">\</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--samples</span> examples/samples.txt <span class="dt">\</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--vcf</span> examples/tiny.vcf <span class="dt">\</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output</span> <span class="st">"</span><span class="va">$demo_dir</span><span class="st">/selected.vcf.gz"</span></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="fu">gzip</span> <span class="at">-dc</span> <span class="st">"</span><span class="va">$demo_dir</span><span class="st">/selected.vcf.gz"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>mktemp -d</code> creates a fresh temporary directory and the assignment stores its path in <code>demo_dir</code>. Quoting the output path preserves it as one argument. The backslashes continue a command across lines. <code>gzip -dc</code> prints decompressed contents while retaining the compressed file.</p>
+<p>The learner verified the message <code>Wrote 2 variant records for 2 samples</code> followed by the temporary output path. The printed VCF contained only <code>donor_01</code> and <code>donor_02</code>, both variant rows, and these genotypes:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Position</th>
+<th>donor_01</th>
+<th>donor_02</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>100</td>
+<td>0/0</td>
+<td>0/1</td>
+</tr>
+<tr class="even">
+<td>200</td>
+<td>0/1</td>
+<td>1/1</td>
+</tr>
+</tbody>
+</table>
+<p>The output also contained a standard <code>PASS</code> filter declaration added by the VCF writer. This verified example is included in the companion source. It demonstrates extraction, not biological validation of ancestry estimates. Adding its usage instructions to the standalone project’s README is the next documentation checkpoint.</p>
+</section>
 </section>
 <section id="read-the-command" class="level2" data-number="35.6">
 <h2 data-number="35.6" class="anchored" data-anchor-id="read-the-command"><span class="header-section-number">35.6</span> Read the command</h2>
@@ -1880,18 +1923,18 @@ b1b3644 Initialize package with sample validation and tests</code></pre>
 <section id="record-the-first-verified-version" class="level3" data-number="35.11.1">
 <h3 data-number="35.11.1" class="anchored" data-anchor-id="record-the-first-verified-version"><span class="header-section-number">35.11.1</span> 7. Record the first verified version</h3>
 <p>Run these commands from the <code>ancestryflow</code> project root. First inspect what Git has staged:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In the learner’s working copy, the editor had staged <code>.idea/</code> configuration files. If your status also lists staged <code>.idea/</code> files, ensure <code>.idea/</code> appears in <code>.gitignore</code>, then run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb73"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rm <span class="at">-r</span> <span class="at">--cached</span> .idea</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>--cached</code> removes the files from Git’s staging area while keeping them on disk. <code>-r</code> includes the directory’s contents. Skip this command if no <code>.idea/</code> files are staged or tracked. Adding an ignore pattern alone does not unstage files.</p>
 <p>Select the five project files and inspect the selection:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb74"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore pyproject.toml src/ancestryflow/__init__.py src/ancestryflow/samples.py tests/test_samples.py</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--cached</span> <span class="at">--stat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git add</code> stages the named files for the next commit. <code>git diff --cached --stat</code> summarizes that selection. Expect five files, with no environment, genotype data or editor settings.</p>
 <p>Create the checkpoint and verify it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb73"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb75"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initialize package with sample validation and tests"</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status <span class="at">--short</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-1</span> <span class="at">--oneline</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>git commit</code> records the staged content locally; <code>-m</code> supplies its description. It does not publish to GitHub. The status command should print nothing, meaning there are no pending changes. <code>git log -1 --oneline</code> shows only the latest commit in compact form.</p>
 <p>The learner verified a clean working directory and this commit:</p>
 <pre class="text"><code>b1b3644 (HEAD -&gt; main) Initialize package with sample validation and tests</code></pre>
